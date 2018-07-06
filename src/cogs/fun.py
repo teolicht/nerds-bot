@@ -8,8 +8,6 @@ import random
 import datetime
 import os
 
-from emojis import Emoji
-
 
 this_path = os.path.dirname(__file__)
 dead_members = []
