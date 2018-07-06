@@ -11,7 +11,7 @@ import asyncio
 import datetime
 import logging
 
-from emojis import Emoji
+from cogs.emojis import Emoji
 from cogs.nerds import nerds
 
 
