@@ -116,9 +116,8 @@ class ErrorHandler():
         elif isinstance(error, commands.NotOwner):
             return
 
-        print("Ignoring exception in command {0.command}:{1}".format(ctx, attr(0)), file=sys.stderr)
+        print("Ignoring exception in command {0.command}:".format(ctx, file=sys.stderr)
         traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
-
         await ctx.send(":warning: The following error has occurred: ```python\n{}: {}```".format(type(error).__name__, error))
 
 
