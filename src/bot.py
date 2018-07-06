@@ -50,7 +50,10 @@ async def change_status():
 
 @bot.event
 async def on_ready():
-    print("ONLINE")
+    print("Logged in as")
+    print(bot.user.name)
+    print(bot.user.id)
+    print("------")
 
     nerds_guild = bot.get_guild(300762607164325893)
     music_channel = bot.get_channel(452157904066183169)
