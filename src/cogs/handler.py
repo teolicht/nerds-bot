@@ -32,7 +32,7 @@ class ErrorHandler():
                 return await ctx.send(":x: Type the text you want me to repeat.\nCommand usage: `n!say <text>`")
 
             elif cmd == 'sayto':
-                return await ctx.send(":x: To who do you want to say? And what? \nCommand usage: `n!sayto <member> <text>`")
+                return await ctx.send(":x: Specify the member and message. \nCommand usage: `n!sayto <member> <text>`")
 
             elif cmd == 'big':
                 return await ctx.send(":x: Type the text you want me to repeat in letter emojis.\nCommand usage: `n!big <text>`")
@@ -57,6 +57,9 @@ class ErrorHandler():
 
             elif cmd == 'gg':
                 return await ctx.send(":x: You must specify a member.\nCommand usage: `n!gg <member>`")
+
+            elif cmd == 'roast':
+                return await ctx/send(":x: You must specify a member.\nCommand usage: `n!roast <member>`")
 
             elif cmd == 'annoy':
                 return await ctx.send(":x: You must specify a member.\nCommand usage: `n!annoy <member> [times]`")
@@ -92,7 +95,7 @@ class ErrorHandler():
                 return await ctx.send(":x: Missing an argmument.\nCommand usage: `n!randnum <min> <max>`\nExample: `n!randnum 50 700`")
 
         elif isinstance(error, commands.BadArgument):
-            if cmd in ['member', 'gay', 'gg', 'kick', 'ban', 'sayto', 'annoy']:
+            if cmd in ['member', 'gay', 'gg', 'roast', 'kick', 'ban', 'sayto', 'annoy']:
                 return await ctx.send(":x: I wasn't able to find that member.")
 
             elif cmd == 'unban':
