@@ -21,7 +21,7 @@ class ErrorHandler():
 
         error = getattr(error, 'original', error)
 
-        elif isinstance(error, commands.MissingRequiredArgument):
+        if isinstance(error, commands.MissingRequiredArgument):
             if cmd == 'member':
                 return await ctx.send(":x: You must specify a member.\nCommand usage: `n!member <member>`")
 
