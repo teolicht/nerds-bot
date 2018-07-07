@@ -6,8 +6,6 @@ import discord
 import traceback
 import sys
 
-from emojis import Emoji
-
 
 class ErrorHandler():
     def __init__(self, bot):
@@ -22,12 +20,6 @@ class ErrorHandler():
             return
 
         error = getattr(error, 'original', error)
-
-        if isinstance(error, commands.CommandNotFound):
-            logfile = open('/Users/Teolicht/Box Sync/Python/Bots/NerdsBot/notfound.txt', 'a')
-            logfile.write("{0} • {1.author}\n".format(content, ctx))
-            logfile.close()
-            return
 
         elif isinstance(error, commands.MissingRequiredArgument):
             if cmd == 'member':

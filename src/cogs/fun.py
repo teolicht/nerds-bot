@@ -12,7 +12,7 @@ import os
 this_path = os.path.dirname(__file__)
 dead_members = []
 
-class Fun():
+class Fun(object):
     def __init__(self, bot):
         self.bot = bot
 

@@ -11,8 +11,12 @@ import lxml # xml parser
 from bs4 import BeautifulSoup as soup
 from urllib.request import urlopen
 from datetime import datetime
-from emojis import Emoji
 
+class Emoji(object):
+    on = "<:ON:425085623490052096>"
+    off = "<:OFF:425085623150444565>"
+    idle = "<:IDLE:425085623183998986>"
+    dnd = "<:DND:425085623028678657>"
 
 class Information():
     def __init__(self, bot):
@@ -48,15 +52,15 @@ class Information():
     def get_status(self, member):
         """Get a member's status emoji"""
         if member.status == discord.Status.online:
-            return Emoji.online
+            return Emoji.on
         elif member.status == discord.Status.offline:
-            return Emoji.offline
+            return Emoji.off
         elif member.status == discord.Status.idle:
             return Emoji.idle
-        elif member.status == discord.Status.dnd or member.status == discord.Status.do_not_disturb:
+        elif member.status in [discord.Status.dnd, discord.Status.do_not_disturb]:
             return Emoji.dnd
         else:
-            return Emoji.offline
+            return Emoji.off
 
     def get_roles(self, member):
         """Return a member's list of roles"""
@@ -305,30 +309,25 @@ class Information():
     async def _member(self, ctx, member: discord.Member):
         # Member's current status
         status = self.get_status(member)
-        # List of member's roles
+        # List with member's roles' names
         roles = self.get_roles(member)
-        # Member's avatar URL
-        avatar = member.avatar_url[:-15]
-
+        avatar = member.avatar_url
         # String containing date & time of guild join, format: YYYY/MM/DD HH:MM:SS
         guild_join = self.replace_chars(str(member.joined_at).split('.', 1)[0], '-', '/')
         # String containing date & time of Discord join, format: YYYY/MM/DD HH:MM:SS
         discord_join = self.replace_chars(str(member.created_at).split('.', 1)[0], '-', '/')
-
         # String containing date & time of guild join, format: DD/MM/YYYY • HH:MM
         joined_guild_date = '{} • {}'.format(datetime.strptime(guild_join[:-9], '%Y/%m/%d').strftime('%d/%m/%Y'), guild_join[-8:-3])
         # String containing date & time of Discord join, format: DD/MM/YYYY • HH:MM
         joined_discord_date = '{} • {}'.format(datetime.strptime(discord_join[:-9], '%Y/%m/%d').strftime('%d/%m/%Y'), discord_join[-8:-3])
-
         # Each time unit separated into different variables
-        year, month, day, hour, minute = self.get_times(joined_guild_date)
+        year, month, day, hour, minute = self.get_times(member.joined_at)
         # How long ago joined guild
         joined_guild_ago = ago.human(datetime(year=year, month=month, day=day, hour=hour, minute=minute), 1)
         # Each time unit separated into different variables
-        year, month, day, hour, minute = self.get_times(joined_discord_date)
+        year, month, day, hour, minute = self.get_times(member.created_at)
         # How long ago joined Discord
         joined_discord_ago = ago.human(datetime(year=year, month=month, day=day, hour=hour, minute=minute), 1)
-
         days_ago = '{}\n└ **{}** day(s) ago.'
         years_ago = '{}\n└ **{}** year(s) ago.'
 
@@ -423,7 +422,7 @@ class Information():
         guild = ctx.guild
         roles, emojis = [], []
         textchannels, voicechannels, to_remove = 0, 0, 0
-        on_members, off_members, idle_members, dnd_members = get_memberstatus(guild)
+        on_members, off_members, idle_members, dnd_members = get_memberstatus(self, guild)
         verificationlevel = get_verificationlevel(guild)
         contentfilter = get_contentfilter(guild)
 
@@ -432,7 +431,7 @@ class Information():
         # String containing date & time of guild creation, format: DD/MM/YYYY • HH:MM
         created_guild_date = '{} • {}'.format(datetime.strptime(created_guild[:-9], '%Y/%m/%d').strftime('%d/%m/%Y'), created_guild[-8:-3])
         # Each time unit separated into variables
-        year, month, day, hour, minute = get_times(guild.created_at)
+        year, month, day, hour, minute = self.get_times(guild.created_at)
         # How long ago guild creation
         created_guild_ago = ago.human(datetime(year=year, month=month, day=day, hour=hour, minute=minute), 1)
 
@@ -478,7 +477,7 @@ class Information():
             value='`{0.owner}`'.format(guild))
         em.add_field(
             name='Members:',
-            value='{0.online}{1}   {0.offline}{2}   {0.idle}{3}   {0.dnd}{4}'.format(
+            value='{0.on}{1}   {0.off}{2}   {0.idle}{3}   {0.dnd}{4}'.format(
                    Emoji, on_members, off_members, idle_members, dnd_members))
         em.add_field(
             name='Channels ({}):'.format(textchannels + voicechannels),
