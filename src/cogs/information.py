@@ -230,7 +230,6 @@ class Information():
         em.clear_fields()
         em.add_field(name='member <member>', value='Get info on a member.')
         em.add_field(name='server', value='Get info on this server.', inline=False)
-        em.add_field(name='ips', value='View IPv4 addresses.')
         em.add_field(name='ping', value='Check my latency.', inline=False)
         await ctx.send(embed=em)
 
@@ -512,29 +511,6 @@ class Information():
             name='Explicit content filter:',
             value=contentfilter)
         em.set_thumbnail(url=guild.icon_url)
-        await ctx.send(embed=em)
-
-    @commands.command(name='ips', aliases=['Ips', 'IPs', 'IPS', 'ip', 'IP', 'ipv4'])
-    async def _ips(self, ctx):
-        em = discord.Embed(
-            title='IPv4 addresses',
-            description="""
-<@310876103575076864>
-**`25.72.238.219`**
-
-<@300761654411526154>
-**`25.83.152.100`**
-
-<@306542879520849922>
-**`25.0.94.28`**
-
-<@366304595015892994>
-**`25.1.129.193`**
-
-<@310603895238033413>
-**`25.5.154.175`**
-""",
-            color=0xffd000)
         await ctx.send(embed=em)
 
     @commands.command(name='news', aliases=['News', 'NEWS'])
