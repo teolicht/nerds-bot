@@ -194,7 +194,10 @@ class Fun(object):
         if len(nick) > 25:
             return await ctx.send(embed=em)
         await ctx.send(embed=em)
-        await member.edit(nick='{} (DEAD)'.format(nick))
+        try:
+            await member.edit(nick='{} (DEAD)'.format(nick))
+        except discord.errors.Forbidden:
+            await ctx.send(embed=em)
         dead_members.append(member)
 
     @commands.command(name='kill', aliases=['Kill', 'KILL', 'murder'])
@@ -257,14 +260,14 @@ class Fun(object):
             em = discord.Embed()
             if comparison(userC, botC) == 'Tie':
                 em = discord.Embed(
-                    description=member + ', it\'s a tie, mate.')
+                    description=member + ', it\'s a tie!')
             elif comparison(userC, botC) == 'Win':
                 em = discord.Embed(
-                    description=member + ', you won retard ass.',
+                    description=member + ', you won!',
                     color=discord.Colour.green())
             else:
                 em = discord.Embed(
-                    description=member + ', get __rekt__ you lost.',
+                    description=member + ', you lost!',
                     color=discord.Colour.red())
             return em
 
@@ -307,9 +310,6 @@ class Fun(object):
 
     @commands.command(name='8ball', aliases=['8Ball', '8BALL', '8bal'])
     async def _8ball(self, ctx, *, question):
-        if 'gay' in ctx.message.content:
-            return await ctx.send(":8ball: Of course!")
-
         answers = ['Concentrate and ask again', 'Outlook good', 'Without a doubt', 'You may rely on it',
                    'Ask again later', 'It is certain', 'Reply hazy, try again', 'My reply is no', 'My sources say no']
         answer = random.choice(answers)
