@@ -16,7 +16,7 @@ class Utilities():
         if amount > 100:
             return await ctx.send(":x: I can delete max 100 messages.")
         elif amount <= 0:
-            return await ctx.send(":x: How am I supposed to delete `{}` messages?**".format(amount))
+            return await ctx.send(":x: How am I supposed to delete `{}` messages?".format(amount))
 
         try:
             await ctx.message.delete()
@@ -47,7 +47,7 @@ Possible reasons:
         clock_index = 0
         m, s = divmod(secs, 60)
         h, m = divmod(m, 60)
-        msg = await ctx.send("%02d:%02d:%02d 🕛" % (h, m, s))
+        msg = await ctx.send("`%02d:%02d:%02d` 🕛" % (h, m, s))
 
         while secs != 0:
             secs -= 1
@@ -55,11 +55,11 @@ Possible reasons:
             if clock_index == 12:
                 clock_index = 0
             if secs == 0:
-                await msg.edit(content="00:00:00 :white_check_mark:")
+                await msg.edit(content="`00:00:00` :white_check_mark:")
             else:
                 m, s = divmod(secs, 60)
                 h, m = divmod(m, 60)
-                await msg.edit(content='%02d:%02d:%02d %s' % (h, m, s, clocks[clock_index]))
+                await msg.edit(content='`%02d:%02d:%02d` %s' % (h, m, s, clocks[clock_index]))
                 await asyncio.sleep(1)
 
     @commands.command(name='calc', aliases=['Calc', 'CALC'])
@@ -81,7 +81,7 @@ Possible reasons:
         try:
             number = random.randint(min, max)
         except ValueError:
-            return await ctx.send(":warning: An error occurred. Make sure your first number is less than your second number.")
+            return await ctx.send(":x: An error occurred. Make sure your first number is smaller than your second number.")
         await ctx.send("`{}`".format(min, max, number))
 
     @commands.command(name='choose', aliases=['Choose', 'CHOOSE', 'choice', 'chose'])
