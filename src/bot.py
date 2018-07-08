@@ -31,6 +31,7 @@ bot = commands.Bot(
     description=description,
     command_prefix=prefix)
 bot.remove_command('help')
+bot.launch_time = datetime.datetime.utcnow()
 
 async def change_status():
     await bot.wait_until_ready()
@@ -66,13 +67,6 @@ async def on_ready():
     if has_role is False:
         lorenzo_role = nerds(nerds_guild, 'lorenzo_role')
         await nerds(nerds_guild, 'lorenzo').add_roles(lorenzo_role)
-
-executed = 0
-@bot.event
-async def on_command(ctx):
-    global executed
-    executed += 1
-    print("{0} : n!{1.command.name} • {1.message.author}".format(executed, ctx))
 
 @bot.event
 async def on_member_join(member):
@@ -128,6 +122,12 @@ async def on_message(message):
     else:
         await bot.process_commands(message)
 
+executed = 0
+@bot.event
+async def on_command(ctx):
+    global executed
+    executed += 1
+
 @bot.command(name='ping', aliases=['Ping', 'PING', 'latency'])
 async def _ping(ctx):
     t_1 = time.perf_counter()
@@ -136,8 +136,36 @@ async def _ping(ctx):
     time_delta = round((t_2 - t_1) * 1000)
 
     em = discord.Embed(
-        title="🏓 Pong!{0.online}".format(Emoji),
+        title='🏓 Pong!{0.online}'.format(Emoji),
         description='*{}ms*'.format(time_delta))
+    await ctx.send(embed=em)
+
+@bot.command()
+async def info(ctx):
+    delta_uptime = datetime.datetime.utcnow() - bot.launch_time
+    hours, remainder = divmod(int(delta_uptime.total_seconds()), 3600)
+    minutes, seconds = divmod(remainder, 60)
+    days, hours = divmod(hours, 24)
+    major, minor, micro = sys.version_info[:3]
+
+    em = discord.Embed()
+    em.set_author(
+        name='Nerds Bot',
+        icon_url=bot.user.avatar_url)
+    em.add_field(
+        name='Language',
+        value=f'Python {major}.{minor}.{micro}')
+    em.add_field(
+        name='API',
+        value='discord.py {}'.format(discord.__version__),
+        inline=False)
+    em.add_field(
+        name='Commands since execution',
+        value=executed)
+    em.add_field(
+        name='Uptime',
+        value=f'**{days}** days\n**{hours}** hours\n**{minutes}** minutes\n**{seconds}** seconds',
+        inline=False)
     await ctx.send(embed=em)
 
 @bot.command(name='poll')
