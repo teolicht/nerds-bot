@@ -42,54 +42,54 @@ class Pictures():
         em.set_image(url=imgur + picture)
         await ctx.send(embed=em)
 
-    @commands.command(name='nsfw', aliases=['Nsfw', 'NSFW'])
-    async def _nsfw(self, ctx):
-        if not ctx.channel.is_nsfw():
-            return await ctx.send(nsfw_msg)
-
-        pictures = ['Fe8uKGb.jpg', '2EMMEjD.jpg', 'hTFwdD2.jpg', 'aUfmUNA.jpg', '0trtQhu.jpg',
-                    '1BSclpy.gif', 'TK7bEUC.gif', '5w9lZdW.jpg', 'SxC488W.jpg', 'qMcjfML.jpg',
-                    '4QkrgLe.jpg', 'NSTkcUq.jpg', 'NqTNFZt.jpg', 'WYl5i5B.jpg', 'y917MDd.jpg',
-                    '6fXiF11.jpg', 'jG1qEX7.jpg', 'C2b2Nbl.jpg', 'mjZ9Llv.jpg', 'UdrnQ6k.gif']
-        picture = random.choice(pictures)
-
-        em = discord.Embed(title=':warning: A NSFW pic/GIF')
-        em.set_image(url=imgur + picture)
-        em.set_footer(text='This message will be deleted after 60 seconds.')
-        await ctx.send(embed=em, delete_after=60.0)
-
-
-    @commands.command(name='tits', aliases=['Tits', 'TITS', 'tit'])
-    async def _tits(self, ctx):
-        if not ctx.channel.is_nsfw():
-            return await ctx.send(nsfw_msg)
-
-        pictures = ['sh2N8U3.jpg', 'smi1RCf.jpg', 'TWJfw8G.png', 'NRDmdSk.png', '6f84FZS.png', 'n3IpCbH.png',
-                    'OWDzjwh.png', 'oKXXTQ1.png', 'dBFKqsc.jpg', 'IA8AmfK.png', 'OwsZgzs.png', 'sufbpw9.jpg',
-                    'bCQ4bne.jpg', 'KDxBfGf.jpg', '5FNjGYn.png', 'eBVHjH0.jpg', 'WScEJfJ.jpg', 'NfnBE9i.jpg',
-                    '22RqMkb.jpg', 'uugd2yf.jpg', 'yQTzARM.jpg', '9f5X3Sk.jpg', 'nJY3lCO.jpg', 'uTbyzVw.jpg',
-                    'zc7f8j0.jpg', 'i10zrFO.jpg', 'a7WNr7f.png', 'mBKYDW7.jpg', 'upyFZwp.jpg', 'yNyfnxv.jpg',
-                    'wWQRNq6.gif', 'H4BUKet.jpg', 'ZLJzcWO.jpg', 'NAOoeZm.png', 'DMp9b4g.png', 'YrCpnLq.jpg']
-        picture = random.choice(pictures)
-
-        em = discord.Embed(title=':warning: A tits pic/GIF')
-        em.set_image(url=imgur + picture)
-        em.set_footer(text='This message will be deleted after 60 seconds.')
-        await ctx.send(embed=em, delete_after=60.0)
-
-    @commands.command(name='pussy', aliases=['Pussy', 'PUSSY', 'pusy'])
-    async def _pussy(self, ctx):
-        if not ctx.channel.is_nsfw():
-            return await ctx.send(nsfw_msg)
-
-        pictures = ['cKINeCG.jpg', 'B8Xss4J.jpg', '0DzogRR.jpg', 'hXa8p8s.jpg', 'Gr9Llaa.png',
-                    'ToWATjf.jpg', 'eiQupQC.jpg', 'OTKwNWZ.jpg', 'ZBJXsvm.jpg', 'zHFW8Sx.jpg']
-        picture = random.choice(pictures)
-
-        em = discord.Embed(title=':warning: A pussy picture')
-        em.set_image(url=imgur + picture)
-        em.set_footer(text='This message will be deleted after 60 seconds.')
-        await ctx.send(embed=em, delete_after=60.0)
+    # @commands.command(name='nsfw', aliases=['Nsfw', 'NSFW'])
+    # async def _nsfw(self, ctx):
+    #     if not ctx.channel.is_nsfw():
+    #         return await ctx.send(nsfw_msg)
+    #
+    #     pictures = ['Fe8uKGb.jpg', '2EMMEjD.jpg', 'hTFwdD2.jpg', 'aUfmUNA.jpg', '0trtQhu.jpg',
+    #                 '1BSclpy.gif', 'TK7bEUC.gif', '5w9lZdW.jpg', 'SxC488W.jpg', 'qMcjfML.jpg',
+    #                 '4QkrgLe.jpg', 'NSTkcUq.jpg', 'NqTNFZt.jpg', 'WYl5i5B.jpg', 'y917MDd.jpg',
+    #                 '6fXiF11.jpg', 'jG1qEX7.jpg', 'C2b2Nbl.jpg', 'mjZ9Llv.jpg', 'UdrnQ6k.gif']
+    #     picture = random.choice(pictures)
+    #
+    #     em = discord.Embed(title=':warning: A NSFW pic/GIF')
+    #     em.set_image(url=imgur + picture)
+    #     em.set_footer(text='This message will be deleted after 60 seconds.')
+    #     await ctx.send(embed=em, delete_after=60.0)
+    #
+    #
+    # @commands.command(name='tits', aliases=['Tits', 'TITS', 'tit'])
+    # async def _tits(self, ctx):
+    #     if not ctx.channel.is_nsfw():
+    #         return await ctx.send(nsfw_msg)
+    #
+    #     pictures = ['sh2N8U3.jpg', 'smi1RCf.jpg', 'TWJfw8G.png', 'NRDmdSk.png', '6f84FZS.png', 'n3IpCbH.png',
+    #                 'OWDzjwh.png', 'oKXXTQ1.png', 'dBFKqsc.jpg', 'IA8AmfK.png', 'OwsZgzs.png', 'sufbpw9.jpg',
+    #                 'bCQ4bne.jpg', 'KDxBfGf.jpg', '5FNjGYn.png', 'eBVHjH0.jpg', 'WScEJfJ.jpg', 'NfnBE9i.jpg',
+    #                 '22RqMkb.jpg', 'uugd2yf.jpg', 'yQTzARM.jpg', '9f5X3Sk.jpg', 'nJY3lCO.jpg', 'uTbyzVw.jpg',
+    #                 'zc7f8j0.jpg', 'i10zrFO.jpg', 'a7WNr7f.png', 'mBKYDW7.jpg', 'upyFZwp.jpg', 'yNyfnxv.jpg',
+    #                 'wWQRNq6.gif', 'H4BUKet.jpg', 'ZLJzcWO.jpg', 'NAOoeZm.png', 'DMp9b4g.png', 'YrCpnLq.jpg']
+    #     picture = random.choice(pictures)
+    #
+    #     em = discord.Embed(title=':warning: A tits pic/GIF')
+    #     em.set_image(url=imgur + picture)
+    #     em.set_footer(text='This message will be deleted after 60 seconds.')
+    #     await ctx.send(embed=em, delete_after=60.0)
+    #
+    # @commands.command(name='pussy', aliases=['Pussy', 'PUSSY', 'pusy'])
+    # async def _pussy(self, ctx):
+    #     if not ctx.channel.is_nsfw():
+    #         return await ctx.send(nsfw_msg)
+    #
+    #     pictures = ['cKINeCG.jpg', 'B8Xss4J.jpg', '0DzogRR.jpg', 'hXa8p8s.jpg', 'Gr9Llaa.png',
+    #                 'ToWATjf.jpg', 'eiQupQC.jpg', 'OTKwNWZ.jpg', 'ZBJXsvm.jpg', 'zHFW8Sx.jpg']
+    #     picture = random.choice(pictures)
+    #
+    #     em = discord.Embed(title=':warning: A pussy picture')
+    #     em.set_image(url=imgur + picture)
+    #     em.set_footer(text='This message will be deleted after 60 seconds.')
+    #     await ctx.send(embed=em, delete_after=60.0)
 
 
 def setup(bot):

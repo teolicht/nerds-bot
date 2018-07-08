@@ -240,9 +240,9 @@ class Information():
         em.clear_fields()
         em.add_field(name='cat', value='A cat pic/GIF.')
         em.add_field(name='dog', value='A dog pic/GIF.', inline=False)
-        em.add_field(name='nsfw', value='A NSFW pic/GIF.')
-        em.add_field(name='tits', value='A tits pic/GIF.', inline=False)
-        em.add_field(name='pussy', value='A pussy pic/GIF.')
+        # em.add_field(name='nsfw', value='A NSFW pic/GIF.')
+        # em.add_field(name='tits', value='A tits pic/GIF.', inline=False)
+        # em.add_field(name='pussy', value='A pussy pic/GIF.')
         await ctx.send(embed=em)
 
     @_help.command(name='fun', aliases=['Fun', 'FUN'])
