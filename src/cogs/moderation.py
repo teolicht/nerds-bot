@@ -29,7 +29,7 @@ class Moderation():
             em.set_thumbnail(url=member.avatar_url)
             em.set_footer(text='Reason: ' + reason)
             await ctx.send(embed=em)
-            
+
         except discord.errors.Forbidden:
             em = discord.Embed(
                 title=':x: I can\'t kick `{}`'.format(member),
@@ -121,7 +121,7 @@ Possible reason:
         try:
             bans = await ctx.guild.bans()
             if not bans:
-                return await ctx.send(":x: There are no banned users here.")
+                return await ctx.send(":x: There are no banned users in this server.")
 
             banned_amount = 1
             if banned_amount % 2 != 0:
@@ -148,8 +148,13 @@ Possible reason:
     async def _mute(self, ctx, member: discord.Member, duration=None):
         if member.voice.mute is True:
             return await ctx.send(":x: That member is already muted.")
-        if duration > 300:
-            return await ctx.send(":x: Max is 300 seconds (5 minutes).")
+        if duration is not None:
+            try:
+                duration = int(duration)
+            except:
+                return await ctx.send(":x: Please enter a non-decimal number as the duration.")
+            if duration > 300:
+                return await ctx.send(":x: Max is 300 seconds (5 minutes).")
 
         try:
             if duration is None:
@@ -168,13 +173,13 @@ Possible reason:
                 await ctx.send(":white_check_mark: Unmuted `{0.name}`".format(member))
 
         except discord.errors.Forbidden:
-            await ctx.send(":x: I need the **Mute Members** permission to mute `{0.name}`".format(member))
+            await ctx.send(":x: I need the **Mute Members** permission.".format(member))
 
     @commands.command(name='unmute', aliases=['Unmute', 'UNMUTE', 'umute'])
-    async def _unmute(self, ctx, member: discord.Member = None):
+    async def _unmute(self, ctx, member: discord.Member):
         if member.voice.mute is False:
             return await ctx.send(":x: That member isn't even muted.")
-        if member == ctx.author or member is None:
+        if member == ctx.author:
             return await ctx.send(":x: Sorry, you can't unmute yourself.")
 
         try:
