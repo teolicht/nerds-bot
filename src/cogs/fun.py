@@ -211,6 +211,8 @@ class Fun(object):
         except:
             await ctx.send("No.")
 
+        if member == ctx.author:
+            return await ctx.send("If you want to kill yourself, ~~you should totally type `n!suicide`~~")
         if member in dead_members:
             return await ctx.send(":x: That member is already dead.")
 

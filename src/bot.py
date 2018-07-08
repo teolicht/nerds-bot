@@ -31,22 +31,23 @@ bot = commands.Bot(
     description=description,
     command_prefix=prefix)
 bot.remove_command('help')
+bot.launch_time = datetime.datetime.utcnow()
 
-async def change_status():
-    await bot.wait_until_ready()
-
-    statuses = ['oof', 'blyat', 'cyka', 'cyunt', 'sussu', 'gey', 'ur mom gey', 'jeff',
-                'GRRRRRRRRRRRRRRRRRRRRR', 'ecksdee', 'heck', 'm\'lady', 'hipócritas',
-                'What the fuck did you just fucking say about me, you little bitch?',
-                'it is {} my dudes AAAAAAAAAAAAAAAAA'.format(datetime.datetime.now().strftime('%A').lower()),
-                '2+2=4-1=3 quick maths', 'bazinga']
-    status_option = random.choice(statuses)
-
-    while True:
-        status_text = 'n!help • ' + status_option
-        status = discord.Game(status_text)
-        await bot.change_presence(activity=status)
-        await asyncio.sleep(30)
+# async def change_status():
+#     await bot.wait_until_ready()
+#
+#     statuses = ['oof', 'blyat', 'cyka', 'cyunt', 'sussu', 'gey', 'ur mom gey', 'jeff',
+#                 'GRRRRRRRRRRRRRRRRRRRRR', 'ecksdee', 'heck', 'm\'lady', 'hipócritas',
+#                 'What the fuck did you just fucking say about me, you little bitch?',
+#                 'it is {} my dudes AAAAAAAAAAAAAAAAA'.format(datetime.datetime.now().strftime('%A').lower()),
+#                 '2+2=4-1=3 quick maths', 'bazinga']
+#     status_option = random.choice(statuses)
+#
+#     while True:
+#         status_text = 'n!help • ' + status_option
+#         status = discord.Game(status_text)
+#         await bot.change_presence(activity=status)
+#         await asyncio.sleep(30)
 
 @bot.event
 async def on_ready():
@@ -54,6 +55,7 @@ async def on_ready():
     print(bot.user.name)
     print(bot.user.id)
     print("------")
+    await bot.change_presence(activity=discord.Game('n!help'))
 
     nerds_guild = bot.get_guild(300762607164325893)
     music_channel = bot.get_channel(452157904066183169)
@@ -66,13 +68,6 @@ async def on_ready():
     if has_role is False:
         lorenzo_role = nerds(nerds_guild, 'lorenzo_role')
         await nerds(nerds_guild, 'lorenzo').add_roles(lorenzo_role)
-
-executed = 0
-@bot.event
-async def on_command(ctx):
-    global executed
-    executed += 1
-    print("{0} : n!{1.command.name} • {1.message.author}".format(executed, ctx))
 
 @bot.event
 async def on_member_join(member):
@@ -128,6 +123,12 @@ async def on_message(message):
     else:
         await bot.process_commands(message)
 
+executed = 0
+@bot.event
+async def on_command(ctx):
+    global executed
+    executed += 1
+
 @bot.command(name='ping', aliases=['Ping', 'PING', 'latency'])
 async def _ping(ctx):
     t_1 = time.perf_counter()
@@ -136,8 +137,36 @@ async def _ping(ctx):
     time_delta = round((t_2 - t_1) * 1000)
 
     em = discord.Embed(
-        title="🏓 Pong!{0.online}".format(Emoji),
+        title='🏓 Pong!{0.online}'.format(Emoji),
         description='*{}ms*'.format(time_delta))
+    await ctx.send(embed=em)
+
+@bot.command()
+async def info(ctx):
+    delta_uptime = datetime.datetime.utcnow() - bot.launch_time
+    hours, remainder = divmod(int(delta_uptime.total_seconds()), 3600)
+    minutes, seconds = divmod(remainder, 60)
+    days, hours = divmod(hours, 24)
+    major, minor, micro = sys.version_info[:3]
+
+    em = discord.Embed()
+    em.set_author(
+        name='Nerds Bot',
+        icon_url=bot.user.avatar_url)
+    em.add_field(
+        name='Language',
+        value=f'Python {major}.{minor}.{micro}')
+    em.add_field(
+        name='API',
+        value='discord.py {}'.format(discord.__version__),
+        inline=False)
+    em.add_field(
+        name='Commands since execution',
+        value=executed)
+    em.add_field(
+        name='Uptime',
+        value=f'**{days}** days\n**{hours}** hours\n**{minutes}** minutes\n**{seconds}** seconds',
+        inline=False)
     await ctx.send(embed=em)
 
 @bot.command(name='poll')
@@ -267,5 +296,5 @@ if __name__ == '__main__':
             print("Failed to load extension {}:".format(extension, file=sys.stderr))
             traceback.print_exc()
 
-    bot.loop.create_task(change_status())
+    # bot.loop.create_task(change_status())
     bot.run("Mzg2NTY4ODg4MTQzNTc3MTA2.DYsYJQ.qkGjjtkyYndxPravxyKZPWCEO-Q")

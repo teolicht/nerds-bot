@@ -72,7 +72,7 @@ class Information():
     @commands.group(name='help', aliases=['Help', 'HELP'])
     async def _help(self, ctx):
         if ctx.invoked_subcommand is None:
-            em = discord.Embed(title="Commands (38)", color=0xffc700)
+            em = discord.Embed(title="Commands (40)", color=0xffc700)
             em.add_field(name='info', value='Informative commands.')
             em.add_field(name='pics', value='Picture commands.')
             em.add_field(name='fun', value='Fun commands.', inline=False)
@@ -226,11 +226,12 @@ class Information():
 
     @_help.command(name='info', aliases=['Info', 'information'])
     async def _info(self, ctx):
-        em = discord.Embed(title="Informative commands (4)", color=0xffc700)
+        em = discord.Embed(title="Informative commands (5)", color=0xffc700)
         em.clear_fields()
         em.add_field(name='member <member>', value='Get info on a member.')
         em.add_field(name='server', value='Get info on this server.', inline=False)
         em.add_field(name='ping', value='Check my latency.', inline=False)
+        em.add_field(name='info', value='Check some info about me.')
         await ctx.send(embed=em)
 
     @_help.command(name='pics', aliases=['Pics', 'PICs', 'PICS', 'pictures', 'images'])
@@ -239,14 +240,14 @@ class Information():
         em.clear_fields()
         em.add_field(name='cat', value='A cat pic/GIF.')
         em.add_field(name='dog', value='A dog pic/GIF.', inline=False)
-        em.add_field(name='nsfw', value='A NSFW pic/GIF.')
-        em.add_field(name='tits', value='A tits pic/GIF.', inline=False)
-        em.add_field(name='pussy', value='A pussy pic/GIF.')
+        # em.add_field(name='nsfw', value='A NSFW pic/GIF.')
+        # em.add_field(name='tits', value='A tits pic/GIF.', inline=False)
+        # em.add_field(name='pussy', value='A pussy pic/GIF.')
         await ctx.send(embed=em)
 
     @_help.command(name='fun', aliases=['Fun', 'FUN'])
     async def _fun(self, ctx):
-        em = discord.Embed(title="Fun commands (14)", color=0xffc700)
+        em = discord.Embed(title="Fun commands (16)", color=0xffc700)
         em.clear_fields()
         em.add_field(name='say <text>', value='Speak as if you were me.')
         em.add_field(name='big <text>', value='Speak as if you were me, but with emoji letters.', inline=False)
