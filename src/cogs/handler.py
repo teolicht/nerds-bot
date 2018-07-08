@@ -70,6 +70,9 @@ class ErrorHandler():
             elif cmd == 'sound':
                 return await ctx.send(":x: Specify the sound you want me to play.\nCommand usage: `n!sound <sound> [times to repeat]`\nType `n!sounds` for a list of available sounds.")
 
+            elif cmd == 'kill':
+                return await ctx.send(":x: Specify the member you want to kill.\nCommand usage: `n!kill <member>`")
+
             elif cmd == 'kick':
                 return await ctx.send(":x: You need to specify a member.\nCommand usage: `n!kick <member> [reason]`")
 
@@ -77,7 +80,13 @@ class ErrorHandler():
                 return await ctx.send(":x: You need to specify a member.\nCommand usage: `n!ban <member> [reason]`")
 
             elif cmd == 'unban':
-                return await ctx.send(":x: Enter the ID of the user you want me to unban.\nCommand usage: `n!unban <userID> [reason]`\nExample: `n!unban 300761654411526154`\n**Don't know how to find an user's ID?** Go here: **http://bit.ly/finduserID**")
+                return await ctx.send(":x: Enter the ID of the user you want me to unban.\nCommand usage: `n!unban <userID> [reason]`\nExample: `n!unban <userID>`\nYou can type `n!bans` to check every banned user's ID.")
+
+            elif cmd == 'mute':
+                return await ctx.send(":x: You must specify a member.\nCommand usage: `n!mute <member> [duration]`")
+
+            elif cmd == 'unmute':
+                return await ctx.send(":x: You must specify a member.\nCommand usage: `n!unmute <member>`")
 
             elif cmd == 'delete':
                 return await ctx.send(":x: Enter the amount of messages to delete.\nCommand usage: `n!delete <amount>`")
@@ -86,20 +95,23 @@ class ErrorHandler():
                 return await ctx.send(":x: Enter the seconds.\nCommand usage: `n!timer <secs>`")
 
             elif cmd == 'calc':
-                return await ctx.send(":x: Enter the expression you wish me to calculate.\nCommand usage: `n!calc <expr>`\nExamples: `n!calc 2 + 3`, `n!calc 2 + 3 / 2`")
-
-            elif cmd == 'poll':
-                return await ctx.send(":x: Missing an argument.\nCommand usage: `n!poll <question> <duration> <option1> <option2> [option3–10]`\nExample: `n!poll \"Is my name Jeff?\" 60 Yes No Maybe`")
+                return await ctx.send(":x: Enter the expression you want me to calculate.\nCommand usage: `n!calc <expr>`\nExamples: `n!calc 2 + 3`, `n!calc 2 + 3 / 2`")
 
             elif cmd == 'randnum':
                 return await ctx.send(":x: Missing an argmument.\nCommand usage: `n!randnum <min> <max>`\nExample: `n!randnum 50 700`")
 
+            elif cmd == 'poll':
+                return await ctx.send(":x: Missing an argument.\nCommand usage: `n!poll <question> <duration> <option1> <option2> [option3–10]`\nExample: `n!poll \"Is my name Jeff?\" 60 Yes No Maybe`")
+
+            elif cmd == 'choose':
+                return await ctx.send(":x: Give me some options to randomly choose from.\nCommand usage: `n!choose <options>`")
+
         elif isinstance(error, commands.BadArgument):
-            if cmd in ['member', 'gay', 'gg', 'roast', 'kick', 'ban', 'sayto', 'annoy']:
+            if cmd in ['member', 'gay', 'gg', 'roast', 'kick', 'ban', 'mute', 'unmute', 'sayto', 'annoy', 'kill', 'respawn', 'ship']:
                 return await ctx.send(":x: I wasn't able to find that member.")
 
             elif cmd == 'unban':
-                return await ctx.send(":x:  I wasn't able to find an user with that ID.\nHaving trouble? Example: `n!unban 300761654411526154`\n*Don't know how to get an user's ID?* Go here: **http://bit.ly/finduserID**")
+                return await ctx.send(":x:  I wasn't able to find an user with that ID.\nCommand usage: `n!unban 300761654411526154`\nYou can type `n!bans` to check every banned user's ID.")
 
             elif cmd in ['delete', 'timer', 'randnum']:
                 return await ctx.send(":x: Numbers only. No decimals.")
@@ -113,6 +125,13 @@ class ErrorHandler():
 
         elif isinstance(error, commands.NotOwner):
             return
+
+        elif isinstance(error, commands.CheckFailure):
+            if cmd == 'kick':
+                return await ctx.send(":x: You need to be at least level 20 to use this command.")
+
+            elif cmd == 'ban':
+                return await ctx.send(":x: You need to be at least level 25 to use this command.")
 
         print("Ignoring exception in command {0.command}:".format(ctx, file=sys.stderr))
         traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
