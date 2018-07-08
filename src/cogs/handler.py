@@ -18,25 +18,19 @@ class ErrorHandler():
 
         if hasattr(ctx.command, 'on_error'):
             return
-
         error = getattr(error, 'original', error)
-
         if isinstance(error, commands.CommandNotFound):
             return
 
         if isinstance(error, commands.MissingRequiredArgument):
             if cmd == 'member':
                 return await ctx.send(":x: You must specify a member.\nCommand usage: `n!member <member>`")
-
             elif cmd == 'say':
                 return await ctx.send(":x: Type the text you want me to repeat.\nCommand usage: `n!say <text>`")
-
             elif cmd == 'sayto':
                 return await ctx.send(":x: Specify the member and message. \nCommand usage: `n!sayto <member> <text>`")
-
             elif cmd == 'big':
                 return await ctx.send(":x: Type the text you want me to repeat in letter emojis.\nCommand usage: `n!big <text>`")
-
             elif cmd == 'rps':
                 em = discord.Embed(
                     title='Rock, Paper, Scissors')
@@ -51,74 +45,52 @@ class ErrorHandler():
                     value='`n!rps S`')
                 em.set_footer(text='I choose randomly.')
                 return await ctx.send(embed=em)
-
             elif cmd == 'gay':
                 return await ctx.send(":x: You must specify a member.\nCommand usage: `n!gay <member`")
-
             elif cmd == 'gg':
                 return await ctx.send(":x: You must specify a member.\nCommand usage: `n!gg <member>`")
-
             elif cmd == 'roast':
                 return await ctx/send(":x: You must specify a member.\nCommand usage: `n!roast <member>`")
-
             elif cmd == 'annoy':
                 return await ctx.send(":x: You must specify a member.\nCommand usage: `n!annoy <member> [times]`")
-
             elif cmd == '8ball':
                 return await ctx.send(":x: What question do you want to ask the magic 8-ball?\nCommand usage: `n!8ball <question>`")
-
             elif cmd == 'sound':
                 return await ctx.send(":x: Specify the sound you want me to play.\nCommand usage: `n!sound <sound> [times to repeat]`\nType `n!sounds` for a list of available sounds.")
-
             elif cmd == 'kill':
                 return await ctx.send(":x: Specify the member you want to kill.\nCommand usage: `n!kill <member>`")
-
             elif cmd == 'kick':
                 return await ctx.send(":x: You need to specify a member.\nCommand usage: `n!kick <member> [reason]`")
-
             elif cmd == 'respawn':
                 return await ctx.send(":x: You need to specify a member.\nCommand usage: `n!respawn <member>`")
-
             elif cmd == 'ban':
                 return await ctx.send(":x: You need to specify a member.\nCommand usage: `n!ban <member> [reason]`")
-
             elif cmd == 'unban':
                 return await ctx.send(":x: Enter the ID of the user you want me to unban.\nCommand usage: `n!unban <userID> [reason]`\nExample: `n!unban <userID>`\nYou can type `n!bans` to check every banned user's ID.")
-
             elif cmd == 'mute':
                 return await ctx.send(":x: You must specify a member.\nCommand usage: `n!mute <member> [duration]`")
-
             elif cmd == 'unmute':
                 return await ctx.send(":x: You must specify a member.\nCommand usage: `n!unmute <member>`")
-
             elif cmd == 'delete':
                 return await ctx.send(":x: Enter the amount of messages to delete.\nCommand usage: `n!delete <amount>`")
-
             elif cmd == 'timer':
                 return await ctx.send(":x: Enter the seconds.\nCommand usage: `n!timer <secs>`")
-
             elif cmd == 'calc':
                 return await ctx.send(":x: Enter the expression you want me to calculate.\nCommand usage: `n!calc <expr>`\nExamples: `n!calc 2 + 3`, `n!calc 2 + 3 / 2`")
-
             elif cmd == 'randnum':
                 return await ctx.send(":x: Missing an argmument.\nCommand usage: `n!randnum <min> <max>`\nExample: `n!randnum 50 700`")
-
             elif cmd == 'poll':
                 return await ctx.send(":x: Missing an argument.\nCommand usage: `n!poll <question> <duration> <option1> <option2> [option3–10]`\nExample: `n!poll \"Is my name Jeff?\" 60 Yes No Maybe`")
-
             elif cmd == 'choose':
                 return await ctx.send(":x: Give me some options to randomly choose from.\nCommand usage: `n!choose <options>`")
 
         elif isinstance(error, commands.BadArgument):
             if cmd in ['member', 'gay', 'gg', 'roast', 'kick', 'ban', 'mute', 'unmute', 'sayto', 'annoy', 'kill', 'respawn', 'ship']:
                 return await ctx.send(":x: I wasn't able to find that member.")
-
             elif cmd == 'unban':
                 return await ctx.send(":x:  I wasn't able to find an user with that ID.\nCommand usage: `n!unban 300761654411526154`\nYou can type `n!bans` to check every banned user's ID.")
-
             elif cmd in ['delete', 'timer', 'randnum']:
                 return await ctx.send(":x: Numbers only. No decimals.")
-
             elif cmd == 'poll':
                 return await ctx.send(":x: An error occurred. Make sure you entered the duration correctly as a number.")
 
@@ -132,7 +104,6 @@ class ErrorHandler():
         elif isinstance(error, commands.CheckFailure):
             if cmd == 'kick':
                 return await ctx.send(":x: You need to be at least level 20 to use this command.")
-
             elif cmd == 'ban':
                 return await ctx.send(":x: You need to be at least level 25 to use this command.")
 
