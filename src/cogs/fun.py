@@ -12,7 +12,7 @@ import os
 this_path = os.path.dirname(__file__)
 dead_members = []
 
-class Fun():
+class Fun(object):
     def __init__(self, bot):
         self.bot = bot
 
@@ -194,7 +194,10 @@ class Fun():
         if len(nick) > 25:
             return await ctx.send(embed=em)
         await ctx.send(embed=em)
-        await member.edit(nick='{} (DEAD)'.format(nick))
+        try:
+            await member.edit(nick='{} (DEAD)'.format(nick))
+        except discord.errors.Forbidden:
+            await ctx.send(embed=em)
         dead_members.append(member)
 
     @commands.command(name='kill', aliases=['Kill', 'KILL', 'murder'])
@@ -257,14 +260,14 @@ class Fun():
             em = discord.Embed()
             if comparison(userC, botC) == 'Tie':
                 em = discord.Embed(
-                    description=member + ', it\'s a tie, mate.')
+                    description=member + ', it\'s a tie!')
             elif comparison(userC, botC) == 'Win':
                 em = discord.Embed(
-                    description=member + ', you won retard ass.',
+                    description=member + ', you won!',
                     color=discord.Colour.green())
             else:
                 em = discord.Embed(
-                    description=member + ', get __rekt__ you lost.',
+                    description=member + ', you lost!',
                     color=discord.Colour.red())
             return em
 
@@ -307,9 +310,6 @@ class Fun():
 
     @commands.command(name='8ball', aliases=['8Ball', '8BALL', '8bal'])
     async def _8ball(self, ctx, *, question):
-        if 'gay' in ctx.message.content:
-            return await ctx.send(":8ball: Of course!")
-
         answers = ['Concentrate and ask again', 'Outlook good', 'Without a doubt', 'You may rely on it',
                    'Ask again later', 'It is certain', 'Reply hazy, try again', 'My reply is no', 'My sources say no']
         answer = random.choice(answers)
@@ -367,32 +367,9 @@ class Fun():
 
     @commands.command(name='fact', aliases=['Fact', 'FACT'])
     async def _fact(self, ctx):
-        facts = ['The human nose can distinguish at least 1 trillion smells.',
-                 'Mozart, by the time he was 5, had written his first 5 compositions.',
-                 'John Tyler, an US ex-president, had 2 wives and 15 children.',
-                 'The first basketball game was played in New York on January 20, 1892.',
-                 'Percy Spencer invented the first microwave oven after World War II from radar technology developed during the war.',
-                 'The first typewriter to be commercially successful was invented in 1868.',
-                 'Earth\'s atmosphere is primarily composed of nitrogen (78%) and oxygen (21%) with only small concentrations of other trace gases.',
-                 'The first pizza was created by the baker Raffaele Esposito in Naples.',
-                 'Male fireflies can fly, but female fireflies often can\'t because their wings are too short.',
-                 'The biggest tree in the world is located in California.',
-                 'It took Apollo 11 (spaceship that carried Neil Armstrong) 4 days, 6 hours and 45 minutes to get to the moon.',
-                 'Hair is made of a tough protein called keratin.',
-                 'The last country to join the United Nations was the Republic of South Sudan.',
-                 'The gravity on the moon is about 17% what it is on Earth.',
-                 'Antarctica is the coldest, driest, and windiest continent in the world.',
-                 'The speed of light equals 299792458 meters per second.',
-                 'The speed of light equals 1079252848 km/h.',
-                 'The human eyes never grow.',
-                 'A mushroom isn\'t a fruit, vegetable or plant - it is a special type of fungus.',
-                 'The first chocolate chip cookie was invented by Ruth Graves Wakefield in the 1930s.',
-                 'Approximately 10% of the world population is left-handed.',
-                 'Cold water weighs more than hot water.',
-                 'The Sun equals 1.3 million Earth-sized planets.',
-                 'A short nap of 20 minutes enhances alertness and concentration, elevates mood, and sharpens motor skills.']
+        with open(os.path.join(this_path, "text", "facts.txt")) as file:
+            facts = [line.rstrip('\n') for line in file]
         fact = random.choice(facts)
-
         await ctx.send("**Fact:**\n{}".format(fact))
 
     @commands.command(name='ship', aliases=['Ship', 'SHIP'])
