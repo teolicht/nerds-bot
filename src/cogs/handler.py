@@ -76,6 +76,9 @@ class ErrorHandler():
             elif cmd == 'kick':
                 return await ctx.send(":x: You need to specify a member.\nCommand usage: `n!kick <member> [reason]`")
 
+            elif cmd == 'respawn':
+                return await ctx.send(":x: You need to specify a member.\nCommand usage: `n!respawn <member>`")
+
             elif cmd == 'ban':
                 return await ctx.send(":x: You need to specify a member.\nCommand usage: `n!ban <member> [reason]`")
 
