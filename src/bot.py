@@ -118,9 +118,7 @@ async def on_message(message):
                 if not message.content.startswith(tuple(DJBot_cmds)) and not message.author.id == 235088799074484224:
                     await message.delete()
 
-    if message.guild is None:
-        print("PM : \"{2.content}\" - {2.author}".format(message))
-    else:
+    if message.guild is not None:
         await bot.process_commands(message)
 
 executed = 0
@@ -165,7 +163,7 @@ async def info(ctx):
         value=executed)
     em.add_field(
         name='Uptime',
-        value=f'**{days}** days\n**{hours}** hours\n**{minutes}** minutes\n**{seconds}** seconds',
+        value=f'**{days}** day(s)\n**{hours}** hour(s)\n**{minutes}** minute(s)\n**{seconds}** second(s)',
         inline=False)
     await ctx.send(embed=em)
 
