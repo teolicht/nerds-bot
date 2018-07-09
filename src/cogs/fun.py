@@ -23,7 +23,7 @@ class Fun(object):
         else:
             return member.name
 
-    @commands.command)
+    @commands.command()
     async def say(self, ctx, *, text):
         try:
             await ctx.message.delete()
