@@ -10,6 +10,7 @@ import random
 import asyncio
 import datetime
 import logging
+import botoken
 
 from cogs.emojis import Emoji
 from cogs.nerds import nerds
@@ -57,57 +58,9 @@ async def on_ready():
     print("------")
     await bot.change_presence(activity=discord.Game('n!help'))
 
-    nerds_guild = bot.get_guild(300762607164325893)
-    music_channel = bot.get_channel(452157904066183169)
-    has_role = False
-
-    for role in nerds_guild.roles:
-        if role == 425688731190820864:
-            has_role = True
-
-    if has_role is False:
-        lorenzo_role = nerds(nerds_guild, 'lorenzo_role')
-        await nerds(nerds_guild, 'lorenzo').add_roles(lorenzo_role)
-
-@bot.event
-async def on_member_join(member):
-    def edit_member(member_name):
-        member = nerds(option=member_name)
-        if member_name == 'lorenzo':
-            member.add_roles(nerds(option='lorenzo_role'))
-            pass
-        if member == nerds(option='lorenzo'):
-            member.add_roles(nerds(option='lorenzo_role'))
-            member.edit(nick='')
-    if member.guild.id == 300762607164325893:
-        channel = nerds.get_channel(451854600064991242)
-
-        await channel.send("{0.awesome} Welcome back to hell, {1.mention}!".format(Emoji, member))
-
-        if member == nerds(option='lorenzo'):
-            edit_member(nerds(option='lorenzo'))
-
-        elif member == nerds(option='clachip'):
-            edit_member(nerds(option='clachip'))
-
-        elif member == nerds(option='jeff'):
-            edit_member(nerds(option='jeff'))
-
-        elif member == nerds(option='leo'):
-            edit_member(nerds(option='leo'))
-
-        elif member == nerds(option='mesh'):
-            edit_member(nerds(option='mesh'))
-
-        elif member == nerds(option='ogdroid'):
-            edit_member(nerds(option='ogdroid'))
-
-        elif member == nerds(option='pedron'):
-            edit_member(nerds(option='pedron'))
-
 @bot.event
 async def on_message(message):
-    if message.channel.id == 459775059192447005:
+    if message.channel.name == "music":
             DJBot_cmds = """
 .play .disconnect .np .aliases .ping .skip .seek .soundcloud .remove .loopqueue
 .search .stats .loop .donate .shard .join .lyrics .info .resume .settings .move
@@ -295,4 +248,4 @@ if __name__ == '__main__':
             traceback.print_exc()
 
     # bot.loop.create_task(change_status())
-    bot.run("Mzg2NTY4ODg4MTQzNTc3MTA2.DYsYJQ.qkGjjtkyYndxPravxyKZPWCEO-Q")
+    bot.run(botoken.token)
