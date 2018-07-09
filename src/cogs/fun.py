@@ -310,8 +310,8 @@ class Fun(object):
         minutes = round((30 * times) / 60, 1)
         await ctx.send(":white_check_mark: *Done annoying* **`{0.name}`** • `{1}min`".format(member, minutes))
 
-    @commands.command()
-    async def 8ball(self, ctx, *, question):
+    @commands.command(name='8ball')
+    async def _8ball(self, ctx, *, question):
         answers = ['Concentrate and ask again', 'Outlook good', 'Without a doubt', 'You may rely on it',
                    'Ask again later', 'It is certain', 'Reply hazy, try again', 'My reply is no', 'My sources say no']
         answer = random.choice(answers)
