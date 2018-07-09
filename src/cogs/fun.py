@@ -23,8 +23,8 @@ class Fun(object):
         else:
             return member.name
 
-    @commands.command(name='say', aliases=['Say', 'SAY'])
-    async def _say(self, ctx, *, text):
+    @commands.command)
+    async def say(self, ctx, *, text):
         try:
             await ctx.message.delete()
             text = ''.join(text)
@@ -32,8 +32,8 @@ class Fun(object):
         except discord.errors.Forbidden:
             await ctx.send(":x: I need the **Manage Messages** permission so I can delete your message.")
 
-    @commands.command(name='sayto', aliases=['Sayto', 'SAYTO', 'sendto'])
-    async def _sayto(self, ctx, member: discord.Member, *, text):
+    @commands.command()
+    async def sayto(self, ctx, member: discord.Member, *, text):
         text = ''.join(text)
         em = discord.Embed(
             title='Dear {0.name}'.format(member),
@@ -42,8 +42,8 @@ class Fun(object):
         await member.send(embed=em)
         await ctx.send(":white_check_mark: Sent message to `{0.name}`".format(member))
 
-    @commands.command(name='big', aliases=['Big', 'BIG', 'emoji'])
-    async def _big(self, ctx, *, text):
+    @commands.command()
+    async def big(self, ctx, *, text):
         msg = ''
         def big(letter):
             return ':regional_indicator_{}: '.format(letter)
@@ -133,8 +133,8 @@ class Fun(object):
         except discord.errors.Forbidden:
             await ctx.send(":x: I need the **Manage Messages** permission so I can delete your message first.")
 
-    @commands.command(name='gg', aliases=['Gg', 'GG'])
-    async def _gg(self, ctx, member: discord.Member):
+    @commands.command()
+    async def gg(self, ctx, member: discord.Member):
         if member == self.bot.user:
             await ctx.message.add_reaction('\U0001f1f3') # N
             await ctx.message.add_reaction('\U0001f1f4') # O
@@ -147,8 +147,8 @@ class Fun(object):
         em = discord.Embed(description='🌈🏳️‍🌈🍔🌭 {0.mention} {1} 🌭🍔🏳️‍🌈🌈'.format(member, text))
         await ctx.send(embed=em)
 
-    @commands.command(name='roast', aliases=['Roast', 'ROAST'])
-    async def _roast(self, ctx, member: discord.Member):
+    @commands.command()
+    async def roast(self, ctx, member: discord.Member):
         if member == self.bot.user:
             await ctx.message.add_reaction('\U0001f1f3') # N
             await ctx.message.add_reaction('\U0001f1f4') # O
@@ -181,8 +181,8 @@ class Fun(object):
             color=discord.Colour.red())
         await ctx.send(embed=em)
 
-    @commands.command(name='suicide', aliases=['Suicide', 'SUICIDE'])
-    async def _suicide(self, ctx):
+    @commands.command()
+    async def suicide(self, ctx):
         member = ctx.author
         if member in dead_members:
             return await ctx.send(":x: You're already dead.")
@@ -200,8 +200,8 @@ class Fun(object):
             await ctx.send(embed=em)
         dead_members.append(member)
 
-    @commands.command(name='kill', aliases=['Kill', 'KILL', 'murder'])
-    async def _kill(self, ctx, member: discord.Member):
+    @commands.command()
+    async def kill(self, ctx, member: discord.Member):
         try:
             if member == self.bot.user:
                 await ctx.message.add_reaction('\U0001f1f3')
@@ -226,10 +226,10 @@ class Fun(object):
         await member.edit(nick='{} (DEAD)'.format(nick))
         dead_members.append(member)
 
-    @commands.command(name='respawn', aliases=['Respawn', 'RESPAWN', 'revive', 'live', 'regenerate', 'save'])
-    async def _respawn(self, ctx, member: discord.Member):
+    @commands.command()
+    async def respawn(self, ctx, member: discord.Member):
         if member == ctx.author:
-            return await ctx.send(":x: Sorry, you can't revive yourself.")
+            return await ctx.send(":x: Sorry, you can't respawn yourself.")
         if member not in dead_members:
             if member == ctx.author:
                 await ctx.send(":x: You're not even dead, mate.")
@@ -244,8 +244,8 @@ class Fun(object):
         await ctx.send(":innocent: Welcome back, {0.mention}.".format(member))
         dead_members.remove(member)
 
-    @commands.command(name='rps', aliases=['Rps', 'RPS'])
-    async def _rps(self, ctx, choice):
+    @commands.command()
+    async def rps(self, ctx, choice):
         def comparison(userC, botC):
             if userC == botC:
                 return 'Tie'
@@ -288,14 +288,14 @@ class Fun(object):
             else:
                 await ctx.send(embed=endgame(ctx.author.mention, 'Scissors', botC))
 
-    @commands.command(name='pr', aliases=['Pr', 'PR'])
-    async def _pr(self, ctx):
+    @commands.command()
+    async def pr(self, ctx):
         picklerick = os.path.join(this_path, "images", "picklerick.png")
         with open(picklerick, 'rb') as pic:
             await ctx.send(file=discord.File(pic))
 
-    @commands.command(name='annoy', aliases=['Annoy', 'ANNOY'])
-    async def _annoy(self, ctx, member: discord.Member, times: int = 2):
+    @commands.command()
+    async def annoy(self, ctx, member: discord.Member, times: int = 2):
         nick = self.mname(member)
         with open(os.path.join(this_path, "text", "bad_words.txt")) as file:
             bad_words = [line.rstrip('\n') for line in file]
@@ -310,15 +310,15 @@ class Fun(object):
         minutes = round((30 * times) / 60, 1)
         await ctx.send(":white_check_mark: *Done annoying* **`{0.name}`** • `{1}min`".format(member, minutes))
 
-    @commands.command(name='8ball', aliases=['8Ball', '8BALL', '8bal'])
-    async def _8ball(self, ctx, *, question):
+    @commands.command()
+    async def 8ball(self, ctx, *, question):
         answers = ['Concentrate and ask again', 'Outlook good', 'Without a doubt', 'You may rely on it',
                    'Ask again later', 'It is certain', 'Reply hazy, try again', 'My reply is no', 'My sources say no']
         answer = random.choice(answers)
         await ctx.send(":8ball: {}".format(answer))
 
-    @commands.command(name='sound', aliases=['Sound', 'SOUND'])
-    async def _sound(self, ctx, option, repeat: int = False):
+    @commands.command()
+    async def sound(self, ctx, option, repeat: int = False):
         sounds_path = os.path.join(this_path, "sounds/")
         def soundobj(sound):
             return discord.FFmpegPCMAudio(sounds_path + sound)
@@ -367,15 +367,15 @@ class Fun(object):
             await playsound('preciousfoot.mp3', repeat, 31)
         await vc.disconnect()
 
-    @commands.command(name='fact', aliases=['Fact', 'FACT'])
-    async def _fact(self, ctx):
+    @commands.command()
+    async def fact(self, ctx):
         with open(os.path.join(this_path, "text", "facts.txt")) as file:
             facts = [line.rstrip('\n') for line in file]
         fact = random.choice(facts)
         await ctx.send("**Fact:**\n{}".format(fact))
 
-    @commands.command(name='ship', aliases=['Ship', 'SHIP'])
-    async def _ship(self, ctx, member1: discord.Member, member2: discord.Member):
+    @commands.command()
+    async def ship(self, ctx, member1: discord.Member, member2: discord.Member):
         nick1 = self.mname(member1)
         nick2 = self.mname(member2)
         half_index1 = int(len(nick1) / 2)
@@ -389,9 +389,9 @@ class Fun(object):
             color=0xE10D91)
         await ctx.send(embed=em)
 
-    @commands.command(name='pt')
+    @commands.command()
     @commands.is_owner()
-    async def _pt(self, ctx, member: discord.Member, times: int = 1):
+    async def pt(self, ctx, member: discord.Member, times: int = 1):
         if times == 1:
             duration = 600
             how_long = "10 minutes!"

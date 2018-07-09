@@ -11,8 +11,8 @@ class Utilities():
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name='delete', aliases=['Delete', 'delete'.upper(), 'remove', 'clear', 'clean'])
-    async def _delete(self, ctx, amount: int):
+    @commands.command()
+    async def delete(self, ctx, amount: int):
         if amount > 100:
             return await ctx.send(":x: I can delete max 100 messages.")
         elif amount <= 0:
@@ -41,8 +41,8 @@ Possible reasons:
                 color=discord.Colour.red())
             await ctx.send(embed=em)
 
-    @commands.command(name='timer', aliases=['Timer', 'TIMER', 'clock'])
-    async def _timer(self, ctx, secs: int):
+    @commands.command()
+    async def timer(self, ctx, secs: int):
         clocks = '🕛 🕐 🕑 🕒 🕓 🕔 🕕 🕖 🕗 🕘 🕙 🕚'.split()
         clock_index = 0
         m, s = divmod(secs, 60)
@@ -62,8 +62,8 @@ Possible reasons:
                 await msg.edit(content='`%02d:%02d:%02d` %s' % (h, m, s, clocks[clock_index]))
                 await asyncio.sleep(1)
 
-    @commands.command(name='calc', aliases=['Calc', 'CALC'])
-    async def _calc(self, ctx, *, expr):
+    @commands.command()
+    async def calc(self, ctx, *, expr):
         expr = ''.join(expr)
         try:
             result = eval(expr)
@@ -71,21 +71,21 @@ Possible reasons:
         except:
             await ctx.send(":x: I couldn't calculate that, I'm sure it's your fault.")
 
-    @commands.command(name='flip', aliases=['Flip', 'FLIP', 'coin'])
-    async def _flip(self, ctx):
+    @commands.command()
+    async def flip(self, ctx):
         side = random.choice(['heads', 'tails'])
         await ctx.send("I flipped a coin and it landed on **{}**.".format(side))
 
-    @commands.command(name='randnum', aliases=['Randnum', 'RANDNUM', 'randum', 'random'])
-    async def _randnum(self, ctx, min: int, max: int):
+    @commands.command()
+    async def randnum(self, ctx, min: int, max: int):
         try:
             number = random.randint(min, max)
         except ValueError:
             return await ctx.send(":x: An error occurred. Make sure your first number is smaller than your second number.")
         await ctx.send("`{}`".format(min, max, number))
 
-    @commands.command(name='choose', aliases=['Choose', 'CHOOSE', 'choice', 'chose'])
-    async def _choose(self, ctx, *, choices):
+    @commands.command()
+    async def choose(self, ctx, *, choices):
         choices = choices.split()
         choice = random.choice(choices)
         return await ctx.send(choice)
