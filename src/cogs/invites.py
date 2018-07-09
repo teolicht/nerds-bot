@@ -8,12 +8,12 @@ class Invites():
 	def __init__(self, bot):
 		self.bot = bot
 
-	@commands.command(name='invite', aliases=['Invite', 'INVITE', 'convite'])
-	async def _invite(self, ctx):
+	@commands.command()
+	async def invite(self, ctx):
 		await ctx.send("**http://bit.ly/invitenerdsbot**")
 
-	@commands.command(name='svinvite', aliases=['Svinvite', 'SVINVITE', 'inviteserver'])
-	async def _svinvite(self, ctx):
+	@commands.command()
+	async def svinvite(self, ctx):
 		invite_channel = self.bot.get_channel(ctx.channel.id)
 		invite = await invite_channel.create_invite(unique=False)
 		await ctx.send("**{}**".format(invite))

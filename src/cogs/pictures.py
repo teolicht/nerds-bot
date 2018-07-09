@@ -14,8 +14,8 @@ class Pictures():
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name='cat', aliases=['Cat', 'CAT'])
-    async def _cat(self, ctx):
+    @commands.command()
+    async def cat(self, ctx):
         pictures = ['D7slglx.jpg', 'tTazYTJ.jpg', '7P3XJSb.gif', 'EHC0tGc.jpg', 'tIR9mOk.gif', 'qaG8zRt.jpg',
                     'kuKam1M.gif', 'WM22gA7.gif', 'S0nvOVx.jpg', 'owQqVlZ.jpg', 'PxYsA84.jpg', 'gQAHTbw.jpg',
                     'Z1Jputc.jpg', 'R3UB9Es.jpg', 'kDS1u7Y.jpg', 'CGrEZp8.jpg', 'hYozkVO.jpg', 'FqfUdZD.jpg',
@@ -28,8 +28,8 @@ class Pictures():
         em.set_image(url=imgur + picture)
         await ctx.send(embed=em)
 
-    @commands.command(name='dog', aliases=['Dog', 'DOG', 'dogpic', 'doggy', 'puppy'])
-    async def _dog(self, ctx):
+    @commands.command()
+    async def dog(self, ctx):
         pictures = ['4pjxBbU.jpg', 'OE2Y4Up.gif', 'ZeyNiVN.jpg', 'e1iQ9ON.jpg', 'PMALJsz.jpg', 'Xb4Anu4.gif',
                     'C96HHvf.jpg', 'dzifbAM.gif', 'yW1lgbW.jpg', 'LhGZWTo.jpg', 'n3wajqy.gif', 'fwelOiw.jpg',
                     'V3qLi4T.jpg', 'YJs3JF5.jpg', 'Dz8HIU3.gif', 'pFG1Vt3.jpg', '2dOQ8cX.jpg', '9DCOnGA.jpg',

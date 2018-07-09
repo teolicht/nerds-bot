@@ -69,8 +69,8 @@ class Information():
             member_roles.append('`{0.name}`'.format(role))
         return member_roles
 
-    @commands.group(name='help', aliases=['Help', 'HELP'])
-    async def _help(self, ctx):
+    @commands.group()
+    async def help(self, ctx):
         if ctx.invoked_subcommand is None:
             em = discord.Embed(title="Commands (40)", color=0xffc700)
             em.add_field(name='info', value='Informative commands.')
@@ -224,8 +224,8 @@ class Information():
         # else:
         #     return await ctx.send(":x: Command not found.")
 
-    @_help.command(name='info', aliases=['Info', 'information'])
-    async def _info(self, ctx):
+    @help.command()
+    async def info(self, ctx):
         em = discord.Embed(title="Informative commands (5)", color=0xffc700)
         em.clear_fields()
         em.add_field(name='member <member>', value='Get info on a member.')
@@ -234,8 +234,8 @@ class Information():
         em.add_field(name='info', value='Check some info about me.')
         await ctx.send(embed=em)
 
-    @_help.command(name='pics', aliases=['Pics', 'PICs', 'PICS', 'pictures', 'images'])
-    async def _pics(self, ctx):
+    @help.command()
+    async def pics(self, ctx):
         em = discord.Embed(title="Picture commands (5)", color=0xffc700)
         em.clear_fields()
         em.add_field(name='cat', value='A cat pic/GIF.')
@@ -245,8 +245,8 @@ class Information():
         # em.add_field(name='pussy', value='A pussy pic/GIF.')
         await ctx.send(embed=em)
 
-    @_help.command(name='fun', aliases=['Fun', 'FUN'])
-    async def _fun(self, ctx):
+    @help.command()
+    async def fun(self, ctx):
         em = discord.Embed(title="Fun commands (16)", color=0xffc700)
         em.clear_fields()
         em.add_field(name='say <text>', value='Speak as if you were me.')
@@ -267,8 +267,8 @@ class Information():
         em.add_field(name='ship <member1> <member2>', value='Ship two members.', inline=False)
         await ctx.send(embed=em)
 
-    @_help.command(name='mod', aliases=['Mod', 'MOD', 'moderation'])
-    async def _mod(self, ctx):
+    @help.command()
+    async def mod(self, ctx):
         em = discord.Embed(title="Moderation commands (6)", color=0xffc700)
         em.clear_fields()
         em.add_field(name='kick <member> [reason]', value='Kick someone.')
@@ -279,8 +279,8 @@ class Information():
         em.add_field(name='unmute <member>', value='Unmute someone.', inline=False)
         await ctx.send(embed=em)
 
-    @_help.command(name='utilities', aliases=['Utilities', 'utilitis', 'utlities', 'utilties'])
-    async def _utilities(self, ctx):
+    @help.command()
+    async def utilities(self, ctx):
         em = discord.Embed(title="Utility commands (7)", color=0xffc700)
         em.clear_fields()
         em.add_field(name='delete <amount>', value='Delete messages in the channel.')
@@ -292,8 +292,8 @@ class Information():
         em.add_field(name='choose', value='Choose from a list of options.')
         await ctx.send(embed=em)
 
-    @commands.command(name='sounds', aliases=['Sounds', 'SOUNDS'])
-    async def _sounds(self, ctx):
+    @commands.command()
+    async def sounds(self, ctx):
         em = discord.Embed(
         title='`n!sound` Sounds list',
         description="""
@@ -307,8 +307,8 @@ class Information():
 """)
         await ctx.send(embed=em)
 
-    @commands.command(name='member', aliases=['Member', 'MEMBER', 'user', 'memberinfo', 'userinfo'])
-    async def _member(self, ctx, member: discord.Member):
+    @commands.command()
+    async def member(self, ctx, member: discord.Member):
         # Member's current status
         status = self.get_status(member)
         # List with member's roles' names
@@ -381,8 +381,8 @@ class Information():
             value=joined_discord)
         await ctx.send(embed=em)
 
-    @commands.command(name='server', aliases=['Server', 'SERVER', 'sever'])
-    async def _server(self, ctx):
+    @commands.command()
+    async def server(self, ctx):
         def get_memberstatus(self, guild):
             """Get status of each member in a guild"""
             on_members, off_members, idle_members, dnd_members = 0, 0, 0, 0
@@ -516,8 +516,8 @@ class Information():
         em.set_thumbnail(url=guild.icon_url)
         await ctx.send(embed=em)
 
-    @commands.command(name='news', aliases=['News', 'NEWS'])
-    async def _news(self, ctx):
+    @commands.command()
+    async def news(self, ctx):
         news_url = "https://news.google.com/news/rss/?ned=us&gl=US&hl=en"
 
         Client = urlopen(news_url)

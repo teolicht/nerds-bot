@@ -11,9 +11,9 @@ class Moderation():
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name='kick', aliases=['Kick', 'KICK'])
+    @commands.command()
     @commands.has_any_role('👑', '👑👑', '👑👑👑')
-    async def _kick(self, ctx, member: discord.Member, *, reason=None):
+    async def kick(self, ctx, member: discord.Member, *, reason=None):
         try:
             if reason:
                 reason = ''.join(reason)
@@ -41,9 +41,9 @@ Here are the possible reasons:
                 color=discord.Colour.red())
             await ctx.send(embed=em)
 
-    @commands.command(name='ban', aliases=['Ban', 'BAN'])
+    @commands.command()
     @commands.has_any_role('👑👑', '👑👑👑')
-    async def _ban(self, ctx, user: discord.User, *, reason=None):
+    async def ban(self, ctx, user: discord.User, *, reason=None):
         try:
             bans = await ctx.guild.bans()
             for ban in bans:
@@ -76,8 +76,8 @@ Possible reasons:
                 color=discord.Colour.red())
             await ctx.send(embed=em)
 
-    @commands.command(name='unban', aliases=['Unban', 'UnBan', 'UNBAN'])
-    async def _unban(self, ctx, userid: int, *, reason=None):
+    @commands.command()
+    async def unban(self, ctx, userid: int, *, reason=None):
         try:
             bans = await ctx.guild.bans()
             if not bans:
@@ -116,8 +116,8 @@ Possible reason:
                 color=discord.Colour.red())
             await ctx.send(embed=em)
 
-    @commands.command(name='bans', aliases=['Bans', 'BANS', 'banlist'])
-    async def _bans(self, ctx):
+    @commands.command()
+    async def bans(self, ctx):
         try:
             bans = await ctx.guild.bans()
             if not bans:
@@ -144,8 +144,8 @@ Possible reason:
         except discord.errors.Forbidden:
             await ctx.send(":x: I need the **Ban Members** permission to view the list of banned users.")
 
-    @commands.command(name='mute', aliases=['Mute', 'MUTE'])
-    async def _mute(self, ctx, member: discord.Member, duration=None):
+    @commands.command()
+    async def mute(self, ctx, member: discord.Member, duration=None):
         if member.voice.mute is True:
             return await ctx.send(":x: That member is already muted.")
         if duration is not None:
@@ -175,8 +175,8 @@ Possible reason:
         except discord.errors.Forbidden:
             await ctx.send(":x: I need the **Mute Members** permission.".format(member))
 
-    @commands.command(name='unmute', aliases=['Unmute', 'UNMUTE', 'umute'])
-    async def _unmute(self, ctx, member: discord.Member):
+    @commands.command()
+    async def unmute(self, ctx, member: discord.Member):
         if member.voice.mute is False:
             return await ctx.send(":x: That member isn't even muted.")
         if member == ctx.author:
