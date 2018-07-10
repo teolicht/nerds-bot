@@ -100,7 +100,7 @@ async def info(ctx):
     days, hours = divmod(hours, 24)
     major, minor, micro = sys.version_info[:3]
 
-    em = discord.Embed()
+    em = discord.Embed(color=0xffc700)
     em.set_author(
         name='Nerds Bot',
         icon_url=bot.user.avatar_url)
