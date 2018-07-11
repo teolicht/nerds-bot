@@ -319,6 +319,8 @@ class Fun(object):
 
     @commands.command()
     async def sound(self, ctx, option, repeat: int = False):
+        if not discord.opus.is_loaded():
+            discord.opus.load_opus()
         sounds_path = os.path.join(this_path, "sounds/")
         def soundobj(sound):
             return discord.FFmpegPCMAudio(sounds_path + sound)
