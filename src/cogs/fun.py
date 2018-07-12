@@ -410,7 +410,10 @@ class Fun(object):
             duration = 18000
             how_long = "5 hours!"
         gay_role = discord.utils.get(ctx.guild.roles, name="GAY")
-        await member.add_roles(gay_role)
+        try:
+            await member.add_roles(gay_role)
+        except:
+            return await ctx.send(":x: I wasn't able to do that. Check if a 'GAY' role exists in this server.")
         await ctx.send(":white_check_mark: {0.mention} is now GAY for {1}".format(member, how_long))
         await asyncio.sleep(duration)
         await member.remove_roles(gay_role)

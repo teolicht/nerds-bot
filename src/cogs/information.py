@@ -13,10 +13,10 @@ from urllib.request import urlopen
 from datetime import datetime
 
 class Emoji(object):
-    on = "<:ON:425085623490052096>"
-    off = "<:OFF:425085623150444565>"
-    idle = "<:IDLE:425085623183998986>"
-    dnd = "<:DND:425085623028678657>"
+    on = "<:ON:466770290739773440>"
+    off = "<:OFF:466770290601361408>"
+    idle = "<:IDLE:466770290865733633>"
+    dnd = "<:DND:466770290421137409>"
 
 class Information():
     def __init__(self, bot):
