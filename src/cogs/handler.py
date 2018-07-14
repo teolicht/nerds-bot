@@ -89,6 +89,8 @@ class ErrorHandler():
                 return await ctx.send(":x: I wasn't able to find that member.")
             elif cmd == 'unban':
                 return await ctx.send(":x:  I wasn't able to find an user with that ID.\nCommand usage: `n!unban 300761654411526154`\nYou can type `n!bans` to check every banned user's ID.")
+            elif cmd == 'mute':
+                return await ctx.send(":x: As the duration, enter numbers only. No decimals.")
             elif cmd in ['delete', 'timer', 'randnum']:
                 return await ctx.send(":x: Numbers only. No decimals.")
             elif cmd == 'poll':
@@ -102,10 +104,12 @@ class ErrorHandler():
             return
 
         elif isinstance(error, commands.CheckFailure):
-            if cmd == 'kick':
+            if cmd == 'mute':
                 return await ctx.send(":x: You need to be at least level 20 to use this command.")
-            elif cmd == 'ban':
+            if cmd == 'kick':
                 return await ctx.send(":x: You need to be at least level 25 to use this command.")
+            elif cmd == 'ban':
+                return await ctx.send(":x: You need to be at least level 30 to use this command.")
 
         print("Ignoring exception in command {0.command}:".format(ctx, file=sys.stderr))
         traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
