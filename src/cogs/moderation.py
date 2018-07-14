@@ -145,33 +145,22 @@ Possible reason:
             await ctx.send(":x: I need the **Ban Members** permission to view the list of banned users.")
 
     @commands.command()
-    async def mute(self, ctx, member: discord.Member, duration=None):
+    @commands.has_any_role('⭐⭐⭐', '👑', '👑👑', '👑👑👑')
+    async def mute(self, ctx, member: discord.Member, duration: int = None):
         if member.voice.mute is True:
             return await ctx.send(":x: That member is already muted.")
-        if duration is not None:
-            try:
-                duration = int(duration)
-            except:
-                return await ctx.send(":x: Please enter a non-decimal number as the duration.")
-            if duration > 300:
-                return await ctx.send(":x: Max is 300 seconds (5 minutes).")
 
         try:
             if duration is None:
-                return await member.edit(mute=True)
-
-            try:
-                duration = int(duration)
-            except:
-                duration = float(duration)
-
-            await member.edit(mute=True)
-            await ctx.send(":white_check_mark: Muted `{0.name}` for `{1} sec(s)`".format(member, duration))
-            await asyncio.sleep(duration)
-            if member.voice.mute:
-                await member.edit(mute=False)
-                await ctx.send(":white_check_mark: Unmuted `{0.name}`".format(member))
-
+                await member.edit(mute=True)
+                await ctx.send(":white_check_mark: Muted `{0.name}`")
+            else:
+                await member.edit(mute=True)
+                await ctx.send(":white_check_mark: Muted `{0.name}` for `{1} sec(s)`".format(member, duration))
+                await asyncio.sleep(duration)
+                if member.voice.mute:
+                    await member.edit(mute=False)
+                    await ctx.send(":white_check_mark: Unmuted `{0.name}`".format(member))
         except discord.errors.Forbidden:
             await ctx.send(":x: I need the **Mute Members** permission.".format(member))
 

@@ -223,7 +223,10 @@ class Fun(object):
         if len(nick) > 25:
             return await ctx.send(embed=em)
         await ctx.send(embed=em)
-        await member.edit(nick='{} (DEAD)'.format(nick))
+        try:
+            await member.edit(nick='{} (DEAD)'.format(nick))
+        except discord.errors.Forbidden:
+            await ctx.send(embed=em)
         dead_members.append(member)
 
     @commands.command()
