@@ -60,19 +60,19 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
-    if message.channel.name == "music":
+    if message.guild is not None:
+        if message.channel.name == "music":
             DJBot_cmds = """
 .play .disconnect .np .aliases .ping .skip .seek .soundcloud .remove .loopqueue
 .search .stats .loop .donate .shard .join .lyrics .info .resume .settings .move
 .forward .skipto .clear .replay .clean .pause .removedupes .volume .rewind
-.playtop .playskip .invite .shuffle .queue .leavecleanup
-""".split()
+.playtop .playskip .invite .shuffle .queue .leavecleanup""".split()
             if not message.content.startswith(('n!mute', 'n!unmute')):
                 if not message.content.startswith(tuple(DJBot_cmds)) and not message.author.id == 235088799074484224:
                     await message.delete()
-
-    if message.guild is not None:
         await bot.process_commands(message)
+    else:
+        return
 
 executed = 0
 @bot.event
