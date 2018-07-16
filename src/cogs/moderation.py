@@ -48,14 +48,20 @@ Here are the possible reasons:
             bans = await ctx.guild.bans()
             for ban in bans:
                 if ban.user == user:
-                    return await ctx.send(":x: `{}` is already banned.".format(user))
+                    return await ctx.send(":x: `{}` is already banned.".format(
+                        user))
 
             if reason:
                 reason = ''.join(reason)
-                await ctx.guild.ban(user=user, reason=reason, delete_message_days=0)
+                await ctx.guild.ban(
+                    user=user,
+                    reason=reason,
+                    delete_message_days=0)
             else:
                 reason = 'None'
-                await ctx.guild.ban(user=user, delete_message_days=0)
+                await ctx.guild.ban(
+                    user=user,
+                    delete_message_days=0)
 
             em = discord.Embed(
                 title=':warning: User banned:',
@@ -81,7 +87,8 @@ Possible reasons:
         try:
             bans = await ctx.guild.bans()
             if not bans:
-                return await ctx.send(":x: **There are no banned users in this server.")
+                return await ctx.send(":x: **There are no banned users " +
+                    "in this server.")
 
             user = await self.bot.get_user_info(userid)
             banned_users = []
@@ -121,7 +128,8 @@ Possible reason:
         try:
             bans = await ctx.guild.bans()
             if not bans:
-                return await ctx.send(":x: There are no banned users in this server.")
+                return await ctx.send(":x: There are no banned users in " +
+                    "this server.")
 
             banned_amount = 1
             if banned_amount % 2 != 0:
@@ -133,7 +141,8 @@ Possible reason:
             em.set_author(name=ctx.guild.name)
             em.set_thumbnail(url=ctx.guild.icon_url)
             for ban in bans:
-                id_reason = '**ID:** `{0.user.id}`\n**Reason:** {0.reason}'.format(ban)
+                id_reason = "**ID:** `{0.user.id}`\n" +
+                    "**Reason:** {0.reason}".format(ban)
                 em.add_field(
                     name='{0}. `{1.user}`'.format(banned_amount, ban),
                     value='{}\n{}'.format(id_reason, '━' * 12),
@@ -142,7 +151,8 @@ Possible reason:
             await ctx.send(embed=em)
 
         except discord.errors.Forbidden:
-            await ctx.send(":x: I need the **Ban Members** permission to view the list of banned users.")
+            await ctx.send(":x: I need the **Ban Members** permission to " +
+                "view the list of banned users.")
 
     @commands.command()
     @commands.has_any_role('⭐⭐⭐', '👑', '👑👑', '👑👑👑')
@@ -156,13 +166,16 @@ Possible reason:
                 await ctx.send(":white_check_mark: Muted `{0.name}`")
             else:
                 await member.edit(mute=True)
-                await ctx.send(":white_check_mark: Muted `{0.name}` for `{1} sec(s)`".format(member, duration))
+                await ctx.send(":white_check_mark: Muted `{0.name}` for " +
+                    "`{1} sec(s)`".format(member, duration))
                 await asyncio.sleep(duration)
                 if member.voice.mute:
                     await member.edit(mute=False)
-                    await ctx.send(":white_check_mark: Unmuted `{0.name}`".format(member))
+                    await ctx.send(":white_check_mark: " +
+                        "Unmuted `{0.name}`".format(member))
         except discord.errors.Forbidden:
-            await ctx.send(":x: I need the **Mute Members** permission.".format(member))
+            await ctx.send(":x: I need the **Mute Members** permission.".format(
+                member))
 
     @commands.command()
     async def unmute(self, ctx, member: discord.Member):
@@ -173,10 +186,12 @@ Possible reason:
 
         try:
             await member.edit(mute=False)
-            await ctx.send(":white_check_mark: Unmuted `{0.name}`".format(member))
+            await ctx.send(":white_check_mark: Unmuted `{0.name}`".format(
+                member))
 
         except discord.errors.Forbidden:
-            await ctx.send(":x: I need the **Mute Members** permission to unmute {0.name}.".format(member))
+            await ctx.send(":x: I need the **Mute Members** permission " +
+                "to unmute {0.name}.".format(member))
 
 
 def setup(bot):

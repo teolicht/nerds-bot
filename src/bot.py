@@ -37,18 +37,18 @@ bot.launch_time = datetime.datetime.utcnow()
 # async def change_status():
 #     await bot.wait_until_ready()
 #
-#     statuses = ['oof', 'blyat', 'cyka', 'cyunt', 'sussu', 'gey', 'ur mom gey', 'jeff',
-#                 'GRRRRRRRRRRRRRRRRRRRRR', 'ecksdee', 'heck', 'm\'lady', 'hipócritas',
-#                 'What the fuck did you just fucking say about me, you little bitch?',
-#                 'it is {} my dudes AAAAAAAAAAAAAAAAA'.format(datetime.datetime.now().strftime('%A').lower()),
-#                 '2+2=4-1=3 quick maths', 'bazinga']
+#     statuses = ['oof', 'blyat', 'cyka', 'cyunt', 'sussu', 'gey', 'ur mom gey',
+#                 'jeff', 'GRRRRRRRRRRRRRRRRRRRRR', 'ecksdee', 'heck',
+#                 'm\'lady', 'it is {} my dudes AAAAAAAAAAAAAAAAA'.format(
+#                     datetime.datetime.now().strftime('%A').lower()),
+#                 'hipócritas', '2+2=4-1=3 quick maths', 'bazinga', 'hella gay']
 #     status_option = random.choice(statuses)
 #
 #     while True:
 #         status_text = 'n!help • ' + status_option
 #         status = discord.Game(status_text)
 #         await bot.change_presence(activity=status)
-#         await asyncio.sleep(30)
+#         await asyncio.sleep(30)-
 
 @bot.event
 async def on_ready():
@@ -68,7 +68,8 @@ async def on_message(message):
 .forward .skipto .clear .replay .clean .pause .removedupes .volume .rewind
 .playtop .playskip .invite .shuffle .queue .leavecleanup""".split()
             if not message.content.startswith(('n!mute', 'n!unmute')):
-                if not message.content.startswith(tuple(DJBot_cmds)) and not message.author.id == 235088799074484224:
+                if (not message.content.startswith(tuple(DJBot_cmds)) and
+                        not message.author.id == 235088799074484224):
                     await message.delete()
         await bot.process_commands(message)
     else:
@@ -86,7 +87,7 @@ async def _ping(ctx):
     await ctx.trigger_typing()
     t_2 = time.perf_counter()
     time_delta = round((t_2 - t_1) * 1000)
-
+    # TODO: Display different embed color depending on ping (good: green, bad: red)
     em = discord.Embed(
         title='🏓 Pong!{0.online}'.format(Emoji),
         description='*{}ms*'.format(time_delta))
@@ -116,22 +117,26 @@ async def info(ctx):
         value=executed)
     em.add_field(
         name='Uptime',
-        value=f'**{days}** day(s)\n**{hours}** hour(s)\n**{minutes}** minute(s)\n**{seconds}** second(s)',
+        value='**{}** day(s)\n**{}** hour(s)\n'.format(days, hours) +
+              '**{}** minute(s)\n**{}** second(s)'.format(minutes, seconds),
         inline=False)
     await ctx.send(embed=em)
 
 @bot.command(name='poll')
-async def _poll(ctx, question, duration: int, option1, option2, option3=None, option4=None, option5=None,
-                option6=None, option7=None, option8=None, option9=None, option10=None):
+async def _poll(ctx, question, duration: int, option1, option2, option3=None,
+                option4=None, option5=None, option6=None, option7=None,
+                option8=None, option9=None, option10=None):
     await ctx.message.delete()
 
-    initial_options = [option1, option2, option3, option4, option5, option6, option7, option8, option9, option10]
+    initial_options = [option1, option2, option3, option4, option5, option6,
+                       option7, option8, option9, option10]
     options = []
     for option in initial_options:
         if option is not None:
             options.append(option)
 
-    ones, twos, threes, fours, fives, sixs, sevens, eights, nines, tens = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    ones, twos, threes, fours, fives, 0, 0, 0, 0, 0
+    sixs, sevens, eights, nines, tens = 0, 0, 0, 0, 0
 
     if len(options) < 2:
         return await ctx.send(":x: At least 2 options needed.")
@@ -155,7 +160,8 @@ async def _poll(ctx, question, duration: int, option1, option2, option3=None, op
             second = "seconds"
         else:
             second = "second"
-        em.set_footer(text="This poll will be closed in {} {}.".format(duration, second))
+        em.set_footer(text="This poll will be closed in {} {}.".format(
+            duration, second))
         await react_msg.edit(embed=em)
 
         await asyncio.sleep(1)
@@ -163,11 +169,13 @@ async def _poll(ctx, question, duration: int, option1, option2, option3=None, op
 
     await react_msg.edit(embed=em)
 
-    ones_voters, twos_voters, threes_voters, fours_voters, fives_voters = [], [], [], [], []
-    sixs_voters, sevens_voters, eights_voters, nines_voters, tens_voters  = [], [], [], [], []
-    numbers = [ones, twos, threes, fours, fives, sixs, sevens, eights, nines, tens]
-    voters = [ones_voters, twos_voters, threes_voters, fours_voters, fives_voters,
-              sixs_voters, sevens_voters, eights_voters, nines_voters, tens_voters]
+    onesV, twosV, threesV, foursV, fivesV = [], [], [], [], []
+    sixsV, sevensV, eightsV, ninesV, tensV  = [], [], [], [], []
+    numbers = [ones, twos, threes, fours, fives,
+               sixs, sevens, eights, nines, tens]
+    voters = [onesV, twosV, threesV, foursV,
+              fivesV, sixsV, sevensV, eightsV,
+              ninesV, tensV]
 
     cache_msg = await react_msg.channel.get_message(react_msg.id)
     for reaction in cache_msg.reactions:
@@ -205,8 +213,8 @@ async def _poll(ctx, question, duration: int, option1, option2, option3=None, op
         async for user in reaction.users():
             await cache_msg.remove_reaction(reaction, user)
 
-    format1 = '**{}**\n └ {}' # Format to be used if the option has at least one voter
-    format2 = '**{}**' # Format to be used if the option has no voters
+    format1 = '**{}**\n └ {}' # To be used the option has at least one voter
+    format2 = '**{}**' # To be used if the option has no voters
     results = []
     for x, voter in enumerate(voters):
         voters[x] = ', '.join(voters[x])
@@ -220,9 +228,15 @@ async def _poll(ctx, question, duration: int, option1, option2, option3=None, op
         total += '\n{}: {}\n'.format(option, results[x])
 
     if winner_option:
-        em = discord.Embed(title=question, description="__Result__{}\n:star: {}".format(''.join(total), winner_option))
+        em = discord.Embed(
+            title=question,
+            description="__Result__{}\n:star: {}".format(
+                ''.join(total), winner_option))
     else:
-        em = discord.Embed(title=question, description="__Result__{}".format(''.join(total)))
+        em = discord.Embed(
+            title=question,
+            description="__Result__{}".format(
+                ''.join(total)))
     em.set_author(name='Poll', icon_url=ctx.author.avatar_url)
     if winner_option:
         em.set_footer(text='❌ This poll has been closed.')
@@ -232,7 +246,10 @@ async def _poll(ctx, question, duration: int, option1, option2, option3=None, op
         await asyncio.sleep(3)
         await react_msg.edit(embed=em)
 
-        em = discord.Embed(title=question, description="__Result__{}\n:star: {}".format(''.join(total), tie_winner))
+        em = discord.Embed(
+            title=question,
+            description="__Result__{}\n:star: {}".format(
+                ''.join(total), tie_winner))
         em.set_author(name='Poll', icon_url=ctx.author.avatar_url)
         em.set_footer(text='❌ This poll has been closed.')
         await react_msg.edit(embed=em)
@@ -244,7 +261,8 @@ if __name__ == '__main__':
             bot.load_extension(extension)
 
         except Exception as e:
-            print("Failed to load extension {}:".format(extension, file=sys.stderr))
+            print("Failed to load extension {}:".format(
+                extension, file=sys.stderr))
             traceback.print_exc()
 
     # bot.loop.create_task(change_status())

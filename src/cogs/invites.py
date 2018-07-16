@@ -10,7 +10,8 @@ class Invites():
 
 	@commands.command()
 	async def invite(self, ctx):
-		await ctx.send("**https://discordapp.com/api/oauth2/authorize?client_id=465945853220093954&permissions=8&scope=bot**")
+		await ctx.send("**https://discordapp.com/api/oauth2/authorize?" +
+			"client_id=465945853220093954&permissions=8&scope=bot**")
 
 	@commands.command()
 	async def svinvite(self, ctx):
