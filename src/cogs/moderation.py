@@ -141,11 +141,11 @@ Possible reason:
             em.set_author(name=ctx.guild.name)
             em.set_thumbnail(url=ctx.guild.icon_url)
             for ban in bans:
-                id_reason = "**ID:** `{0.user.id}`\n" +
-                    "**Reason:** {0.reason}".format(ban)
+                ban_info = "**ID:** `{0.user.id}`\n**Reason:** {0.reason}".format(
+                    ban)
                 em.add_field(
                     name='{0}. `{1.user}`'.format(banned_amount, ban),
-                    value='{}\n{}'.format(id_reason, '━' * 12),
+                    value='{}\n{}'.format(ban_info, '━' * 12),
                     inline=inline)
                 banned_amount += 1
             await ctx.send(embed=em)

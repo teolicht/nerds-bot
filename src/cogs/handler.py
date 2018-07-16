@@ -152,7 +152,7 @@ class ErrorHandler():
                 return await ctx.send(":x: You need to be at least level 30 " +
                     "to use this command.")
 
-        print("Ignoring exception in command {0.command}:".format
+        print("Ignoring exception in command {0.command}:".format(
             ctx, file=sys.stderr))
         traceback.print_exception(
             type(error), error, error.__traceback__, file=sys.stderr)
