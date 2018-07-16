@@ -89,8 +89,10 @@ class Information():
         em.add_field(name='member <member>', value='Get info on a member.')
         em.add_field(name='server', value='Get info on this server.',
                      inline=False)
-        em.add_field(name='ping', value='Check my latency.', inline=False)
-        em.add_field(name='info', value='Check some info about me.')
+        em.add_field(name='ping', value='Check my latency.')
+        em.add_field(name='info', value='Check some info about me.',
+                     inline=False)
+        em.add_field(name='news', value='Check the latest news (Google News).')
         await ctx.send(embed=em)
 
     @help.command()
@@ -428,8 +430,7 @@ class Information():
         for news in news_list:
             em.add_field(
                 name=news.title.text,
-                value="{0.link.text}\n{0.pubDate.text}\n{1}".format(
-                    news, '▁' * 32))
+                value="{0.link.text}\n{0.pubDate.text}\n\u200b".format(news))
         await ctx.send(embed=em)
 
 
