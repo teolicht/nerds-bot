@@ -9,7 +9,7 @@ import datetime
 import os
 
 
-this_path = os.path.dirname(__file__)
+THIS_PATH = os.path.dirname(__file__)
 dead_members = []
 
 class Fun(object):
@@ -17,7 +17,8 @@ class Fun(object):
         self.bot = bot
 
     def mname(self, member):
-        """If member.nick exists, return it, otherwise, return member.name"""
+        """If member.nick exists, return it, otherwise,
+        return member.name"""
         if member.nick:
             return member.nick
         else:
@@ -30,17 +31,20 @@ class Fun(object):
             text = ''.join(text)
             await ctx.send(text)
         except discord.errors.Forbidden:
-            await ctx.send(":x: I need the **Manage Messages** permission so I can delete your message.")
+            await ctx.send(":x: I need the **Manage Messages** permission " +
+                "so I can delete your message.")
 
     @commands.command()
     async def sayto(self, ctx, member: discord.Member, *, text):
         text = ''.join(text)
         em = discord.Embed(
             title='Dear {0.name}'.format(member),
-            description='*I was sent here by {0.author.mention} to tell you this:*\n\n{1}\n\u200b'.format(ctx, text),
+            description='*I was sent here by {0.author.mention} '.format(ctx) +
+                'to tell you this:*\n\n{1}\n\u200b'.format(text),
             timestamp=datetime.datetime.utcnow())
         await member.send(embed=em)
-        await ctx.send(":white_check_mark: Sent message to `{0.name}`".format(member))
+        await ctx.send(":white_check_mark: Sent message to `{0.name}`".format(
+            member))
 
     @commands.command()
     async def big(self, ctx, *, text):
@@ -131,7 +135,8 @@ class Fun(object):
             await ctx.message.delete()
             await ctx.send(msg)
         except discord.errors.Forbidden:
-            await ctx.send(":x: I need the **Manage Messages** permission so I can delete your message first.")
+            await ctx.send(":x: I need the **Manage Messages** permission so " +
+                "I can delete your message first.")
 
     @commands.command()
     async def gg(self, ctx, member: discord.Member):
@@ -144,7 +149,8 @@ class Fun(object):
         else:
             text = "**É** gordo & gay!"
 
-        em = discord.Embed(description='🌈🏳️‍🌈🍔🌭 {0.mention} {1} 🌭🍔🏳️‍🌈🌈'.format(member, text))
+        em = discord.Embed(description='🌈🏳️‍🌈🍔🌭 {0.mention} {1} 🌭🍔🏳️‍🌈🌈'.format(
+            member, text))
         await ctx.send(embed=em)
 
     @commands.command()
@@ -155,25 +161,8 @@ class Fun(object):
             await ctx.message.add_reaction('\U0001f1f5') # P
             return await ctx.message.add_reaction('\U0001f1ea') # E
 
-        roasts = ['yo mama so fat that when she walked past my TV I missed 10 episodes.',
-        'yo mama so fat the sat on an iPhone and turned it into an iPad.',
-        'when you were little your parents took an eraser that erases big mistakes and rubbed it all over your face.',
-        'you bring everyone a lot of joy, when you leave the room.',
-        'I\'ll never forget the first day we met, although I\'ll keep trying.',
-        'there are more calories in your stomach than in the local supermarket!',
-        'wanna know how long it takes for yo mama to take a crap? 9 months.',
-        'surprise me, say something intelligent.',
-        'if I ever agreed with you, we\'d both be wrong.',
-        'yo mama is so fat that when she takes a selfie it\'s via satellite.',
-        'you\'re so ugly you make blind kids cry.',
-        'you\'re so fat you need cheat codes to play Wii Fit.',
-        'if you played Hide\'n\'Seek, no one would look for you.',
-        'you\'re a person of rare intelligence, because it\'s rare when you show any.',
-        'you must have been born on a highway because that\'s where most accidents happen.',
-        'it\'s better to let someone think you\'re an idiot than open your mouth and prove it.',
-        'if you want to understand what a true mistake is, you should ask your parents.',
-        'not that I hate you, but if you were on fire and I had water, I\'d drink it.',
-        'you should check eBay and see if they have a life for sale, because you certainly need one.']
+        with open(os.path.join(THIS_PATH, "text", "roasts.txt")) as file:
+            roasts = [line.rstrip('\n') for line in file]
         roast = random.choice(roasts)
 
         em = discord.Embed(
@@ -212,13 +201,15 @@ class Fun(object):
             await ctx.send("No.")
 
         if member == ctx.author:
-            return await ctx.send("If you want to kill yourself, ~~you should totally type `n!suicide`~~")
+            return await ctx.send("If you want to kill yourself, " +
+                "~~you should totally type `n!suicide`~~")
         if member in dead_members:
             return await ctx.send(":x: That member is already dead.")
 
         nick = self.mname(member)
         em = discord.Embed(
-            description=':skull: {0.mention} has been killed by {1.author.mention}!'.format(member, ctx),
+            description=':skull: {0.mention} has been killed by ' +
+                '{1.author.mention}!'.format(member, ctx),
             color=discord.Colour.red())
         if len(nick) > 25:
             return await ctx.send(embed=em)
@@ -242,7 +233,7 @@ class Fun(object):
             return
 
         if '(DEAD)' in member.nick:
-            new_name = member.nick[:-7] # Cuts out '(DEAD)' from the member's server nickname
+            new_name = member.nick[:-7] # Cuts out '(DEAD)' from member's nick
             await member.edit(nick=new_name)
         await ctx.send(":innocent: Welcome back, {0.mention}.".format(member))
         dead_members.remove(member)
@@ -285,44 +276,52 @@ class Fun(object):
             await asyncio.sleep(1)
 
             if choice.lower() in ['r', 'rock']:
-                await ctx.send(embed=endgame(ctx.author.mention, 'Rock', botC))
+                await ctx.send(
+                    embed=endgame(ctx.author.mention, 'Rock', botC))
             elif choice.lower() in ['p', 'paper']:
-                await ctx.send(embed=endgame(ctx.author.mention, 'Paper', botC))
+                await ctx.send(
+                    embed=endgame(ctx.author.mention, 'Paper', botC))
             else:
-                await ctx.send(embed=endgame(ctx.author.mention, 'Scissors', botC))
+                await ctx.send(
+                    embed=endgame(ctx.author.mention, 'Scissors', botC))
 
     @commands.command()
     async def pr(self, ctx):
-        picklerick = os.path.join(this_path, "images", "picklerick.png")
+        picklerick = os.path.join(THIS_PATH, "images", "picklerick.png")
         with open(picklerick, 'rb') as pic:
             await ctx.send(file=discord.File(pic))
 
     @commands.command()
     async def annoy(self, ctx, member: discord.Member, times: int = 2):
         nick = self.mname(member)
-        with open(os.path.join(this_path, "text", "bad_words.txt")) as file:
+        with open(os.path.join(THIS_PATH, "text", "bad_words.txt")) as file:
             bad_words = [line.rstrip('\n') for line in file]
 
-        await ctx.send(":white_check_mark: *Started annoying* **`{}`** **{}** time(s)".format(nick, times))
+        await ctx.send(":white_check_mark: *Started annoying* **`{}`** " +
+            "**{}** time(s)".format(nick, times))
         for i in range(0, times):
             word = random.choice(bad_words)
-            await member.send("**{0}** • I was sent here to annoy you by {1.author.mention}, **{2}**.".format(i + 1, ctx, word))
+            await member.send("**{0}** • I was sent here to annoy you by " +
+                "{1.author.mention}, **{2}**.".format(i + 1, ctx, word))
             if not i == times - 1: # If not done yet
                 await asyncio.sleep(30)
 
         minutes = round((30 * times) / 60, 1)
-        await ctx.send(":white_check_mark: *Done annoying* **`{0.name}`** • `{1}min`".format(member, minutes))
+        await ctx.send(":white_check_mark: *Done annoying* **`{0.name}`** • " +
+            "`{1}min`".format(member, minutes))
 
     @commands.command(name='8ball')
     async def _8ball(self, ctx, *, question):
-        answers = ['Concentrate and ask again', 'Outlook good', 'Without a doubt', 'You may rely on it',
-                   'Ask again later', 'It is certain', 'Reply hazy, try again', 'My reply is no', 'My sources say no']
+        answers = ['Concentrate and ask again', 'Outlook good',
+                   'Without a doubt', 'You may rely on it', 'Ask again later',
+                   'It is certain', 'Reply hazy, try again', 'My reply is no',
+                   'My sources say no']
         answer = random.choice(answers)
         await ctx.send(":8ball: {}".format(answer))
 
     @commands.command()
     async def sound(self, ctx, option, repeat: int = False):
-        sounds_path = os.path.join(this_path, "sounds/")
+        sounds_path = os.path.join(THIS_PATH, "sounds/")
         def soundobj(sound):
             return discord.FFmpegPCMAudio(sounds_path + sound)
 
@@ -352,7 +351,8 @@ class Fun(object):
             return await ctx.send(":x: Option `{}` not found.".format(option))
 
         vc = await channel.connect()
-        await ctx.send(":white_check_mark: *Playing sound* `{}`".format(options[option]))
+        await ctx.send(":white_check_mark: *Playing sound* `{}`".format(
+            options[option]))
 
         if option == '1':
             await playsound('jeff.mp3', repeat, 2)
@@ -372,7 +372,7 @@ class Fun(object):
 
     @commands.command()
     async def fact(self, ctx):
-        with open(os.path.join(this_path, "text", "facts.txt")) as file:
+        with open(os.path.join(THIS_PATH, "text", "facts.txt")) as file:
             facts = [line.rstrip('\n') for line in file]
         fact = random.choice(facts)
         await ctx.send("**Fact:**\n{}".format(fact))
@@ -388,7 +388,8 @@ class Fun(object):
         ship_name = (half1 + half2).strip()
         em = discord.Embed(
             title=':heart: I ship {} and {} :heart:'.format(nick1, nick2),
-            description=':two_hearts::revolving_hearts: {} :revolving_hearts::two_hearts:'.format(ship_name),
+            description=':two_hearts::revolving_hearts: {} ' +
+                ':revolving_hearts::two_hearts:'.format(ship_name),
             color=0xE10D91)
         await ctx.send(embed=em)
 
@@ -414,8 +415,10 @@ class Fun(object):
         try:
             await member.add_roles(gay_role)
         except:
-            return await ctx.send(":x: I wasn't able to do that. Check if a 'GAY' role exists in this server.")
-        await ctx.send(":white_check_mark: {0.mention} is now GAY for {1}".format(member, how_long))
+            return await ctx.send(":x: I wasn't able to do that. Check if a " +
+                "'GAY' role exists in this server.")
+        await ctx.send(":white_check_mark: {0.mention} is now " +
+            "GAY for {1}".format(member, how_long))
         await asyncio.sleep(duration)
         await member.remove_roles(gay_role)
         await ctx.send("{0.mention} is no longer GAY.".format(member))
