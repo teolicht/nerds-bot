@@ -145,7 +145,6 @@ class Fun(object):
             await ctx.message.add_reaction('\U0001f1f4') # O
             await ctx.message.add_reaction('\U0001f1f5') # P
             return await ctx.message.add_reaction('\U0001f1ea') # E
-
         else:
             text = "**É** gordo & gay!"
 
@@ -208,8 +207,8 @@ class Fun(object):
 
         nick = self.mname(member)
         em = discord.Embed(
-            description=':skull: {0.mention} has been killed by ' +
-                '{1.author.mention}!'.format(member, ctx),
+            description=':skull: {0.mention} has been killed by '.format(
+                member) + '{0.author.mention}!'.format(ctx),
             color=discord.Colour.red())
         if len(nick) > 25:
             return await ctx.send(embed=em)
@@ -297,18 +296,18 @@ class Fun(object):
         with open(os.path.join(THIS_PATH, "text", "bad_words.txt")) as file:
             bad_words = [line.rstrip('\n') for line in file]
 
-        await ctx.send(":white_check_mark: *Started annoying* **`{}`** " +
-            "**{}** time(s)".format(nick, times))
+        await ctx.send(":white_check_mark: *Started annoying* **`{}`** ".format(nick) +
+            "**{}** time(s)".format(times))
         for i in range(0, times):
             word = random.choice(bad_words)
-            await member.send("**{0}** • I was sent here to annoy you by " +
-                "{1.author.mention}, **{2}**.".format(i + 1, ctx, word))
+            await member.send("**{}** • I was sent here to annoy you by ".format(i + 1) +
+                "{0.author.mention}, **{1}**.".format(ctx, word))
             if not i == times - 1: # If not done yet
                 await asyncio.sleep(30)
 
         minutes = round((30 * times) / 60, 1)
-        await ctx.send(":white_check_mark: *Done annoying* **`{0.name}`** • " +
-            "`{1}min`".format(member, minutes))
+        await ctx.send(":white_check_mark: *Done annoying* **`{0.name}`** • ".format(member) +
+            "`{}min`".format(minutes))
 
     @commands.command(name='8ball')
     async def _8ball(self, ctx, *, question):
@@ -375,7 +374,7 @@ class Fun(object):
         with open(os.path.join(THIS_PATH, "text", "facts.txt")) as file:
             facts = [line.rstrip('\n') for line in file]
         fact = random.choice(facts)
-        await ctx.send("**Fact:**\n{}".format(fact))
+        await ctx.send(fact)
 
     @commands.command()
     async def ship(self, ctx, member1: discord.Member, member2: discord.Member):
@@ -388,8 +387,8 @@ class Fun(object):
         ship_name = (half1 + half2).strip()
         em = discord.Embed(
             title=':heart: I ship {} and {} :heart:'.format(nick1, nick2),
-            description=':two_hearts::revolving_hearts: {} ' +
-                ':revolving_hearts::two_hearts:'.format(ship_name),
+            description=':two_hearts::revolving_hearts: {} '.format(ship_name) +
+                ':revolving_hearts::two_hearts:',
             color=0xE10D91)
         await ctx.send(embed=em)
 
@@ -417,8 +416,8 @@ class Fun(object):
         except:
             return await ctx.send(":x: I wasn't able to do that. Check if a " +
                 "'GAY' role exists in this server.")
-        await ctx.send(":white_check_mark: {0.mention} is now " +
-            "GAY for {1}".format(member, how_long))
+        await ctx.send(":white_check_mark: {0.mention} is now ".format(member) +
+            "GAY for {}".format(how_long))
         await asyncio.sleep(duration)
         await member.remove_roles(gay_role)
         await ctx.send("{0.mention} is no longer GAY.".format(member))
