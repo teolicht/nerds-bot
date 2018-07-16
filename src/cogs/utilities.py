@@ -16,7 +16,8 @@ class Utilities():
         if amount > 100:
             return await ctx.send(":x: I can delete max 100 messages.")
         elif amount <= 0:
-            return await ctx.send(":x: How am I supposed to delete `{}` messages?".format(amount))
+            return await ctx.send(":x: How am I supposed to delete " +
+                "`{}` messages?".format(amount))
 
         try:
             await ctx.message.delete()
@@ -26,7 +27,8 @@ class Utilities():
             await ctx.channel.delete_messages(to_delete)
 
             if len(to_delete) != 1:
-                delete_msg = ":recycle: `{}` messages deleted.".format(len(to_delete))
+                delete_msg = ":recycle: `{}` messages deleted.".format(
+                    len(to_delete))
             else:
                 delete_msg = ":recycle: `1` message deleted."
             await ctx.send(delete_msg, delete_after=4.0)
@@ -59,7 +61,8 @@ Possible reasons:
             else:
                 m, s = divmod(secs, 60)
                 h, m = divmod(m, 60)
-                await msg.edit(content='`%02d:%02d:%02d` %s' % (h, m, s, clocks[clock_index]))
+                await msg.edit(content='`%02d:%02d:%02d` %s' % (
+                    h, m, s, clocks[clock_index]))
                 await asyncio.sleep(1)
 
     @commands.command()
@@ -69,7 +72,8 @@ Possible reasons:
             result = eval(expr)
             await ctx.send("`{}`".format(result))
         except:
-            await ctx.send(":x: I couldn't calculate that, I'm sure it's your fault.")
+            await ctx.send(":x: I couldn't calculate that, " +
+                "I'm sure it's your fault.")
 
     @commands.command()
     async def flip(self, ctx):
@@ -78,10 +82,11 @@ Possible reasons:
 
     @commands.command()
     async def randnum(self, ctx, min: int, max: int):
-        try:
-            number = random.randint(min, max)
-        except ValueError:
-            return await ctx.send(":x: An error occurred. Make sure your first number is smaller than your second number.")
+        if min > max:
+            return await ctx.send(":x: Your first number (`{}`) must be " +
+                "smaller than your second number (`{}`).".format(min, max))
+
+        number = random.randint(min, max)
         await ctx.send("`{}`".format(min, max, number))
 
     @commands.command()
