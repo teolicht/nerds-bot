@@ -14,6 +14,7 @@ import botoken
 
 from cogs.emojis import Emoji
 from cogs.nerds import nerds
+from cogs.moderation import muted_members
 
 
 description = "A Discord bot written by Lanit#3333."
@@ -61,6 +62,8 @@ async def on_ready():
 @bot.event
 async def on_message(message):
     if message.guild is not None:
+        if message.author in muted_members:
+            return await message.delete()
         if message.channel.name == "music":
             DJBot_cmds = """
 .play .disconnect .np .aliases .ping .skip .seek .soundcloud .remove .loopqueue

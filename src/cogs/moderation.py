@@ -7,6 +7,8 @@ import asyncio
 import datetime
 
 
+muted_members = []
+
 class Moderation():
     def __init__(self, bot):
         self.bot = bot
@@ -141,11 +143,11 @@ Possible reason:
             em.set_author(name=ctx.guild.name)
             em.set_thumbnail(url=ctx.guild.icon_url)
             for ban in bans:
-                ban_info = "**ID:** `{0.user.id}`\n**Reason:** {0.reason}".format(
+                info = "**ID:** `{0.user.id}`\n**Reason:** {0.reason}".format(
                     ban)
                 em.add_field(
                     name='{0}. `{1.user}`'.format(banned_amount, ban),
-                    value='{}\n{}'.format(ban_info, '━' * 12),
+                    value='{}\n{}'.format(info, '━' * 12),
                     inline=inline)
                 banned_amount += 1
             await ctx.send(embed=em)
@@ -192,6 +194,16 @@ Possible reason:
         except discord.errors.Forbidden:
             await ctx.send(":x: I need the **Mute Members** permission " +
                 "to unmute {0.name}.".format(member))
+
+    @commands.command()
+    async def chatmute(self, ctx, member: discord.Member, duration: int = 1):
+        muted_members.append(member)
+        await ctx.send(":white_check_mark: Chat-muted " +
+            "{0.name} for `{1}` minute(s).".format(member, duration))
+        await asyncio.sleep(duration * 60)
+        muted_members.remove(member)
+        await ctx.send(":white_check_mark: {0.mention} is no longer ".format(
+            member) + "chat-muted.")
 
 
 def setup(bot):
