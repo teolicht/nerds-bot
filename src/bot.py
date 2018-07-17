@@ -71,10 +71,10 @@ async def on_message(message):
              'settings', 'move', 'forward', 'skipto', 'clear', 'replay',
              'clean', 'pause', 'removedupes', 'volume', 'rewind', 'playtop',
              'playskip', 'invite', 'shuffle', 'queue', 'leavecleanup']
-            if message.content not in DJ_cmds:
+            if message.content[1:] not in DJ_cmds:
                 if message.author.id not in [235088799074484224,
                                              252128902418268161]:
-                await message.delete()
+                    await message.delete()
         await bot.process_commands(message)
     else:
         return
