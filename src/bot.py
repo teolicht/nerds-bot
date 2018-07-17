@@ -65,15 +65,16 @@ async def on_message(message):
         if message.author in muted_members:
             return await message.delete()
         if message.channel.name == "music":
-            DJBot_cmds = """
-.play .disconnect .np .aliases .ping .skip .seek .soundcloud .remove .loopqueue
-.search .stats .loop .donate .shard .join .lyrics .info .resume .settings .move
-.forward .skipto .clear .replay .clean .pause .removedupes .volume .rewind
-.playtop .playskip .invite .shuffle .queue .leavecleanup""".split()
-            if not message.content.startswith(('n!mute', 'n!unmute')):
-                if (not message.content.startswith(tuple(DJBot_cmds)) and
-                        not message.author.id == 235088799074484224):
-                    await message.delete()
+            DJ_cmds = ['play', 'disconnect', 'np', 'aliases', 'ping', 'skip',
+             'seek', 'soundcloud', 'remove', 'loopqueue', 'search', 'stats',
+             'loop', 'donate', 'shard', 'join', 'lyrics', 'info', 'resume',
+             'settings', 'move', 'forward', 'skipto', 'clear', 'replay',
+             'clean', 'pause', 'removedupes', 'volume', 'rewind', 'playtop',
+             'playskip', 'invite', 'shuffle', 'queue', 'leavecleanup']
+            if message.content not in DJ_cmds:
+                if message.author.id not in [235088799074484224,
+                                             252128902418268161]:
+                await message.delete()
         await bot.process_commands(message)
     else:
         return
