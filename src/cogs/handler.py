@@ -118,7 +118,7 @@ class ErrorHandler():
         elif isinstance(error, commands.BadArgument):
             if cmd in ['member', 'gay', 'gg', 'roast', 'kick', 'ban', 'mute',
                        'unmute', 'sayto', 'annoy', 'kill', 'respawn', 'ship',
-                       'chatmute']:
+                       'chatmute', 'unchatmute']:
                 return await ctx.send(":x: I wasn't able to find that member.")
             elif cmd == 'unban':
                 return await ctx.send(":x:  I wasn't able to find an user " +

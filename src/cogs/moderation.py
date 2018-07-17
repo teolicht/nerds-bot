@@ -181,7 +181,7 @@ Possible reason:
 
     @commands.command()
     async def unmute(self, ctx, member: discord.Member):
-        if member.voice.mute is False:
+        if member.voice is None or member.voice.mute is False:
             return await ctx.send(":x: That member isn't even muted.")
         if member == ctx.author:
             return await ctx.send(":x: Sorry, you can't unmute yourself.")
@@ -196,13 +196,28 @@ Possible reason:
                 "to unmute {0.name}.".format(member))
 
     @commands.command()
-    async def chatmute(self, ctx, member: discord.Member, duration: int = 1):
+    async def chatmute(self, ctx, member: discord.Member, duration: int = None):
+        if member in muted_members:
+            return await ctx.send(":x: That member is already chat-muted.")
         muted_members.append(member)
-        await ctx.send(":white_check_mark: Chat-muted " +
-            "{0.name} for `{1}` minute(s).".format(member, duration))
-        await asyncio.sleep(duration * 60)
+        if duration is None:
+            await ctx.send(":white_check_mark: Chat-muted {0.name}".format(
+                member))
+        else:
+            await ctx.send(":white_check_mark: Chat-muted " +
+                "{0.name} for `{1}` minute(s).".format(member, duration))
+            await asyncio.sleep(duration * 60)
+            if member in muted_members:
+                muted_members.remove(member)
+                await ctx.send(":white_check_mark: {0.mention} is no longer ".format(
+                    member) + "chat-muted.")
+
+    @commands.command()
+    async def unchatmute(self, ctx, member: discord.Member):
+        if member not in muted_members:
+            return await ctx.send(":x: That member isn't even chat-muted.")
         muted_members.remove(member)
-        await ctx.send(":white_check_mark: {0.mention} is no longer ".format(
+        await ctx.send(":white_check_mark: {0.name} is no longer ".format(
             member) + "chat-muted.")
 
 
