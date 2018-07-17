@@ -117,14 +117,15 @@ class ErrorHandler():
 
         elif isinstance(error, commands.BadArgument):
             if cmd in ['member', 'gay', 'gg', 'roast', 'kick', 'ban', 'mute',
-                       'unmute', 'sayto', 'annoy', 'kill', 'respawn', 'ship']:
+                       'unmute', 'sayto', 'annoy', 'kill', 'respawn', 'ship',
+                       'chatmute', 'unchatmute']:
                 return await ctx.send(":x: I wasn't able to find that member.")
             elif cmd == 'unban':
                 return await ctx.send(":x:  I wasn't able to find an user " +
                     "with that ID.\nCommand usage: `n!unban 3549923940283212`" +
                         "\nYou can type `n!bans` to check every banned " +
                             "user's ID.")
-            elif cmd == 'mute':
+            elif cmd in ['mute', 'chatmute']:
                 return await ctx.send(":x: As the duration, enter numbers " +
                     "only. No decimals.")
             elif cmd in ['delete', 'timer', 'randnum']:

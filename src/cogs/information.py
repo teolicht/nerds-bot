@@ -148,6 +148,9 @@ class Information():
             '(voice).')
         em.add_field(name='unmute <member>', value='Unmute someone.',
             inline=False)
+        em.add_field(name='chatmute <member> [duration]', value='Chat-mute ' +
+            'someone.')
+        em.add_field(name='unchatmute <member>', value='Un-chat-mute someone.')
         await ctx.send(embed=em)
 
     @help.command()
