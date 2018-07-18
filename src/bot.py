@@ -139,7 +139,7 @@ async def _poll(ctx, question, duration: int, option1, option2, option3=None,
         if option is not None:
             options.append(option)
 
-    ones, twos, threes, fours, fives, 0, 0, 0, 0, 0
+    ones, twos, threes, fours, fives = 0, 0, 0, 0, 0
     sixs, sevens, eights, nines, tens = 0, 0, 0, 0, 0
 
     if len(options) < 2:
