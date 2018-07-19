@@ -92,6 +92,12 @@ class ErrorHandler():
             elif cmd == 'unmute':
                 return await ctx.send(":x: You must specify a member.\n" +
                     "Command usage: `n!unmute <member>`")
+            elif cmd == 'chatmute':
+                return await ctx.send(":x: You must specify a member.\n" +
+                    "Command usage: `n!chatmute <member> [duration]`")
+            elif cmd == 'unchatmute':
+                return await ctx.send(":x: You must specify a member.\n" +
+                    "Command usage: `n!unchatmute <member>`")
             elif cmd == 'delete':
                 return await ctx.send(":x: Enter the amount of messages "
                     "to delete.\nCommand usage: `n!delete <amount>`")
