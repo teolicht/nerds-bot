@@ -73,7 +73,7 @@ class Information():
     @commands.group()
     async def help(self, ctx):
         if ctx.invoked_subcommand is None:
-            em = discord.Embed(title="Commands (40)", color=0xffc700)
+            em = discord.Embed(title="Commands (42)", color=0xffc700)
             em.add_field(name='info', value='Informative commands.')
             em.add_field(name='pics', value='Picture commands.')
             em.add_field(name='fun', value='Fun commands.', inline=False)
@@ -137,7 +137,7 @@ class Information():
 
     @help.command()
     async def mod(self, ctx):
-        em = discord.Embed(title="Moderation commands (6)", color=0xffc700)
+        em = discord.Embed(title="Moderation commands (8)", color=0xffc700)
         em.clear_fields()
         em.add_field(name='kick <member> [reason]', value='Kick someone.')
         em.add_field(name='ban <member> [reason]', value='Ban someone.',
@@ -150,7 +150,8 @@ class Information():
             inline=False)
         em.add_field(name='chatmute <member> [duration]', value='Chat-mute ' +
             'someone.')
-        em.add_field(name='unchatmute <member>', value='Un-chat-mute someone.')
+        em.add_field(name='unchatmute <member>', value='Un-chat-mute someone.',
+            inline=False)
         await ctx.send(embed=em)
 
     @help.command()
