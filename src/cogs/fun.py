@@ -212,9 +212,9 @@ class Fun(object):
             color=discord.Colour.red())
         if len(nick) > 25:
             return await ctx.send(embed=em)
-        await ctx.send(embed=em)
         try:
             await member.edit(nick='{} (DEAD)'.format(nick))
+            await ctx.send(embed=em)
         except discord.errors.Forbidden:
             await ctx.send(embed=em)
         dead_members.append(member)
@@ -234,7 +234,8 @@ class Fun(object):
         if '(DEAD)' in member.nick:
             new_name = member.nick[:-7] # Cuts out '(DEAD)' from member's nick
             await member.edit(nick=new_name)
-        await ctx.send(":innocent: Welcome back, {0.mention}.".format(member))
+            member = self.mname(member)
+        await ctx.send(":innocent: Welcome back, {}.".format(member))
         dead_members.remove(member)
 
     @commands.command()
