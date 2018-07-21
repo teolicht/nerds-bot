@@ -15,16 +15,19 @@ class ErrorHandler():
         content = ctx.message.content
         cmd = ctx.message.content.split()[0]
         cmd = cmd[2:]
+        specify_member = ":x: You must specify a member.\n"
+        level = """
+:x: You need to be at least level {} to use this command.
+Type `!rank` to check your level."""
 
         if hasattr(ctx.command, 'on_error'):
             return
         error = getattr(error, 'original', error)
         if isinstance(error, commands.CommandNotFound):
             return
-
         if isinstance(error, commands.MissingRequiredArgument):
             if cmd == 'member':
-                return await ctx.send(":x: You must specify a member.\n" +
+                return await ctx.send(specify_member +
                     "Command usage: `n!member <member>`")
             elif cmd == 'say':
                 return await ctx.send(":x: Type the text you want me to " +
@@ -50,36 +53,37 @@ class ErrorHandler():
                 em.set_footer(text='I choose randomly.')
                 return await ctx.send(embed=em)
             elif cmd == 'gay':
-                return await ctx.send(":x: You must specify a member.\n" +
+                return await ctx.send(specify_member +
                     "Command usage: `n!gay <member`")
             elif cmd == 'gg':
-                return await ctx.send(":x: You must specify a member.\n"
+                return await ctx.send(specify_member +
                     "Command usage: `n!gg <member>`")
             elif cmd == 'roast':
-                return await ctx/send(":x: You must specify a member.\n" +
+                return await ctx/send(specify_member +
                     "Command usage: `n!roast <member>`")
             elif cmd == 'annoy':
-                return await ctx.send(":x: You must specify a member.\n" +
+                return await ctx.send(specify_member +
                     "Command usage: `n!annoy <member> [times]`")
             elif cmd == '8ball':
                 return await ctx.send(":x: What question do you want to ask " +
                     "the magic 8-ball?\nCommand usage: `n!8ball <question>`")
             elif cmd == 'sound':
-                return await ctx.send(":x: Specify the sound you want " +
-                    "me to play.\nCommand usage: `n!sound <sound> " +
-                        "[times to repeat]`\nType `n!sounds` for a list " +
-                            "of available sounds.")
+                return await ctx.send("This command is currently disabled because I can't fucking get it to work")
+                # return await ctx.send(":x: Specify the sound you want " +
+                #     "me to play.\nCommand usage: `n!sound <sound> " +
+                #         "[times to repeat]`\nType `n!sounds` for a list " +
+                #             "of available sounds.")
             elif cmd == 'kill':
-                return await ctx.send(":x: Specify the member you want " +
-                    "to kill.\nCommand usage: `n!kill <member>`")
+                return await ctx.send(specify_member +
+                    "Command usage: `n!kill <member>`")
             elif cmd == 'kick':
-                return await ctx.send(":x: You need to specify a member.\n" +
+                return await ctx.send(specify_member +
                     "Command usage: `n!kick <member> [reason]`")
             elif cmd == 'respawn':
-                return await ctx.send(":x: You need to specify a member.\n" +
+                return await ctx.send(specify_member +
                     "Command usage: `n!respawn <member>`")
             elif cmd == 'ban':
-                return await ctx.send(":x: You need to specify a member.\n" +
+                return await ctx.send(specify_member +
                     "Command usage: `n!ban <member> [reason]`")
             elif cmd == 'unban':
                 return await ctx.send(":x: Enter the ID of the user you " +
@@ -87,16 +91,16 @@ class ErrorHandler():
                         "[reason]`\nExample: `n!unban <userID>`\nYou can " +
                             "type `n!bans` to check every banned user's ID.")
             elif cmd == 'mute':
-                return await ctx.send(":x: You must specify a member.\n" +
+                return await ctx.send(specify_member +
                     "Command usage: `n!mute <member> [duration]`")
             elif cmd == 'unmute':
-                return await ctx.send(":x: You must specify a member.\n" +
+                return await ctx.send(specify_member +
                     "Command usage: `n!unmute <member>`")
             elif cmd == 'chatmute':
-                return await ctx.send(":x: You must specify a member.\n" +
+                return await ctx.send(specify_member +
                     "Command usage: `n!chatmute <member> [duration]`")
             elif cmd == 'unchatmute':
-                return await ctx.send(":x: You must specify a member.\n" +
+                return await ctx.send(specify_member +
                     "Command usage: `n!unchatmute <member>`")
             elif cmd == 'delete':
                 return await ctx.send(":x: Enter the amount of messages "
@@ -150,14 +154,11 @@ class ErrorHandler():
 
         elif isinstance(error, commands.CheckFailure):
             if cmd == 'mute':
-                return await ctx.send(":x: You need to be at least level 20 " +
-                    "to use this command.")
+                return await ctx.send(level.format('20'))
             if cmd == 'kick':
-                return await ctx.send(":x: You need to be at least level 25 " +
-                    "to use this command.")
+                return await ctx.send(level.format('25'))
             elif cmd == 'ban':
-                return await ctx.send(":x: You need to be at least level 30 " +
-                    "to use this command.")
+                return await ctx.send(level.format('30'))
 
         print("Ignoring exception in command {0.command}:".format(
             ctx, file=sys.stderr))
