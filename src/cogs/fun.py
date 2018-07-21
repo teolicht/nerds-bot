@@ -321,54 +321,55 @@ class Fun(object):
 
     @commands.command()
     async def sound(self, ctx, option, repeat: int = False):
-        sounds_path = os.path.join(THIS_PATH, "sounds/")
-        def soundobj(sound):
-            return discord.FFmpegPCMAudio(sounds_path + sound)
-
-        async def playsound(file, repeat, duration):
-            if repeat is False:
-                vc.play(soundobj(file))
-            else:
-                for i in range(0, repeat):
-                    vc.play(soundobj(file))
-                    await asyncio.sleep(duration)
-                    vc.stop()
-            await asyncio.sleep(duration)
-
-        voice = ctx.author.voice
-        if voice is None:
-            return await ctx.send(":x: Join a voice channel first.")
-        channel = voice.channel
-        options = {
-            '1': 'My name is jeff',
-            '2': 'Doin\' your mom',
-            '3': 'Somebody toucha my spaghet',
-            '4': 'Deja vu duck',
-            '5': 'Pedron\'s keyboard',
-            '6': 'Surprise motherfucker',
-            '7': 'Precious foot lettuce'}
-        if option not in options:
-            return await ctx.send(":x: Option `{}` not found.".format(option))
-
-        vc = await channel.connect()
-        await ctx.send(":white_check_mark: *Playing sound* `{}`".format(
-            options[option]))
-
-        if option == '1':
-            await playsound('jeff.mp3', repeat, 2)
-        elif option == '2':
-            await playsound('doinurmom.mp3', repeat, 8.2)
-        elif option == '3':
-            await playsound('spaghet.mp3', repeat, 4.7)
-        elif option == '4':
-            await playsound('initialduck.mp3', repeat, 14.7)
-        elif option == '5':
-            await playsound('smashingKB.mp3', repeat, 7)
-        elif option == '6':
-            await playsound('surprise_motherfucker.mp3', repeat, 2.5)
-        elif option == '7':
-            await playsound('preciousfoot.mp3', repeat, 31)
-        await vc.disconnect()
+        await ctx.send("This command is currently disabled because I can't fucking get it to work")
+        # sounds_path = os.path.join(THIS_PATH, "sounds/")
+        # def soundobj(sound):
+        #     return discord.FFmpegPCMAudio(sounds_path + sound)
+        #
+        # async def playsound(file, repeat, duration):
+        #     if repeat is False:
+        #         vc.play(soundobj(file))
+        #     else:
+        #         for i in range(0, repeat):
+        #             vc.play(soundobj(file))
+        #             await asyncio.sleep(duration)
+        #             vc.stop()
+        #     await asyncio.sleep(duration)
+        #
+        # voice = ctx.author.voice
+        # if voice is None:
+        #     return await ctx.send(":x: Join a voice channel first.")
+        # channel = voice.channel
+        # options = {
+        #     '1': 'My name is jeff',
+        #     '2': 'Doin\' your mom',
+        #     '3': 'Somebody toucha my spaghet',
+        #     '4': 'Deja vu duck',
+        #     '5': 'Pedron\'s keyboard',
+        #     '6': 'Surprise motherfucker',
+        #     '7': 'Precious foot lettuce'}
+        # if option not in options:
+        #     return await ctx.send(":x: Option `{}` not found.".format(option))
+        #
+        # vc = await channel.connect()
+        # await ctx.send(":white_check_mark: *Playing sound* `{}`".format(
+        #     options[option]))
+        #
+        # if option == '1':
+        #     await playsound('jeff.mp3', repeat, 2)
+        # elif option == '2':
+        #     await playsound('doinurmom.mp3', repeat, 8.2)
+        # elif option == '3':
+        #     await playsound('spaghet.mp3', repeat, 4.7)
+        # elif option == '4':
+        #     await playsound('initialduck.mp3', repeat, 14.7)
+        # elif option == '5':
+        #     await playsound('smashingKB.mp3', repeat, 7)
+        # elif option == '6':
+        #     await playsound('surprise_motherfucker.mp3', repeat, 2.5)
+        # elif option == '7':
+        #     await playsound('preciousfoot.mp3', repeat, 31)
+        # await vc.disconnect()
 
     @commands.command()
     async def fact(self, ctx):
