@@ -68,7 +68,8 @@ Type `!rank` to check your level."""
                 return await ctx.send(":x: What question do you want to ask " +
                     "the magic 8-ball?\nCommand usage: `n!8ball <question>`")
             elif cmd == 'sound':
-                return await ctx.send("This command is currently disabled because I can't fucking get it to work")
+                return await ctx.send("This command is currently disabled " +
+                    "because I can't fucking get it to work.")
                 # return await ctx.send(":x: Specify the sound you want " +
                 #     "me to play.\nCommand usage: `n!sound <sound> " +
                 #         "[times to repeat]`\nType `n!sounds` for a list " +
@@ -151,14 +152,6 @@ Type `!rank` to check your level."""
 
         elif isinstance(error, commands.NotOwner):
             return
-
-        elif isinstance(error, commands.CheckFailure):
-            if cmd == 'mute':
-                return await ctx.send(level.format('20'))
-            if cmd == 'kick':
-                return await ctx.send(level.format('25'))
-            elif cmd == 'ban':
-                return await ctx.send(level.format('30'))
 
         print("Ignoring exception in command {0.command}:".format(
             ctx, file=sys.stderr))

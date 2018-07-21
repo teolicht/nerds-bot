@@ -297,12 +297,13 @@ class Fun(object):
         with open(os.path.join(THIS_PATH, "text", "bad_words.txt")) as file:
             bad_words = [line.rstrip('\n') for line in file]
 
-        await ctx.send(":white_check_mark: *Started annoying* **`{}`** ".format(nick) +
-            "**{}** time(s)".format(times))
+        await ctx.send(":white_check_mark: *Started annoying* **`{}`** ".format(
+            nick) + "**{}** time(s)".format(times))
         for i in range(0, times):
             word = random.choice(bad_words)
-            await member.send("**{}** • I was sent here to annoy you by ".format(i + 1) +
-                "{0.author.mention}, **{1}**.".format(ctx, word))
+            await member.send("**{}** • I was sent here to annoy ".format(
+                i + 1) + "you by {0.author.mention}, **{1}**.".format(
+                    ctx, word))
             if not i == times - 1: # If not done yet
                 await asyncio.sleep(30)
 
@@ -321,7 +322,7 @@ class Fun(object):
 
     @commands.command()
     async def sound(self, ctx, option, repeat: int = False):
-        await ctx.send("This command is currently disabled because I can't fucking get it to work")
+        await ctx.send("This command is currently disabled because I can't fucking get it to work.")
         # sounds_path = os.path.join(THIS_PATH, "sounds/")
         # def soundobj(sound):
         #     return discord.FFmpegPCMAudio(sounds_path + sound)
