@@ -14,7 +14,6 @@ class Moderation():
         self.bot = bot
 
     @commands.command()
-    @commands.has_any_role('👑', '👑👑', '👑👑👑')
     async def kick(self, ctx, member: discord.Member, *, reason=None):
         try:
             if reason:
@@ -44,7 +43,6 @@ Here are the possible reasons:
             await ctx.send(embed=em)
 
     @commands.command()
-    @commands.has_any_role('👑👑', '👑👑👑')
     async def ban(self, ctx, user: discord.User, *, reason=None):
         try:
             bans = await ctx.guild.bans()
@@ -157,7 +155,6 @@ Possible reason:
                 "view the list of banned users.")
 
     @commands.command()
-    @commands.has_any_role('⭐⭐⭐', '👑', '👑👑', '👑👑👑')
     async def mute(self, ctx, member: discord.Member, duration: int = None):
         if member.voice.mute is True:
             return await ctx.send(":x: That member is already muted.")
@@ -209,8 +206,8 @@ Possible reason:
             await asyncio.sleep(duration * 60)
             if member in muted_members:
                 muted_members.remove(member)
-                await ctx.send(":white_check_mark: {0.mention} is no longer ".format(
-                    member) + "chat-muted.")
+                await ctx.send(":white_check_mark: {0.mention} is no ".format(
+                    member) + "longer chat-muted.")
 
     @commands.command()
     async def unchatmute(self, ctx, member: discord.Member):
