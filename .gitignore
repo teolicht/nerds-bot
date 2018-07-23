@@ -3,3 +3,4 @@ __pycache__
 pics_links.txt
 bad_words.txt
 botoken.py
+*.swp
