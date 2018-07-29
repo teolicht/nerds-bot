@@ -231,7 +231,7 @@ class Fun(object):
                 await ctx.send(":x: {} is not even dead, mate.".format(nick))
             return
 
-        if '(DEAD)' in member.nick:
+        if member.nick and '(DEAD)' in member.nick:
             new_name = member.nick[:-7] # Cuts out '(DEAD)' from member's nick
             await member.edit(nick=new_name)
             member = self.mname(member)
