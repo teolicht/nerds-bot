@@ -2,5 +2,5 @@
 __pycache__
 pics_links.txt
 bad_words.txt
-botoken.py
+config.py
 *.swp
