@@ -2,7 +2,6 @@ from discord.ext import commands
 import discord
 import praw
 import random
-from pprint import pprint
 from .config import Reddit
 
 r = praw.Reddit(client_id=Reddit.client_id,
@@ -20,7 +19,6 @@ class Reddit(object):
             for submission in r.subreddit(subreddit).hot(limit=100):
                 submissions.append(submission)
             post = random.choice(submissions)
-            pprint(vars(post))
 
             em = discord.Embed(title=post.title,
                                url='https://www.reddit.com' + post.permalink)
