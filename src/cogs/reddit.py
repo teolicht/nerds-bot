@@ -13,24 +13,29 @@ class Reddit(object):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group()
-    async def reddit(self, ctx):
-        if ctx.invoked_subcommand is None:
-            await ctx.send("**https://www.reddit.com/**")
-
-    @reddit.command()
-    async def meirl(self, ctx):
-        submissions = []
-        for submission in r.subreddit('me_irl').hot(limit=100):
-            if not submission.id == '80ib9u':
+    @commands.command()
+    async def reddit(self, ctx, subreddit):
+        try:
+            submissions = []
+            for submission in r.subreddit(subreddit).hot(limit=100):
                 submissions.append(submission)
-        post = random.choice(submissions)
-        em = discord.Embed(title='me irl',
-                           url="https://www.reddit.com" + post.permalink)
-        em.set_image(url=post.url)
-        em.set_footer(text='u/{0.author.name} • {0.ups}'.format(post))
-        await ctx.send(embed=em)
+            post = random.choice(submissions)
+            pprint(vars(post))
 
+            em = discord.Embed(title=post.title,
+                               url='https://www.reddit.com' + post.permalink)
+            em.set_footer(text='u/{0.author.name} • {0.ups}'.format(post))
+            em.set_author(name=post.subreddit_name_prefixed)
+            if post.selftext:
+                em.description = post.selftext
+            elif post.url.endswith(('jpg', 'png')):
+                em.set_image(url=post.url)
+            else:
+                em.description = post.url
+            await ctx.send(embed=em)
+        except discord.errors.HTTPException:
+            em.description = post.url
+            await ctx.send(embed=em)
 
 def setup(bot):
     bot.add_cog(Reddit(bot))
