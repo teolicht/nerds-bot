@@ -2,7 +2,6 @@
 
 from discord.ext import commands
 import discord
-
 import time
 import traceback
 import sys
@@ -10,8 +9,7 @@ import random
 import asyncio
 import datetime
 import logging
-import botoken
-
+from cogs.config import botoken
 from cogs.emojis import Emoji
 from cogs.nerds import nerds
 from cogs.moderation import muted_members
@@ -27,7 +25,8 @@ initial_extensions = [
     'cogs.pictures',
     'cogs.fun',
     'cogs.moderation',
-    'cogs.utilities']
+    'cogs.utilities',
+    'cogs.reddit']
 
 bot = commands.Bot(
     description=description,
@@ -270,4 +269,4 @@ if __name__ == '__main__':
             traceback.print_exc()
 
     # bot.loop.create_task(change_status())
-    bot.run(botoken.token)
+    bot.run(botoken)

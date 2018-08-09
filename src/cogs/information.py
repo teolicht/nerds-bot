@@ -2,12 +2,10 @@
 
 from discord.ext import commands
 import discord
-
 import time
 import ago
 import bs4
-import lxml # xml parser
-
+import lxml
 from bs4 import BeautifulSoup as soup
 from urllib.request import urlopen
 from datetime import datetime
@@ -17,6 +15,7 @@ class Emoji(object):
     off = "<:OFF:466770290601361408>"
     idle = "<:IDLE:466770290865733633>"
     dnd = "<:DND:466770290421137409>"
+    bot = "<:BOT:476896189631954945>"
 
 class Information():
     def __init__(self, bot):
@@ -73,12 +72,13 @@ class Information():
     @commands.group()
     async def help(self, ctx):
         if ctx.invoked_subcommand is None:
-            em = discord.Embed(title="Commands (42)", color=0xffc700)
+            em = discord.Embed(title="Commands (43)", color=0xffc700)
             em.add_field(name='info', value='Informative commands.')
             em.add_field(name='pics', value='Picture commands.')
             em.add_field(name='fun', value='Fun commands.', inline=False)
             em.add_field(name='mod', value='Moderation commands.')
             em.add_field(name='utilities', value='Utility commands.')
+            em.add_field(name='reddit', value='Reddit commands.')
             em.set_footer(text='To view category: "n!help <category>"')
             await ctx.send(embed=em)
 
@@ -169,6 +169,14 @@ class Information():
         em.add_field(name='poll <question> <duration> <option1> <option2> ' +
             '[options3-10]', value='Start a poll.', inline=False)
         em.add_field(name='choose', value='Choose from a list of options.')
+        await ctx.send(embed=em)
+
+    @help.command()
+    async def reddit(self, ctx):
+        em = discord.Embed(title='Reddit commands (1)', color=0xffc700,
+                           description='Use `n!reddit <subreddit>`')
+        em.clear_fields()
+        em.add_field(name='meirl', value='Random hot post from r/me_irl.')
         await ctx.send(embed=em)
 
     @commands.command()
@@ -276,8 +284,11 @@ class Information():
     async def server(self, ctx):
         def get_memberstatus(self, guild):
             """Get status of each member in a guild"""
-            on_members, off_members, idle_members, dnd_members = 0, 0, 0, 0
+            on_members, off_members, idle_members = 0, 0, 0
+            dnd_members, bot_members = 0, 0
             for member in guild.members:
+                if member.bot:
+                    bot_members += 1
                 if member.status == discord.Status.online:
                     on_members += 1
                 elif member.status == discord.Status.offline:
@@ -289,7 +300,7 @@ class Information():
                     dnd_members += 1
                 else:
                     off_members += 1
-            return on_members, off_members, idle_members, dnd_members
+            return on_members, off_members, idle_members, dnd_members, bot_members
 
         def get_verificationlevel(guild):
             """Get the verification level of a guild"""
@@ -320,7 +331,7 @@ class Information():
         guild = ctx.guild
         roles, emojis = [], []
         textchannels, voicechannels, to_remove = 0, 0, 0
-        on_members, off_members, idle_members, dnd_members = get_memberstatus(
+        on_members, off_members, idle_members, dnd_members, bot_members = get_memberstatus(
             self, guild)
         verificationlevel = get_verificationlevel(guild)
         contentfilter = get_contentfilter(guild)
@@ -381,8 +392,9 @@ class Information():
             value='`{0.owner}`'.format(guild))
         em.add_field(
             name='Members:',
-            value='{0.on}{1}   {0.off}{2}   {0.idle}{3}   {0.dnd}{4}'.format(
-                   Emoji, on_members, off_members, idle_members, dnd_members))
+            value='{0.on}{1}   {0.off}{2}   {0.idle}{3}   {0.dnd}{4}   '.format(
+                Emoji, on_members, off_members, idle_members, dnd_members) +
+                    '{0.bot}{1}'.format(Emoji, bot_members))
         em.add_field(
             name='Channels ({}):'.format(textchannels + voicechannels),
             value='Text: **{}**\nVoice: **{}**'.format(
