@@ -9,6 +9,8 @@ import random
 import asyncio
 import datetime
 import logging
+import psutil
+import os
 from cogs.config import botoken
 from cogs.emojis import Emoji
 from cogs.nerds import nerds
@@ -78,12 +80,6 @@ async def on_message(message):
     else:
         return
 
-executed = 0
-@bot.event
-async def on_command(ctx):
-    global executed
-    executed += 1
-
 @bot.command(name='ping', aliases=['Ping', 'PING', 'latency'])
 async def _ping(ctx):
     t_1 = time.perf_counter()
@@ -99,12 +95,27 @@ async def _ping(ctx):
 @bot.command()
 async def info(ctx):
     delta_uptime = datetime.datetime.utcnow() - bot.launch_time
-    hours, remainder = divmod(int(delta_uptime.total_seconds()), 3600)
-    minutes, seconds = divmod(remainder, 60)
-    days, hours = divmod(hours, 24)
+    h, remainder = divmod(int(delta_uptime.total_seconds()), 3600)
+    m, s = divmod(remainder, 60)
+    d, h = divmod(h, 24)
     major, minor, micro = sys.version_info[:3]
 
-    em = discord.Embed(color=0xffc700)
+    memory_usage = psutil.Process().memory_full_info().uss / 1024**2
+    cpu_usage = psutil.cpu_percent()
+
+    cmd = r'git show -s HEAD~3..HEAD --format="[{}](https://github.com/teolicht/nerds-bot/commit/%H) %s (%cr)"'
+    if os.name == 'posix':
+        cmd = cmd.format(r'\`%h\`')
+    else:
+        cmd = cmd.format(r'`%h`')
+
+    try:
+        revision = os.popen(cmd).read().strip()
+    except OSError:
+        revision = "Could not fetch due to memory error."
+
+    em = discord.Embed(description='Latest changes:\n' + revision,
+                       color=0xffc700)
     em.set_author(
         name='Nerds Bot',
         icon_url=bot.user.avatar_url)
@@ -113,16 +124,13 @@ async def info(ctx):
         value=f'Python {major}.{minor}.{micro}')
     em.add_field(
         name='API',
-        value='discord.py {}'.format(discord.__version__),
-        inline=False)
+        value='discord.py {}'.format(discord.__version__))
     em.add_field(
-        name='Commands since execution',
-        value=executed)
+        name='Process',
+        value=f'Memory: {memory_usage:.2f} MiB\nCPU: {cpu_usage}%')
     em.add_field(
         name='Uptime',
-        value='**{}** day(s)\n**{}** hour(s)\n'.format(days, hours) +
-              '**{}** minute(s)\n**{}** second(s)'.format(minutes, seconds),
-        inline=False)
+        value=f'{d}d {h}h {m}m {s}s')
     await ctx.send(embed=em)
 
 @bot.command(name='poll')
