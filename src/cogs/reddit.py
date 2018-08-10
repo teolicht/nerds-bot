@@ -1,6 +1,6 @@
 from discord.ext import commands
 import discord
-import praw
+import praw, prawcore
 import random
 from .config import Reddit
 
@@ -14,6 +14,10 @@ class Reddit(object):
 
     @commands.command()
     async def reddit(self, ctx, subreddit):
+        try:
+            r.subreddits.search_by_name(subreddit, exact=True)
+        except prawcore.exceptions.NotFound:
+            return await ctx.send(":x: I wasn't able to find that subreddit.")
         try:
             submissions = []
             for submission in r.subreddit(subreddit).hot(limit=100):
