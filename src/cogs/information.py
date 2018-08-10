@@ -75,9 +75,9 @@ class Information():
             em = discord.Embed(title="Commands (43)", color=0xffc700)
             em.add_field(name='info', value='Informative commands.')
             em.add_field(name='pics', value='Picture commands.')
-            em.add_field(name='fun', value='Fun commands.', inline=False)
+            em.add_field(name='fun', value='Fun commands.')
             em.add_field(name='mod', value='Moderation commands.')
-            em.add_field(name='utilities', value='Utility commands.')
+            em.add_field(name='util', value='Utility commands.')
             em.add_field(name='reddit', value='Reddit commands.')
             em.set_footer(text='To view category: "n!help <category>"')
             await ctx.send(embed=em)
@@ -154,8 +154,9 @@ class Information():
             inline=False)
         await ctx.send(embed=em)
 
-    @help.command()
-    async def utilities(self, ctx):
+    @help.command(aliases=['utilities', 'utilits', 'utlities', 'utilties',
+                           'utilitis', 'utils'])
+    async def util(self, ctx):
         em = discord.Embed(title="Utility commands (7)", color=0xffc700)
         em.clear_fields()
         em.add_field(name='delete <amount>', value='Delete messages in the ' +
@@ -173,10 +174,10 @@ class Information():
 
     @help.command()
     async def reddit(self, ctx):
-        em = discord.Embed(title='Reddit commands (1)', color=0xffc700,
-                           description='Use `n!reddit <subreddit>`')
+        em = discord.Embed(title='Reddit commands (1)', color=0xffc700)
         em.clear_fields()
-        em.add_field(name='meirl', value='Random hot post from r/me_irl.')
+        em.add_field(name='reddit <subreddit>', value='Random hot post from ' +
+                                                      'specified subreddit.')
         await ctx.send(embed=em)
 
     @commands.command()
