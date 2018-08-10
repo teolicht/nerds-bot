@@ -16,7 +16,6 @@ from cogs.emojis import Emoji
 from cogs.nerds import nerds
 from cogs.moderation import muted_members
 
-
 description = "A Discord bot written by Lanit#3333."
 prefix = ('n!', 'N!')
 
@@ -65,7 +64,7 @@ async def on_message(message):
     if message.guild is not None:
         if message.author in muted_members:
             return await message.delete()
-        if message.channel.name == "music":
+        if message.channel.name == 'music':
             DJ_cmds = ['play', 'disconnect', 'np', 'aliases', 'ping', 'skip',
              'seek', 'soundcloud', 'remove', 'loopqueue', 'search', 'stats',
              'loop', 'donate', 'shard', 'join', 'lyrics', 'info', 'resume',
@@ -82,14 +81,39 @@ async def on_message(message):
 
 @bot.command(name='ping', aliases=['Ping', 'PING', 'latency'])
 async def _ping(ctx):
+    def color(r, g, b):
+        return discord.Colour.from_rgb(r, g, b)
+
     t_1 = time.perf_counter()
     await ctx.trigger_typing()
     t_2 = time.perf_counter()
-    time_delta = round((t_2 - t_1) * 1000)
-    # TODO: Display different embed color depending on ping (good: green, bad: red)
+
+    ping = round((t_2 - t_1) * 1000)
+    if ping <= 100:
+        color = color(0, 211, 14)
+    elif ping <= 170:
+        color = color(106, 255, 0)
+    elif ping <= 230:
+        color = color(195, 255, 0)
+    elif ping <= 270:
+        color = color(255, 255, 0)
+    elif ping <= 340:
+        color = color(255, 212, 0)
+    elif ping <= 400:
+        color = color(255, 174, 0)
+    elif ping <= 500:
+        color = color(255, 127, 0)
+    elif ping <= 650:
+        color = color(255, 72, 0)
+    elif ping <= 850:
+        color = color(255, 0, 0)
+    else:
+        color = color(211, 0, 0)
+
     em = discord.Embed(
-        title='🏓 Pong!{0.online}'.format(Emoji),
-        description='*{}ms*'.format(time_delta))
+        title='🏓 Pong!',
+        description='*{}ms*'.format(ping),
+        color=color)
     await ctx.send(embed=em)
 
 @bot.command()
