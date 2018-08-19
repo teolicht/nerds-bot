@@ -267,7 +267,8 @@ Possible reason:
         if duration is None:
             await ctx.send(":white_check_mark: Chat-muted {0.name}".format(
                 member))
-            await cooldown()
+            if not ctx.author.id == 300761654411526154:
+                await cooldown()
         else:
             await ctx.send(":white_check_mark: Chat-muted " +
                 "{0.name} for `{1}` minute(s).".format(member, duration))
