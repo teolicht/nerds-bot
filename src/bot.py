@@ -137,7 +137,7 @@ async def info(ctx):
         revision = os.popen(cmd).read().strip()
     except OSError:
         revision = "Could not fetch due to memory error."
-
+    print(cmd); print('-----------------'); print(revision)
     em = discord.Embed(description='Latest changes:\n' + revision,
                        color=0xffc700)
     em.set_author(
