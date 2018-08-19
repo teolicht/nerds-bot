@@ -124,7 +124,8 @@ Possible reasons:
 
             user = await self.bot.get_user_info(userid)
             banned_users = []
-            banned_users = [banned_users.append(ban.user) for ban in bans]
+            for ban in bans:
+                banned_users.append(ban.user)
 
             if user not in banned_users:
                 return await ctx.send(":x: `{}` isn't banned from ".format(
