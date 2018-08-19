@@ -88,7 +88,7 @@ Type `!rank` to check your level."""
             elif cmd == 'unban':
                 return await ctx.send(":x: Enter the ID of the user you " +
                     "want me to unban.\nCommand usage: `n!unban <userID> " +
-                        "[reason]`\nExample: `n!unban <userID>`\nYou can " +
+                        "[reason]`\nExample: `n!unban 465945853220093954`\nYou can " +
                             "type `n!bans` to check every banned user's ID.")
             elif cmd == 'mute':
                 return await ctx.send(specify_member +
@@ -132,7 +132,7 @@ Type `!rank` to check your level."""
                 return await ctx.send(":x: I wasn't able to find that member.")
             elif cmd == 'unban':
                 return await ctx.send(":x:  I wasn't able to find an user " +
-                    "with that ID.\nCommand usage: `n!unban 3549923940283212`" +
+                    "with that ID.\nCommand usage: `n!unban <userID>`" +
                         "\nYou can type `n!bans` to check every banned " +
                             "user's ID.")
             elif cmd in ['mute', 'chatmute']:
