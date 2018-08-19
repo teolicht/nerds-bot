@@ -147,14 +147,7 @@ Possible reasons:
             await ctx.send(embed=em)
 
         except discord.errors.Forbidden:
-            em = discord.Embed(
-                title='I can\'t unban `{}`'.format(user),
-                description='''
-Possible reason:
-⊳ I need the **Ban Members** permission.
-''',
-                color=discord.Colour.red())
-            await ctx.send(embed=em)
+            await ctx.send(embed=":x: I need the **Ban Members** permission")
 
     @commands.command()
     async def bans(self, ctx):
