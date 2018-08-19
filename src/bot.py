@@ -134,11 +134,13 @@ async def info(ctx):
         cmd = cmd.format(r'`%h`')
 
     try:
-        revision = os.popen(cmd).read().strip()
+        revision = os.popen(cmd).read().strip().split('\n')
     except OSError:
         revision = "Could not fetch due to memory error."
-    print(cmd); print('-----------------'); print(revision)
-    em = discord.Embed(description='Latest changes:\n' + revision,
+    for commit in revision:
+        if "Merge branch" in commit:
+            revision.remove(commit)
+    em = discord.Embed(description='Latest changes:\n' + '\n'.join(revision),
                        color=0xffc700)
     em.set_author(
         name='Nerds Bot',
