@@ -180,10 +180,10 @@ class Fun(object):
             color=discord.Colour.red())
         if len(nick) > 25:
             return await ctx.send(embed=em)
-        await ctx.send(embed=em)
         try:
             await member.edit(nick='{} (DEAD)'.format(nick))
             dead_members.append(member)
+            await ctx.send(embed=em)
         except discord.errors.Forbidden:
             await ctx.send(embed=em)
 
@@ -220,7 +220,6 @@ class Fun(object):
 
     @commands.command()
     async def respawn(self, ctx, member: discord.Member):
-        print(dead_members)
         if member == ctx.author:
             return await ctx.send(":x: Sorry, you can't respawn yourself.")
         if member not in dead_members:
