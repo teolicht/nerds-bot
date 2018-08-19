@@ -39,7 +39,7 @@ class Fun(object):
         em = discord.Embed(
             title='Dear {0.name}'.format(member),
             description='*I was sent here by {0.author.mention} '.format(ctx) +
-                'to tell you this:*\n\n{1}\n\u200b'.format(text),
+                'to tell you this:*\n\n{}\n\u200b'.format(text),
             timestamp=datetime.datetime.utcnow())
         await member.send(embed=em)
         await ctx.send(":white_check_mark: Sent message to `{0.name}`".format(
@@ -183,9 +183,9 @@ class Fun(object):
         await ctx.send(embed=em)
         try:
             await member.edit(nick='{} (DEAD)'.format(nick))
+            dead_members.append(member)
         except discord.errors.Forbidden:
             await ctx.send(embed=em)
-        dead_members.append(member)
 
     @commands.command()
     async def kill(self, ctx, member: discord.Member):
@@ -214,12 +214,13 @@ class Fun(object):
         try:
             await member.edit(nick='{} (DEAD)'.format(nick))
             await ctx.send(embed=em)
+            dead_members.append(member)
         except discord.errors.Forbidden:
             await ctx.send(embed=em)
-        dead_members.append(member)
 
     @commands.command()
     async def respawn(self, ctx, member: discord.Member):
+        print(dead_members)
         if member == ctx.author:
             return await ctx.send(":x: Sorry, you can't respawn yourself.")
         if member not in dead_members:
@@ -233,9 +234,9 @@ class Fun(object):
         if member.nick and '(DEAD)' in member.nick:
             new_name = member.nick[:-7] # Cuts out '(DEAD)' from member's nick
             await member.edit(nick=new_name)
-            member = self.mname(member)
-        await ctx.send(":innocent: Welcome back, {}.".format(member))
+            member_name = self.mname(member)
         dead_members.remove(member)
+        await ctx.send(":innocent: Welcome back, {}.".format(member_name))
 
     @commands.command()
     async def rps(self, ctx, choice):

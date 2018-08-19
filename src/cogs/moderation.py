@@ -147,14 +147,7 @@ Possible reasons:
             await ctx.send(embed=em)
 
         except discord.errors.Forbidden:
-            em = discord.Embed(
-                title='I can\'t unban `{}`'.format(user),
-                description='''
-Possible reason:
-⊳ I need the **Ban Members** permission.
-''',
-                color=discord.Colour.red())
-            await ctx.send(embed=em)
+            await ctx.send(embed=":x: I need the **Ban Members** permission")
 
     @commands.command()
     async def bans(self, ctx):
@@ -267,7 +260,8 @@ Possible reason:
         if duration is None:
             await ctx.send(":white_check_mark: Chat-muted {0.name}".format(
                 member))
-            await cooldown()
+            if not ctx.author.id == 300761654411526154:
+                await cooldown()
         else:
             await ctx.send(":white_check_mark: Chat-muted " +
                 "{0.name} for `{1}` minute(s).".format(member, duration))
