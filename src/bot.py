@@ -262,7 +262,7 @@ async def _poll(ctx, question, duration: int, option1, option2, option3=None,
 
     total = []
     for x, option in enumerate(options):
-        total += '\n{}: {}\n'.format(option, results[x])
+        total += '\n`{}`: {}\n'.format(option, results[x])
 
     if winner_option:
         em = discord.Embed(
