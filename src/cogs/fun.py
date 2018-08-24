@@ -307,7 +307,7 @@ class Fun(object):
                 await asyncio.sleep(30)
 
         minutes = round((30 * times) / 60, 1)
-        await ctx.send(":white_check_mark: *Done annoying* **`{0.name}`** • ".format(member) +
+        await ctx.send(":white_check_mark: *Done annoying* {0.mention} • ".format(member) +
             "`{}min`".format(minutes))
 
     @commands.command(name='8ball')
