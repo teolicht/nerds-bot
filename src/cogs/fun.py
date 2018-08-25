@@ -233,9 +233,12 @@ class Fun(object):
         if member.nick and '(DEAD)' in member.nick:
             new_name = member.nick[:-7] # Cuts out '(DEAD)' from member's nick
             await member.edit(nick=new_name)
-            member_name = self.mname(member)
-        dead_members.remove(member)
-        await ctx.send(":innocent: Welcome back, {}.".format(member_name))
+            nick = self.mname(member)
+            dead_members.remove(member)
+            await ctx.send(":innocent: Welcome back, {}.".format(nick))
+        else:
+            nick = self.mname(member)
+            await ctx.send(":innocent: Welcome back, {}.".format(nick))
 
     @commands.command()
     async def rps(self, ctx, choice):
@@ -296,8 +299,8 @@ class Fun(object):
         with open(os.path.join(THIS_PATH, "text", "bad_words.txt")) as file:
             bad_words = [line.rstrip('\n') for line in file]
 
-        await ctx.send(":white_check_mark: *Started annoying* **`{}`** ".format(
-            nick) + "**{}** time(s)".format(times))
+        await ctx.send(":white_check_mark: *Started annoying* {} ".format(
+            self.mname(member)) + "**{}** time(s)".format(times))
         for i in range(0, times):
             word = random.choice(bad_words)
             await member.send("**{}** • I was sent here to annoy ".format(
