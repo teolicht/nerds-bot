@@ -124,6 +124,9 @@ Type `!rank` to check your level."""
             elif cmd == 'choose':
                 return await ctx.send(":x: Give me some options to randomly " +
                     "choose from.\nCommand usage: `n!choose <options>`")
+            elif cmd == 'reddit':
+                return await ctx.send(":x: Specify the subreddit.\nCommand " +
+                    "usage: `n!reddit <subreddit>`")
 
         elif isinstance(error, commands.BadArgument):
             if cmd in ['member', 'gay', 'gg', 'roast', 'kick', 'ban', 'mute',
