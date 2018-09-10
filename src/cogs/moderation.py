@@ -4,6 +4,7 @@ from discord.ext import commands
 import discord
 import asyncio
 import datetime
+from multiprocessing import Process
 
 
 muted_members = []
@@ -241,14 +242,6 @@ Possible reasons:
     @commands.command()
     @commands.bot_has_permissions(manage_messages=True)
     async def chatmute(self, ctx, member: discord.Member, duration: int = None):
-        async def cooldown():
-            i = 7200
-            while i != 0:
-                chatmute_cooldown_members[ctx.author] = i
-                await asyncio.sleep(1)
-                i -= 1
-            del chatmute_cooldown_members[ctx.author]
-
         if member.id == 300761654411526154:
             return
         if ctx.author in chatmute_cooldown_members:
@@ -261,13 +254,10 @@ Possible reasons:
         if duration is None:
             await ctx.send(":white_check_mark: Chat-muted {0.name}".format(
                 member))
-            if not ctx.author.id == 300761654411526154:
-                await cooldown()
         else:
             await ctx.send(":white_check_mark: Chat-muted " +
-                "{0.name} for `{1}` minute(s).".format(member, duration))
-            await cooldown()
-            await asyncio.sleep(duration * 60)
+                "{0.name} for `{1}` second(s).".format(member, duration))
+            await asyncio.sleep(duration)
             if member in muted_members:
                 muted_members.remove(member)
                 await ctx.send(":white_check_mark: {0.mention} is no ".format(
