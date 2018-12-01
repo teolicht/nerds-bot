@@ -432,23 +432,23 @@ class Information():
         em.set_thumbnail(url=guild.icon_url)
         await ctx.send(embed=em)
 
-    @commands.command()
-    async def news(self, ctx):
-        news_url = "https://news.google.com/news/rss/?ned=us&gl=US&hl=en"
-
-        Client = urlopen(news_url)
-        xml_page = Client.read()
-        Client.close()
-
-        soup_page = soup(xml_page, 'xml')
-        news_list = soup_page.findAll('item')
-
-        em = discord.Embed(title='Google News')
-        for news in news_list:
-            em.add_field(
-                name=news.title.text,
-                value="{0.link.text}\n{0.pubDate.text}\n\u200b".format(news))
-        await ctx.send(embed=em)
+    # @commands.command()
+    # async def news(self, ctx):
+    #     news_url = "https://news.google.com/news/rss/?ned=us&gl=US&hl=en"
+    #
+    #     Client = urlopen(news_url)
+    #     xml_page = Client.read()
+    #     Client.close()
+    #
+    #     soup_page = soup(xml_page, 'xml')
+    #     news_list = soup_page.findAll('item')
+    # 
+    #     em = discord.Embed(title='Google News')
+    #     for news in news_list:
+    #         em.add_field(
+    #             name=news.title.text,
+    #             value="{0.link.text}\n{0.pubDate.text}\n\u200b".format(news))
+    #     await ctx.send(embed=em)
 
 
 def setup(bot):
