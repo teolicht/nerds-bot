@@ -81,7 +81,7 @@ async def on_message(message):
 
 @bot.event
 async def on_member_join(member):
-    if member.bot is True:
+    if member.bot is False:
         nerds = bot.get_guild(300762607164325893)
         nrd_role = discord.utils.get(nerds.roles, name='NRD')
         await member.add_roles(nrd_role)
