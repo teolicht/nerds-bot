@@ -79,6 +79,13 @@ async def on_message(message):
     else:
         return
 
+@bot.event
+async def on_member_join(member):
+    if member.bot is True:
+        nerds = bot.get_guild(300762607164325893)
+        nrd_role = discord.utils.get(nerds.roles, name='NRD')
+        await member.add_roles(nrd_role)
+
 @bot.command(name='ping', aliases=['Ping', 'PING', 'latency'])
 async def _ping(ctx):
     def color(r, g, b):
