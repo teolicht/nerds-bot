@@ -26,7 +26,7 @@ class Reddit(object):
 
             em = discord.Embed(title=post.title,
                                url='https://www.reddit.com' + post.permalink)
-            em.set_footer(text='u/{0.author.name} • {0.ups}'.format(post))
+            em.set_footer(text='u/{0.author.name} • {0.ups} points'.format(post))
             em.set_author(name=post.subreddit_name_prefixed)
             if post.selftext:
                 em.description = post.selftext

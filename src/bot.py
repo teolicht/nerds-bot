@@ -16,7 +16,7 @@ from cogs.emojis import Emoji
 from cogs.nerds import nerds
 from cogs.moderation import muted_members
 
-description = "A Discord bot written by Lanit#3333."
+description = "A personal Discord bot for friends."
 prefix = ('n!', 'N!')
 
 initial_extensions = [
