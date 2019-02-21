@@ -8,6 +8,7 @@ from multiprocessing import Process
 
 
 muted_members = []
+banned_members = {}
 kick_cooldown_members = {}
 ban_cooldown_members = {}
 mute_cooldown_members = {}
@@ -116,14 +117,14 @@ Possible reasons:
             await ctx.send(embed=em)
 
     @commands.command()
-    async def unban(self, ctx, userid: int, *, reason=None):
+    async def unban(self, ctx, num):
         try:
             bans = await ctx.guild.bans()
             if not bans:
                 return await ctx.send(":x: There are no banned users " +
                     "in this server.")
 
-            user = await self.bot.get_user_info(userid)
+            user = await self.bot.get_user_info(banned_members[str(num)].id)
             banned_users = []
             for ban in bans:
                 banned_users.append(ban.user)
@@ -132,33 +133,24 @@ Possible reasons:
                 return await ctx.send(":x: `{}` isn't banned from ".format(
                     user) + "this server.")
 
-            if reason is None:
-                reason = 'None'
-                await ctx.guild.unban(user)
-
-            else:
-                reason = ''.join(reason)
-                await ctx.guild.unban(user, reason=reason)
-
+            await ctx.guild.unban(user)
             em = discord.Embed(
                 title=':white_check_mark: User unbanned:',
                 description=user.mention,
                 color=discord.Colour.green())
             em.set_thumbnail(url=user.avatar_url)
-            em.set_footer(text='Reason: ' + reason)
             await ctx.send(embed=em)
 
         except discord.errors.Forbidden:
             await ctx.send(embed=":x: I need the **Ban Members** permission")
 
-    @commands.command()
-    async def bans(self, ctx):
+    @commands.command(name='bans', aliases=['banlist'])
+    async def _bans(self, ctx):
         try:
             bans = await ctx.guild.bans()
             if not bans:
                 return await ctx.send(":x: There are no banned users in " +
                     "this server.")
-
             banned_amount = 1
             if banned_amount % 2 != 0:
                 inline = False
@@ -169,13 +161,14 @@ Possible reasons:
             em.set_author(name=ctx.guild.name)
             em.set_thumbnail(url=ctx.guild.icon_url)
             for ban in bans:
-                info = "**ID:** `{0.user.id}`\n**Reason:** {0.reason}".format(
-                    ban)
+                info = "**Reason:** {0.reason}".format(ban)
                 em.add_field(
                     name='{0}. `{1.user}`'.format(banned_amount, ban),
                     value='{}'.format(info),
                     inline=inline)
+                banned_members[str(banned_amount)] = ban.user
                 banned_amount += 1
+            em.set_footer(text='Type the number of the user you want to unban.')
             await ctx.send(embed=em)
 
         except discord.errors.Forbidden:
