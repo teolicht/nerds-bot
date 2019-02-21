@@ -262,6 +262,12 @@ Possible reasons:
                 muted_members.remove(member)
                 await ctx.send(":white_check_mark: {0.mention} is no ".format(
                     member) + "longer chat-muted.")
+        i = 1800
+        while i != 0:
+            chatmute_cooldown_members[ctx.author] = i
+            await asyncio.sleep(1)
+            i -= 1
+        del chatmute_cooldown_members[ctx.author]
 
     @commands.command()
     async def unchatmute(self, ctx, member: discord.Member):
