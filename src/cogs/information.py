@@ -142,7 +142,7 @@ class Information():
         em.add_field(name='kick <member> [reason]', value='Kick someone.')
         em.add_field(name='ban <member> [reason]', value='Ban someone.',
             inline=False)
-        em.add_field(name='unban <userID> [reason]', value='Unban someone.')
+        em.add_field(name='unban <userID>', value='Unban someone.')
         em.add_field(name='bans', value='View banned users.', inline=False)
         em.add_field(name='mute <member> <duration>', value='Mute someone ' +
             '(voice).')
@@ -442,7 +442,7 @@ class Information():
     #
     #     soup_page = soup(xml_page, 'xml')
     #     news_list = soup_page.findAll('item')
-    # 
+    #
     #     em = discord.Embed(title='Google News')
     #     for news in news_list:
     #         em.add_field(
