@@ -93,17 +93,19 @@ class Information():
         em.add_field(name='info', value='Check some info about me.',
                      inline=False)
         em.add_field(name='news', value='Check the latest news (Google News).')
+        em.set_footer(text='<required> | [optional]')
         await ctx.send(embed=em)
 
     @help.command()
     async def pics(self, ctx):
-        em = discord.Embed(title="Picture commands (5)", color=0xffc700)
+        em = discord.Embed(title="Picture commands (2)", color=0xffc700)
         em.clear_fields()
         em.add_field(name='cat', value='A cat pic/GIF.')
         em.add_field(name='dog', value='A dog pic/GIF.', inline=False)
         # em.add_field(name='nsfw', value='A NSFW pic/GIF.')
         # em.add_field(name='tits', value='A tits pic/GIF.', inline=False)
         # em.add_field(name='pussy', value='A pussy pic/GIF.')
+        em.set_footer(text='<required> | [optional]')
         await ctx.send(embed=em)
 
     @help.command()
@@ -133,6 +135,7 @@ class Information():
         em.add_field(name='fact', value='Get a random fact.')
         em.add_field(name='ship <member1> <member2>', value='Ship two members.',
             inline=False)
+        em.set_footer(text='<required> | [optional]')
         await ctx.send(embed=em)
 
     @help.command()
@@ -142,9 +145,10 @@ class Information():
         em.add_field(name='kick <member> [reason]', value='Kick someone.')
         em.add_field(name='ban <member> [reason]', value='Ban someone.',
             inline=False)
-        em.add_field(name='unban <userID>', value='Unban someone.')
+        em.add_field(name='unban <usernum>', value='Unban someone. Check bans' +
+            ' to get user\'s number.')
         em.add_field(name='bans', value='View banned users.', inline=False)
-        em.add_field(name='mute <member> <duration>', value='Mute someone ' +
+        em.add_field(name='mute <member> [duration]', value='Mute someone ' +
             '(voice).')
         em.add_field(name='unmute <member>', value='Unmute someone.',
             inline=False)
@@ -152,6 +156,7 @@ class Information():
             'someone.')
         em.add_field(name='unchatmute <member>', value='Un-chat-mute someone.',
             inline=False)
+        em.set_footer(text='<required> | [optional]')
         await ctx.send(embed=em)
 
     @help.command(aliases=['utilities', 'utilits', 'utlities', 'utilties',
@@ -170,6 +175,7 @@ class Information():
         em.add_field(name='poll <question> <duration> <option1> <option2> ' +
             '[options3-10]', value='Start a poll.', inline=False)
         em.add_field(name='choose', value='Choose from a list of options.')
+        em.set_footer(text='<required> | [optional]')
         await ctx.send(embed=em)
 
     @help.command()
@@ -178,6 +184,7 @@ class Information():
         em.clear_fields()
         em.add_field(name='reddit <subreddit>', value='Random hot post from ' +
                                                       'specified subreddit.')
+        em.set_footer(text='<required> | [optional]')
         await ctx.send(embed=em)
 
     @commands.command()
@@ -290,17 +297,18 @@ class Information():
             for member in guild.members:
                 if member.bot:
                     bot_members += 1
-                if member.status == discord.Status.online:
-                    on_members += 1
-                elif member.status == discord.Status.offline:
-                    off_members += 1
-                elif member.status == discord.Status.idle:
-                    idle_members += 1
-                elif member.status in [discord.Status.dnd,
-                                       discord.Status.do_not_disturb]:
-                    dnd_members += 1
                 else:
-                    off_members += 1
+                    if member.status == discord.Status.online:
+                        on_members += 1
+                    elif member.status == discord.Status.offline:
+                        off_members += 1
+                    elif member.status == discord.Status.idle:
+                        idle_members += 1
+                    elif member.status in [discord.Status.dnd,
+                                           discord.Status.do_not_disturb]:
+                        dnd_members += 1
+                    else:
+                        off_members += 1
             return on_members, off_members, idle_members, dnd_members, bot_members
 
         def get_verificationlevel(guild):
