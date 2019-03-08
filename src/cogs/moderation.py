@@ -9,22 +9,39 @@ from multiprocessing import Process
 
 muted_members = []
 banned_members = {}
+disabled_members = []
 kick_cooldown_members = {}
 ban_cooldown_members = {}
 mute_cooldown_members = {}
 chatmute_cooldown_members = {}
-COMMAND_AGAIN = ":x: You can use this command again in `%dh%02dm%02ds`."
+COOLDOWN_MSG = ":x: You can use this command again in `%dh%02dm%02ds`."
 
 class Moderation():
     def __init__(self, bot):
         self.bot = bot
 
     @commands.command()
+    @commands.is_owner()
+    async def disable(self, ctx, member: discord.Member):
+        disabled_members.append(member)
+        await ctx.send(":warning: Disabled {0.name}'s".format(member) +
+            " commands")
+
+    @commands.command()
+    @commands.is_owner()
+    async def enable(self, ctx, member: discord.Member):
+        disabled_members.remove(member)
+        await ctx.send(":white_check_mark: Enabled {0.name}'s".format(member) +
+            " commands")
+
+    @commands.command()
     async def kick(self, ctx, member: discord.Member, *, reason=None):
+        if ctx.author in disabled_members:
+            return
         if ctx.author in kick_cooldown_members:
             m, s = divmod(kick_cooldown_members[ctx.author], 60)
             h, m = divmod(m, 60)
-            return await ctx.send(COMMAND_AGAIN % (h, m, s))
+            return await ctx.send(COOLDOWN_MSG % (h, m, s))
 
         if member.id == 300761654411526154:
             return
@@ -64,10 +81,12 @@ Here are the possible reasons:
 
     @commands.command()
     async def ban(self, ctx, user: discord.User, *, reason=None):
+        if ctx.author in disabled_members:
+            return
         if ctx.author in ban_cooldown_members:
                 m, s = divmod(ban_cooldown_members[ctx.author], 60)
                 h, m = divmod(m, 60)
-                return await ctx.send(COMMAND_AGAIN % (h, m, s))
+                return await ctx.send(COOLDOWN_MSG % (h, m, s))
 
         if user.id == 300761654411526154:
             return
@@ -177,11 +196,12 @@ Possible reasons:
 
     @commands.command()
     async def mute(self, ctx, member: discord.Member, duration: int = None):
+        if ctx.author in disabled_members:
+            return
         if ctx.author in mute_cooldown_members:
                 m, s = divmod(mute_cooldown_members[ctx.author], 60)
                 h, m = divmod(m, 60)
-                return await ctx.send(COMMAND_AGAIN % (h, m, s))
-
+                return await ctx.send(COOLDOWN_MSG % (h, m, s))
         try:
             if member.voice.mute:
                 return await ctx.send(":x: That member is already muted.")
@@ -235,12 +255,14 @@ Possible reasons:
     @commands.command()
     @commands.bot_has_permissions(manage_messages=True)
     async def chatmute(self, ctx, member: discord.Member, duration: int = None):
+        if ctx.author in disabled_members:
+            return
         if member.id == 300761654411526154:
             return
         if ctx.author in chatmute_cooldown_members:
             m, s = divmod(chatmute_cooldown_members[ctx.author], 60)
             h, m = divmod(m, 60)
-            return await ctx.send(COMMAND_AGAIN % (h, m, s))
+            return await ctx.send(COOLDOWN_MSG % (h, m, s))
         if member in muted_members:
             return await ctx.send(":x: That member is already chat-muted.")
         muted_members.append(member)

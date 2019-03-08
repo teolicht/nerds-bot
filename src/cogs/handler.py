@@ -76,12 +76,18 @@ Type `!rank` to check your level."""
             elif cmd == 'kill':
                 return await ctx.send(specify_member +
                     "Command usage: `n!kill <member>`")
-            elif cmd == 'kick':
-                return await ctx.send(specify_member +
-                    "Command usage: `n!kick <member> [reason]`")
             elif cmd == 'respawn':
                 return await ctx.send(specify_member +
                     "Command usage: `n!respawn <member>`")
+            elif cmd == 'disable':
+                return await ctx.send(specify_member +
+                    "Command usage: `n!disable <member>`")
+            elif cmd == 'enable':
+                return await ctx.send(specify_member +
+                    "Command usage: `n!enable <member>`")
+            elif cmd == 'kick':
+                return await ctx.send(specify_member +
+                    "Command usage: `n!kick <member> [reason]`")
             elif cmd == 'ban':
                 return await ctx.send(specify_member +
                     "Command usage: `n!ban <member> [reason]`")
@@ -131,7 +137,7 @@ Type `!rank` to check your level."""
         elif isinstance(error, commands.BadArgument):
             if cmd in ['member', 'gay', 'gg', 'roast', 'kick', 'ban', 'mute',
                        'unmute', 'sayto', 'annoy', 'kill', 'respawn', 'ship',
-                       'chatmute', 'unchatmute']:
+                       'chatmute', 'unchatmute', 'disable', 'enable']:
                 return await ctx.send(":x: I wasn't able to find that member.")
             elif cmd == 'unban':
                 return await ctx.send(":x:  I wasn't able to find an user " +
