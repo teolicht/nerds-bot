@@ -23,6 +23,9 @@ class Moderation():
     @commands.command()
     @commands.is_owner()
     async def disable(self, ctx, member: discord.Member):
+        if member in disabled_members:
+            return await ctx.send(":x: {0.name}'s commands are".format(member) +
+                " already disabled")
         disabled_members.append(member)
         await ctx.send(":warning: Disabled {0.name}'s".format(member) +
             " commands")
@@ -30,6 +33,9 @@ class Moderation():
     @commands.command()
     @commands.is_owner()
     async def enable(self, ctx, member: discord.Member):
+        if member not in disabled_members:
+            return await ctx.send(":x: {0.name}'s commands".format(member) +
+                " have not been disabled")
         disabled_members.remove(member)
         await ctx.send(":white_check_mark: Enabled {0.name}'s".format(member) +
             " commands")
