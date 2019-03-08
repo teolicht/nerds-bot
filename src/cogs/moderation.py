@@ -187,7 +187,7 @@ Possible reasons:
                     inline=inline)
                 banned_members[str(banned_amount)] = ban.user
                 banned_amount += 1
-            em.set_footer(text='Type the number of the user you want to unban.')
+            em.set_footer(text='Type "n!unban <usernumber>"')
             await ctx.send(embed=em)
 
         except discord.errors.Forbidden:
