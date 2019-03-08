@@ -39,5 +39,6 @@ class Reddit(object):
             em.description = post.url
             await ctx.send(embed=em)
 
+
 def setup(bot):
     bot.add_cog(Reddit(bot))
