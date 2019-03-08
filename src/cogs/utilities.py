@@ -88,7 +88,7 @@ Possible reasons:
                 "smaller than your second number (`{}`).".format(min, max))
 
         number = random.randint(min, max)
-        await ctx.send("`{}`".format(min, max, number))
+        await ctx.send("`{}`".format(number))
 
     @commands.command()
     async def choose(self, ctx, *, choices):
