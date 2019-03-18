@@ -14,7 +14,7 @@ import os
 from cogs.config import botoken
 from cogs.emojis import Emoji
 from cogs.nerds import nerds
-# from cogs.moderation import muted_members
+from cogs.moderation import muted_members
 
 description = "A personal Discord bot for friends."
 prefix = ('n!', 'N!')
@@ -23,6 +23,7 @@ initial_extensions = [
     'cogs.handler',
     'cogs.invites',
     'cogs.information',
+    'cogs.moderation'
     'cogs.pictures',
     'cogs.fun',
     'cogs.utilities',
@@ -61,8 +62,8 @@ async def on_ready():
 @bot.event
 async def on_message(message):
     if message.guild is not None:
-        # if message.author in muted_members:
-        #     return await message.delete()
+        if message.author in muted_members:
+            return await message.delete()
         if message.channel.name == 'music':
             DJ_cmds = ['play', 'disconnect', 'np', 'aliases', 'ping', 'skip',
              'seek', 'soundcloud', 'remove', 'loopqueue', 'search', 'stats',
