@@ -23,7 +23,7 @@ initial_extensions = [
     'cogs.handler',
     'cogs.invites',
     'cogs.information',
-    'cogs.moderation'
+    'cogs.moderation',
     'cogs.pictures',
     'cogs.fun',
     'cogs.utilities',
