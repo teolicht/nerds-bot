@@ -72,11 +72,11 @@ class Information():
     @commands.group()
     async def help(self, ctx):
         if ctx.invoked_subcommand is None:
-            em = discord.Embed(title="Commands (43)", color=0xffc700)
+            em = discord.Embed(title="Commands", color=0xffc700)
             em.add_field(name='info', value='Informative commands.')
             em.add_field(name='pics', value='Picture commands.')
             em.add_field(name='fun', value='Fun commands.')
-            em.add_field(name='mod', value='Moderation commands.')
+            # em.add_field(name='mod', value='Moderation commands.')
             em.add_field(name='util', value='Utility commands.')
             em.add_field(name='reddit', value='Reddit commands.')
             em.set_footer(text='To view category: "n!help <category>"')
@@ -138,26 +138,26 @@ class Information():
         em.set_footer(text='<required> | [optional]')
         await ctx.send(embed=em)
 
-    @help.command()
-    async def mod(self, ctx):
-        em = discord.Embed(title="Moderation commands (8)", color=0xffc700)
-        em.clear_fields()
-        em.add_field(name='kick <member> [reason]', value='Kick someone.')
-        em.add_field(name='ban <member> [reason]', value='Ban someone.',
-            inline=False)
-        em.add_field(name='unban <usernum>', value='Unban someone. Check bans' +
-            ' to get user\'s number.')
-        em.add_field(name='bans', value='View banned users.', inline=False)
-        em.add_field(name='mute <member> [duration]', value='Mute someone ' +
-            '(voice).')
-        em.add_field(name='unmute <member>', value='Unmute someone.',
-            inline=False)
-        em.add_field(name='chatmute <member> [duration]', value='Chat-mute ' +
-            'someone.')
-        em.add_field(name='unchatmute <member>', value='Un-chat-mute someone.',
-            inline=False)
-        em.set_footer(text='<required> | [optional]')
-        await ctx.send(embed=em)
+    # @help.command()
+    # async def mod(self, ctx):
+    #     em = discord.Embed(title="Moderation commands (8)", color=0xffc700)
+    #     em.clear_fields()
+    #     em.add_field(name='kick <member> [reason]', value='Kick someone.')
+    #     em.add_field(name='ban <member> [reason]', value='Ban someone.',
+    #         inline=False)
+    #     em.add_field(name='unban <usernum>', value='Unban someone. Check bans' +
+    #         ' to get user\'s number.')
+    #     em.add_field(name='bans', value='View banned users.', inline=False)
+    #     em.add_field(name='mute <member> [duration]', value='Mute someone ' +
+    #         '(voice).')
+    #     em.add_field(name='unmute <member>', value='Unmute someone.',
+    #         inline=False)
+    #     em.add_field(name='chatmute <member> [duration]', value='Chat-mute ' +
+    #         'someone.')
+    #     em.add_field(name='unchatmute <member>', value='Un-chat-mute someone.',
+    #         inline=False)
+    #     em.set_footer(text='<required> | [optional]')
+    #     await ctx.send(embed=em)
 
     @help.command(aliases=['utilities', 'utilits', 'utlities', 'utilties',
                            'utilitis', 'utils'])
