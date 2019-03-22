@@ -410,6 +410,8 @@ class Fun(object):
 
     @commands.command(aliases=['unigger', 'unniger'])
     async def unnigger(self, ctx, member: discord.Member):
+        if ctx.author == member:
+            return await ctx.send(":x: You can't un-nigger yourself.")
         nick = self.mname(member)
         nigger_role = discord.utils.get(ctx.guild.roles, name="NIGGER")
         await member.remove_roles(nigger_role)
