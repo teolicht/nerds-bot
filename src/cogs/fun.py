@@ -398,6 +398,25 @@ class Fun(object):
         await ctx.send(embed=em)
 
     @commands.command()
+    async def nigger(self, ctx, member: discord.Member):
+        nick = self.mname(member)
+        nigger_role = discord.utils.get(ctx.guild.roles, name="NIGGER")
+        try:
+            await member.add_roles(nigger_role)
+            await ctx.send(":white_check_mark: {} is now a nigger!!!".format(nick))
+        except:
+            return await ctx.send(":x: I wasn't able to do that. Check if a " +
+                "'NIGGER' role exists in this server.")
+
+    @commands.command(aliases=['unigger', 'unniger'])
+    async def unnigger(self, ctx, member: discord.Member):
+        nick = self.mname(member)
+        nigger_role = discord.utils.get(ctx.guild.roles, name="NIGGER")
+        await member.remove_roles(nigger_role)
+        await ctx.send(":white_check_mark: {} is no longer a nigger.".format(
+            nick))
+
+    @commands.command()
     @commands.is_owner()
     async def pt(self, ctx, member: discord.Member, times: int = 1):
         if times == 1:
