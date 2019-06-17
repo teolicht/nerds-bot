@@ -23,6 +23,13 @@ class Fun(object):
         else:
             return member.name
 
+    async def nope(self, msg):
+        await msg.add_reaction('\U0001f1f3') # N
+        await msg.add_reaction('\U0001f1f4') # O
+        await msg.add_reaction('\U0001f1f5') # P
+        await msg.add_reaction('\U0001f1ea') # E
+        return
+
     @commands.command()
     async def say(self, ctx, *, text):
         try:
@@ -140,10 +147,8 @@ class Fun(object):
     @commands.command()
     async def gg(self, ctx, member: discord.Member):
         if member == self.bot.user:
-            await ctx.message.add_reaction('\U0001f1f3') # N
-            await ctx.message.add_reaction('\U0001f1f4') # O
-            await ctx.message.add_reaction('\U0001f1f5') # P
-            return await ctx.message.add_reaction('\U0001f1ea') # E
+            await self.nope(ctx.message)
+            return
         else:
             text = "**É** gordo & gay!"
 
@@ -154,10 +159,8 @@ class Fun(object):
     @commands.command()
     async def roast(self, ctx, member: discord.Member):
         if member == self.bot.user:
-            await ctx.message.add_reaction('\U0001f1f3') # N
-            await ctx.message.add_reaction('\U0001f1f4') # O
-            await ctx.message.add_reaction('\U0001f1f5') # P
-            return await ctx.message.add_reaction('\U0001f1ea') # E
+            await self.nope(ctx.message)
+            return
 
         with open(os.path.join(THIS_PATH, "text", "roasts.txt")) as file:
             roasts = [line.rstrip('\n') for line in file]
@@ -191,10 +194,8 @@ class Fun(object):
     async def kill(self, ctx, member: discord.Member):
         try:
             if member == self.bot.user:
-                await ctx.message.add_reaction('\U0001f1f3')
-                await ctx.message.add_reaction('\U0001f1f4')
-                await ctx.message.add_reaction('\U0001f1f5')
-                return await ctx.message.add_reaction('\U0001f1ea')
+                await self.nope(ctx.message)
+                return
         except:
             await ctx.send("No.")
 
@@ -399,8 +400,13 @@ class Fun(object):
 
     @commands.command()
     async def nigger(self, ctx, member: discord.Member):
+        if member == self.bot.user:
+            await self.nope(ctx.message)
+            return
         nick = self.mname(member)
         nigger_role = discord.utils.get(ctx.guild.roles, name="NIGGER")
+        if nigger_role in member.roles:
+            return await ctx.send(":x: That member is already a nigger.")
         try:
             await member.add_roles(nigger_role)
             await ctx.send(":white_check_mark: {} is now a nigger!!!".format(nick))
@@ -414,6 +420,8 @@ class Fun(object):
             return await ctx.send(":x: You can't un-nigger yourself.")
         nick = self.mname(member)
         nigger_role = discord.utils.get(ctx.guild.roles, name="NIGGER")
+        if nigger_role not in member.roles:
+            return await ctx.send(":x: That member isn't even a nigger.")
         await member.remove_roles(nigger_role)
         await ctx.send(":white_check_mark: {} is no longer a nigger.".format(
             nick))
