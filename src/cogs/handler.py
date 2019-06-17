@@ -161,6 +161,9 @@ Type `!rank` to check your level."""
         elif isinstance(error, commands.NotOwner):
             return
 
+        elif isinstance(error, discord.errors.NotFound):
+            return
+
         print("Ignoring exception in command {0.command}:".format(
             ctx, file=sys.stderr))
         traceback.print_exception(
