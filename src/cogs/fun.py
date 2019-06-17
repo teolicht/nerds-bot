@@ -289,12 +289,6 @@ class Fun(object):
                     embed=endgame(ctx.author.mention, 'Scissors', botC))
 
     @commands.command()
-    async def pr(self, ctx):
-        picklerick = os.path.join(THIS_PATH, "images", "picklerick.png")
-        with open(picklerick, 'rb') as pic:
-            await ctx.send(file=discord.File(pic))
-
-    @commands.command()
     async def annoy(self, ctx, member: discord.Member, times: int = 2):
         nick = self.mname(member)
         with open(os.path.join(THIS_PATH, "text", "bad_words.txt")) as file:
