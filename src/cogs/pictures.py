@@ -33,41 +33,7 @@ class Pictures(object):
         em = discord.Embed(title=':dog: A dog pic/GIF')
         em.set_image(url=IMGUR + picture)
         await ctx.send(embed=em)
-
-    # @commands.command(name='nsfw', aliases=['Nsfw', 'NSFW'])
-    # async def _nsfw(self, ctx):
-    #     if not ctx.channel.is_nsfw():
-    #         return await ctx.send(NSFW_MSG)
-    #
-    #     picture = random.choice(pics_links[2])
-    #     em = discord.Embed(title=':warning: A NSFW pic/GIF')
-    #     em.set_image(url=IMGUR + picture)
-    #     em.set_footer(text='This message will be deleted after 60 seconds.')
-    #     await ctx.send(embed=em, delete_after=60.0)
-    #
-    #
-    # @commands.command(name='tits', aliases=['Tits', 'TITS', 'tit'])
-    # async def _tits(self, ctx):
-    #     if not ctx.channel.is_nsfw():
-    #         return await ctx.send(NSFW_MSG)
-    #
-    #     picture = random.choice(pics_links[3])
-    #     em = discord.Embed(title=':warning: A tits pic/GIF')
-    #     em.set_image(url=IMGUR + picture)
-    #     em.set_footer(text='This message will be deleted after 60 seconds.')
-    #     await ctx.send(embed=em, delete_after=60.0)
-    #
-    # @commands.command(name='pussy', aliases=['Pussy', 'PUSSY', 'pusy'])
-    # async def _pussy(self, ctx):
-    #     if not ctx.channel.is_nsfw():
-    #         return await ctx.send(NSFW_MSG)
-    #
-    #     picture = random.choice(pics_links[4])
-    #     em = discord.Embed(title=':warning: A pussy picture')
-    #     em.set_image(url=IMGUR + picture)
-    #     em.set_footer(text='This message will be deleted after 60 seconds.')
-    #     await ctx.send(embed=em, delete_after=60.0)
-
+        
 
 def setup(bot):
     bot.add_cog(Pictures(bot))
