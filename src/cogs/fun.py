@@ -394,9 +394,9 @@ class Fun(object):
 
     @commands.command()
     async def nigger(self, ctx, member: discord.Member):
-        if member == self.bot.user:
-            await self.nope(ctx.message)
-            return
+        if member == self.bot.user or member.id == 306542879520849922:
+            return await self.nope(ctx.message)
+            
         nick = self.mname(member)
         nigger_role = discord.utils.get(ctx.guild.roles, name="NIGGER")
         if nigger_role in member.roles:
