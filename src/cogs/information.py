@@ -289,7 +289,16 @@ class Information():
         await ctx.send(embed=em)
 
     @commands.command()
-    async def server(self, ctx):
+    async def server(self, ctx, emoji=None):
+        emojis = []
+        if emoji == 'emojis':
+            for emoji in ctx.guild.emojis:
+                emojis.append('<:{0.name}:{0.id}>'.format(emoji))
+            return await ctx.send(' '.join(emojis))
+            
+        for emoji in ctx.guild.emojis:
+            emojis.append('<:{0.name}:{0.id}>'.format(emoji))
+
         def get_memberstatus(self, guild):
             """Get status of each member in a guild"""
             on_members, off_members, idle_members = 0, 0, 0
@@ -338,7 +347,7 @@ class Information():
                 return "All members"
 
         guild = ctx.guild
-        roles, emojis = [], []
+        roles = []
         textchannels, voicechannels, to_remove = 0, 0, 0
         on_members, off_members, idle_members, dnd_members, bot_members = get_memberstatus(
             self, guild)
@@ -385,8 +394,6 @@ class Information():
         textchannels = len(guild.text_channels) - to_remove
         for channel in guild.voice_channels:
             voicechannels += 1
-        for emoji in guild.emojis:
-            emojis.append('<:{0.name}:{0.id}>'.format(emoji))
 
         em = discord.Embed(
             title='Server Information')
@@ -421,6 +428,11 @@ class Information():
             em.add_field(
                 name='Emojis:',
                 value='None')
+        elif len(emojis) > 10:
+            em.add_field(
+                name='Emojis:',
+                value='*Too many to display. Type ``n!server emojis`` if you ' +
+                      'want to view this server\'s emojis.*')
         else:
             em.add_field(
                 name='Emojis ({}):'.format(len(emojis)),
