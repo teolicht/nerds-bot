@@ -35,29 +35,12 @@ bot = commands.Bot(
 bot.remove_command('help')
 bot.launch_time = datetime.datetime.utcnow()
 
-# async def change_status():
-#     await bot.wait_until_ready()
-#
-#     statuses = ['oof', 'blyat', 'cyka', 'cyunt', 'sussu', 'gey', 'ur mom gey',
-#                 'jeff', 'GRRRRRRRRRRRRRRRRRRRRR', 'ecksdee', 'heck',
-#                 'm\'lady', 'it is {} my dudes AAAAAAAAAAAAAAAAA'.format(
-#                     datetime.datetime.now().strftime('%A').lower()),
-#                 'hipócritas', '2+2=4-1=3 quick maths', 'bazinga', 'hella gay']
-#     status_option = random.choice(statuses)
-#
-#     while True:
-#         status_text = 'n!help • ' + status_option
-#         status = discord.Game(status_text)
-#         await bot.change_presence(activity=status)
-#         await asyncio.sleep(30)-
-
 @bot.event
 async def on_ready():
     print("Logged in as")
     print(bot.user.name)
     print(bot.user.id)
     print("------")
-    await bot.change_presence(activity=discord.Game('n!help'))
 
 @bot.event
 async def on_message(message):
@@ -309,5 +292,4 @@ if __name__ == '__main__':
                 extension, file=sys.stderr))
             traceback.print_exc()
 
-    # bot.loop.create_task(change_status())
     bot.run(botoken)
