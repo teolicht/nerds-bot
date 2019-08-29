@@ -8,7 +8,7 @@ import datetime
 import os
 
 
-THIS_PATH = os.path.dirname(__file__)
+PATH = os.path.dirname(__file__)
 dead_members = []
 
 class Fun(object):
@@ -162,7 +162,7 @@ class Fun(object):
             await self.nope(ctx.message)
             return
 
-        with open(os.path.join(THIS_PATH, "text", "roasts.txt")) as file:
+        with open(os.path.join(PATH, "text", "roasts.txt")) as file:
             roasts = [line.rstrip('\n') for line in file]
         roast = random.choice(roasts)
 
@@ -291,7 +291,7 @@ class Fun(object):
     @commands.command()
     async def annoy(self, ctx, member: discord.Member, times: int = 2):
         nick = self.mname(member)
-        with open(os.path.join(THIS_PATH, "text", "bad_words.txt")) as file:
+        with open(os.path.join(PATH, "text", "bad_words.txt")) as file:
             bad_words = [line.rstrip('\n') for line in file]
 
         await ctx.send(":white_check_mark: *Started annoying* {} ".format(
@@ -320,7 +320,7 @@ class Fun(object):
     @commands.command()
     async def sound(self, ctx, option, repeat: int = False):
         await ctx.send("This command is currently disabled because I can't fucking get it to work.")
-        sounds_path = os.path.join(THIS_PATH, "sounds/")
+        sounds_path = os.path.join(PATH, "sounds/")
         def soundobj(sound):
             return discord.FFmpegPCMAudio(sounds_path + sound)
 
@@ -371,7 +371,7 @@ class Fun(object):
 
     @commands.command()
     async def fact(self, ctx):
-        with open(os.path.join(THIS_PATH, "text", "facts.txt")) as file:
+        with open(os.path.join(PATH, "text", "facts.txt")) as file:
             facts = [line.rstrip('\n') for line in file]
         fact = random.choice(facts)
         await ctx.send(fact)

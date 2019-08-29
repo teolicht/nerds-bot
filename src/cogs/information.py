@@ -159,10 +159,9 @@ class Information():
     #     em.set_footer(text='<required> | [optional]')
     #     await ctx.send(embed=em)
 
-    @help.command(aliases=['utilities', 'utilits', 'utlities', 'utilties',
-                           'utilitis', 'utils'])
+    @help.command(aliases=['utilities', 'utils'])
     async def util(self, ctx):
-        em = discord.Embed(title="Utility commands (7)", color=0xffc700)
+        em = discord.Embed(title="Utility commands (8)", color=0xffc700)
         em.clear_fields()
         em.add_field(name='delete <amount>', value='Delete messages in the ' +
             'channel.')
@@ -175,6 +174,7 @@ class Information():
         em.add_field(name='poll <question> <duration> <option1> <option2> ' +
             '[options3-10]', value='Start a poll.', inline=False)
         em.add_field(name='choose', value='Choose from a list of options.')
+        em.add_field(name='tag <create|delete|edit|list>', value='Various tag commands.')
         em.set_footer(text='<required> | [optional]')
         await ctx.send(embed=em)
 
@@ -295,7 +295,7 @@ class Information():
             for emoji in ctx.guild.emojis:
                 emojis.append('<:{0.name}:{0.id}>'.format(emoji))
             return await ctx.send(' '.join(emojis))
-            
+
         for emoji in ctx.guild.emojis:
             emojis.append('<:{0.name}:{0.id}>'.format(emoji))
 

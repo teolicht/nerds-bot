@@ -133,6 +133,9 @@ Type `!rank` to check your level."""
             elif cmd == 'reddit':
                 return await ctx.send(":x: Specify the subreddit.\nCommand " +
                     "usage: `n!reddit <subreddit>`")
+            elif cmd == 'tag':
+                return await ctx.send(":x: What do you want to do?\nCommand " +
+                    "usage: `n!tag <create|edit|delete|list>`")
 
         elif isinstance(error, commands.BadArgument):
             if cmd in ['member', 'gay', 'gg', 'roast', 'kick', 'ban', 'mute',
