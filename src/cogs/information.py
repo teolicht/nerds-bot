@@ -174,7 +174,8 @@ class Information():
         em.add_field(name='poll <question> <duration> <option1> <option2> ' +
             '[options3-10]', value='Start a poll.', inline=False)
         em.add_field(name='choose', value='Choose from a list of options.')
-        em.add_field(name='tag <create|delete|edit|list>', value='Various tag commands.')
+        em.add_field(name='tag <create|delete|edit|list>', value='Various tag commands.',
+            inline=False)
         em.set_footer(text='<required> | [optional]')
         await ctx.send(embed=em)
 
