@@ -49,15 +49,18 @@ class Fun(object):
                 'to tell you this:*\n\n{}\n\u200b'.format(text),
             timestamp=datetime.datetime.utcnow())
         await member.send(embed=em)
-        await ctx.send(":white_check_mark: Sent message to `{0.name}`".format(
+        em = discord.Embed(description=":white_check_mark: Sent message to {0.mention}".format(
             member))
+        em.set_author(name=member.name, icon_url=member.avatar_url)
+        await ctx.send(embed=em)
+        await asyncio.sleep(5)
+        await ctx.message.delete()
 
     @commands.command()
     async def big(self, ctx, *, text):
         msg = ''
         def big(letter):
             return ':regional_indicator_{}: '.format(letter)
-
         for char in ''.join(text):
             char = char.lower()
             if char == '0':
