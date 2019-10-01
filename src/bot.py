@@ -41,13 +41,15 @@ async def on_ready():
     print(bot.user.name)
     print(bot.user.id)
     print("------")
+    global NERDS
+    NERDS = bot.get_guild(300762607164325893)
 
 @bot.event
 async def on_message(message):
     if message.guild is not None:
         if message.author in muted_members:
             return await message.delete()
-        if message.channel.name == 'music':
+        if message.channel.name == 'music' and message.guild == nerds:
             DJ_cmds = ['play', 'disconnect', 'np', 'aliases', 'ping', 'skip',
              'seek', 'soundcloud', 'remove', 'loopqueue', 'search', 'stats',
              'loop', 'donate', 'shard', 'join', 'lyrics', 'info', 'resume',
@@ -64,13 +66,20 @@ async def on_message(message):
 
 @bot.event
 async def on_member_join(member):
-    if member.bot is False:
-        nerds = bot.get_guild(300762607164325893)
-        nrd_role = discord.utils.get(nerds.roles, name='NRD')
+    if member.bot is False and member.guild == NERDS:
+        general = discord.utils.get(NERDS.channels, name='general')
+        await general.send(":clown: **{0.mention} has joined the server** :white_check_mark:".format(member))
+        nrd_role = discord.utils.get(NERDS.roles, name='NRD')
         await member.add_roles(nrd_role)
 
-@bot.command(name='ping', aliases=['Ping', 'PING', 'latency'])
-async def _ping(ctx):
+@bot.event
+async def on_member_remove(member):
+    if member.bot is False and member.guild == NERDS:
+        general = discord.utils.get(NERDS.channels, name='general')
+        await general.send(":clown: **{0.mention} has left the server** :x:".format(member))
+
+@bot.command()
+async def ping(ctx):
     def color(r, g, b):
         return discord.Colour.from_rgb(r, g, b)
 
@@ -149,8 +158,8 @@ async def info(ctx):
         value=f'{d}d {h}h {m}m {s}s')
     await ctx.send(embed=em)
 
-@bot.command(name='poll')
-async def _poll(ctx, question, duration: int, option1, option2, option3=None,
+@bot.command()
+async def poll(ctx, question, duration: int, option1, option2, option3=None,
                 option4=None, option5=None, option6=None, option7=None,
                 option8=None, option9=None, option10=None):
     await ctx.message.delete()
