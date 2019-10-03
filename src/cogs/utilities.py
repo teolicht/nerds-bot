@@ -16,7 +16,7 @@ class Utilities():
 
     @commands.command()
     async def delete(self, ctx, amount: int):
-        if ctx.author.id == 306542879520849922:
+        if ctx.author.id == 306542879520849922 and amount > 14:
             return
         if amount > 100:
             return await ctx.send(":x: I can delete max 100 messages.")
