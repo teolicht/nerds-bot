@@ -265,10 +265,10 @@ class Moderation():
             return
         if member.id == 300761654411526154:
             return
-        if ctx.author in chatmute_cooldown_members:
-            m, s = divmod(chatmute_cooldown_members[ctx.author], 60)
-            h, m = divmod(m, 60)
-            return await ctx.send(COOLDOWN_MSG % (h, m, s))
+        # if ctx.author in chatmute_cooldown_members:
+        #     m, s = divmod(chatmute_cooldown_members[ctx.author], 60)
+        #     h, m = divmod(m, 60)
+        #     return await ctx.send(COOLDOWN_MSG % (h, m, s))
         if member in muted_members:
             return await ctx.send(":x: That member is already chat-muted.")
         muted_members.append(member)
