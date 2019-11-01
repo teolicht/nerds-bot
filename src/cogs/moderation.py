@@ -20,6 +20,14 @@ class Moderation():
     def __init__(self, bot):
         self.bot = bot
 
+    def mname(self, member):
+        """If member.nick exists, return it, otherwise,
+        return member.name"""
+        if member.nick:
+            return member.nick
+        else:
+            return member.name
+
     @commands.command()
     @commands.is_owner()
     async def disable(self, ctx, member: discord.Member):
@@ -261,43 +269,50 @@ class Moderation():
     @commands.command()
     @commands.is_owner()
     async def chatmute(self, ctx, member: discord.Member, duration: int = None):
+        if duration <= 0:
+            return
         if ctx.author in disabled_members:
             return
-        if member.id == 300761654411526154:
+        if member.id == 300761654411526154: # me
             return
         # if ctx.author in chatmute_cooldown_members:
         #     m, s = divmod(chatmute_cooldown_members[ctx.author], 60)
         #     h, m = divmod(m, 60)
         #     return await ctx.send(COOLDOWN_MSG % (h, m, s))
-        if member in muted_members:
-            return await ctx.send(":x: That member is already chat-muted.")
-        muted_members.append(member)
+        nick = self.mname(member)
+        muted = discord.utils.get(ctx.guild.roles, name="Muted")
+        if muted in member.roles:
+            return await ctx.send(":x: That member is already chatmuted.")
+        await member.add_roles(muted)
         if duration is None:
-            await ctx.send(":white_check_mark: Chat-muted {0.name}".format(
-                member))
+            await ctx.send(f":mute: Chatmuted {nick}")
         else:
-            await ctx.send(":white_check_mark: Chat-muted " +
-                "{0.name} for `{1}` second(s).".format(member, duration))
+            if duration == 1:
+                sec = str(duration) + " second."
+            else:
+                sec = str(duration) + " seconds."
+            await ctx.send(f":mute: Chatmuted {nick} for {sec}".format(
+                member, duration))
             await asyncio.sleep(duration)
-            if member in muted_members:
-                muted_members.remove(member)
-                await ctx.send(":white_check_mark: {0.mention} is no ".format(
-                    member) + "longer chat-muted.")
-        i = 1800
-        while i != 0:
-            chatmute_cooldown_members[ctx.author] = i
-            await asyncio.sleep(1)
-            i -= 1
-        del chatmute_cooldown_members[ctx.author]
+            if muted in member.roles:
+                await member.remove_roles(muted)
+                await ctx.send(":loud_sound: {0.mention} is no longer chatmuted.".format(
+                    member))
+        # i = 1800
+        # while i != 0:
+        #     chatmute_cooldown_members[ctx.author] = i
+        #     await asyncio.sleep(1)
+        #     i -= 1
+        # del chatmute_cooldown_members[ctx.author]
 
     @commands.command()
     @commands.is_owner()
     async def unchatmute(self, ctx, member: discord.Member):
-        if member not in muted_members:
-            return await ctx.send(":x: That member isn't even chat-muted.")
-        muted_members.remove(member)
-        await ctx.send(":white_check_mark: {0.name} is no longer ".format(
-            member) + "chat-muted.")
+        muted = discord.utils.get(ctx.guild.roles, name="Muted")
+        if muted not in member.roles:
+            return await ctx.send(":x: That member isn't even chatmuted.")
+        await member.remove_roles(muted)
+        await ctx.send(":loud_sound: {0.mention} is no longer chatmuted.".format(member))
 
 
 def setup(bot):
