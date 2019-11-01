@@ -90,21 +90,21 @@ async def ping(ctx):
     ping = round((t_2 - t_1) * 1000)
     if ping <= 100:
         color = color(0, 211, 14)
-    elif ping <= 170:
+    elif ping <= 150:
         color = color(106, 255, 0)
-    elif ping <= 230:
+    elif ping <= 200:
         color = color(195, 255, 0)
-    elif ping <= 270:
+    elif ping <= 250:
         color = color(255, 255, 0)
-    elif ping <= 340:
+    elif ping <= 350:
         color = color(255, 212, 0)
     elif ping <= 400:
         color = color(255, 174, 0)
     elif ping <= 500:
         color = color(255, 127, 0)
-    elif ping <= 650:
+    elif ping <= 750:
         color = color(255, 72, 0)
-    elif ping <= 850:
+    elif ping <= 900:
         color = color(255, 0, 0)
     else:
         color = color(211, 0, 0)

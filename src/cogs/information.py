@@ -6,6 +6,7 @@ import time
 import ago
 import bs4
 import lxml
+import random
 from bs4 import BeautifulSoup as soup
 from urllib.request import urlopen
 from datetime import datetime
@@ -110,7 +111,7 @@ class Information():
 
     @help.command()
     async def fun(self, ctx):
-        em = discord.Embed(title="Fun commands (16)", color=0xffc700)
+        em = discord.Embed(title="Fun commands (15)", color=0xffc700)
         em.clear_fields()
         em.add_field(name='say <text>', value='Speak as if you were me.')
         em.add_field(name='big <text>', value='Speak as if you were me, ' +
@@ -125,8 +126,7 @@ class Information():
         em.add_field(name='respawn <member>', value='Respawn someone.',
                      inline=False)
         em.add_field(name='rps', value='Play Rock, Paper, Scissors.')
-        em.add_field(name='pr', value='Pickle rick.', inline=False)
-        em.add_field(name='annoy <member> [times]', value='Annoy someone.')
+        em.add_field(name='annoy <member> [times]', value='Annoy someone.', inline=False)
         em.add_field(name='8ball <question>', value='Ask a question to the ' +
             'magic 8-ball.', inline=False)
         em.add_field(name='sound <number> [times]', value='Play a sound.')
@@ -207,6 +207,8 @@ class Information():
     async def member(self, ctx, member: discord.Member):
         # Member's current status
         status = self.get_status(member)
+        if member.bot:
+            status = f"{status}{Emoji.bot}"
         # List with member's roles' names
         roles = self.get_roles(member)
         avatar = member.avatar_url
@@ -241,7 +243,6 @@ class Information():
             # Less than one year ago, display "day(s) ago"
             joined_guild = days_ago.format(
                 joined_guild_date, self.get_digits(joined_guild_ago))
-
         else:
             # More than one year ago, display "year(s) ago"
             joined_guild = years_ago.format(
@@ -251,7 +252,6 @@ class Information():
             # Less than one year ago, display "day(s) ago"
             joined_discord = days_ago.format(
                 joined_discord_date, self.get_digits(joined_discord_ago))
-
         else:
             # More than one year ago, display "year(s) ago"
             joined_discord = years_ago.format(
@@ -260,8 +260,7 @@ class Information():
 
         em = discord.Embed(
             title='User Information',
-            description='{}{}'.format(member.mention, status),
-            color=0xffd000)
+            description='{}{}'.format(member.mention, status))
         em.set_thumbnail(url=avatar)
         em.add_field(
             name='Name:',
@@ -307,18 +306,17 @@ class Information():
             for member in guild.members:
                 if member.bot:
                     bot_members += 1
+                if member.status == discord.Status.online:
+                    on_members += 1
+                elif member.status == discord.Status.offline:
+                    off_members += 1
+                elif member.status == discord.Status.idle:
+                    idle_members += 1
+                elif member.status in [discord.Status.dnd,
+                                       discord.Status.do_not_disturb]:
+                    dnd_members += 1
                 else:
-                    if member.status == discord.Status.online:
-                        on_members += 1
-                    elif member.status == discord.Status.offline:
-                        off_members += 1
-                    elif member.status == discord.Status.idle:
-                        idle_members += 1
-                    elif member.status in [discord.Status.dnd,
-                                           discord.Status.do_not_disturb]:
-                        dnd_members += 1
-                    else:
-                        off_members += 1
+                    off_members += 1
             return on_members, off_members, idle_members, dnd_members, bot_members
 
         def get_verificationlevel(guild):
@@ -468,12 +466,11 @@ class Information():
         amount = 0
         for news in news_list:
             amount += 1
-            if amount == 20:
+            if amount == 13:
                 break
             em.add_field(
-                name=news.title.text,
-                value="{0.link.text}\n{0.pubDate.text}\n\u200b".format(news))
-        print(amount)
+                name="\u200b",
+                value="[{0.title.text}]({0.link.text})\n{0.pubDate.text}".format(news))
         await ctx.send(embed=em)
 
 

@@ -15,9 +15,6 @@ class ErrorHandler():
         cmd = ctx.message.content.split()[0]
         cmd = cmd[2:]
         specify_member = ":x: You must specify a member.\n"
-        level = """
-:x: You need to be at least level {} to use this command.
-Type `!rank` to check your level."""
 
         if hasattr(ctx.command, 'on_error'):
             return
@@ -58,7 +55,7 @@ Type `!rank` to check your level."""
                 return await ctx.send(specify_member +
                     "Command usage: `n!gg <member>`")
             elif cmd == 'roast':
-                return await ctx/send(specify_member +
+                return await ctx.send(specify_member +
                     "Command usage: `n!roast <member>`")
             elif cmd == 'annoy':
                 return await ctx.send(specify_member +
@@ -108,6 +105,9 @@ Type `!rank` to check your level."""
             elif cmd == 'unchatmute':
                 return await ctx.send(specify_member +
                     "Command usage: `n!unchatmute <member>`")
+            elif cmd == 'ship':
+                return await ctx.send(":x: Please specify both members.\n" +
+                    "Command usage: `n!ship <member1> <member2>`")
             elif cmd == 'delete':
                 return await ctx.send(":x: Enter the amount of messages "
                     "to delete.\nCommand usage: `n!delete <amount>`")
@@ -119,7 +119,7 @@ Type `!rank` to check your level."""
                     "me to calculate.\nCommand usage: `n!calc <expr>`\n" +
                         "Examples: `n!calc 2 + 3`, `n!calc 2 + 3 / 2`")
             elif cmd == 'randnum':
-                return await ctx.send(":x: Missing an argmument.\n" +
+                return await ctx.send(":x: Enter both min and max numbers.\n" +
                     "Command usage: `n!randnum <min> <max>`\n" +
                     "Example: `n!randnum 50 700`")
             elif cmd == 'poll':

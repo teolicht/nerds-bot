@@ -88,8 +88,8 @@ Possible reasons:
     @commands.command()
     async def randnum(self, ctx, min: int, max: int):
         if min > max:
-            return await ctx.send(":x: Your first number (`{}`) must be " +
-                "smaller than your second number (`{}`).".format(min, max))
+            return await ctx.send(f":x: Your first number ({min}) must be " +
+                f"smaller than your second number ({max}).")
 
         number = random.randint(min, max)
         await ctx.send("`{}`".format(number))
@@ -107,7 +107,7 @@ Possible reasons:
 
         if option == "create":
             if name is None:
-                return await ctx.send(":x: Please specify a name for the tag.")
+                return await ctx.send(":x: Please specify the tag's name.")
             if name in ['create', 'delete', 'edit', 'list']:
                 return await ctx.send(":x: You cannot create a tag with that name.")
             if name in dict:

@@ -51,7 +51,7 @@ class Fun(object):
         await member.send(embed=em)
         em = discord.Embed(description=":white_check_mark: Sent message to {0.mention}".format(
             member))
-        em.set_author(name=member.name, icon_url=member.avatar_url)
+        em.set_author(name=self.mname(ctx.author), icon_url=ctx.author.avatar_url)
         await ctx.send(embed=em)
         await asyncio.sleep(5)
         await ctx.message.delete()
