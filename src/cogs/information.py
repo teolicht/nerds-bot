@@ -103,9 +103,6 @@ class Information():
         em.clear_fields()
         em.add_field(name='cat', value='A cat pic/GIF.')
         em.add_field(name='dog', value='A dog pic/GIF.', inline=False)
-        # em.add_field(name='nsfw', value='A NSFW pic/GIF.')
-        # em.add_field(name='tits', value='A tits pic/GIF.', inline=False)
-        # em.add_field(name='pussy', value='A pussy pic/GIF.')
         em.set_footer(text='<required> | [optional]')
         await ctx.send(embed=em)
 
@@ -129,9 +126,6 @@ class Information():
         em.add_field(name='annoy <member> [times]', value='Annoy someone.', inline=False)
         em.add_field(name='8ball <question>', value='Ask a question to the ' +
             'magic 8-ball.', inline=False)
-        em.add_field(name='sound <number> [times]', value='Play a sound.')
-        em.add_field(name='sounds', value='View the list of available sounds.',
-            inline=False)
         em.add_field(name='fact', value='Get a random fact.')
         em.add_field(name='ship <member1> <member2>', value='Ship two members.',
             inline=False)
@@ -186,21 +180,6 @@ class Information():
         em.add_field(name='reddit <subreddit>', value='Random hot post from ' +
                                                       'specified subreddit.')
         em.set_footer(text='<required> | [optional]')
-        await ctx.send(embed=em)
-
-    @commands.command()
-    async def sounds(self, ctx):
-        em = discord.Embed(
-        title='`n!sound` Sounds list',
-        description="""
-**1.** My name is jeff
-**2.** Doin' your mom
-**3.** Somebody toucha my spaghet
-**4.** Deja vu duck
-**5.** Pedron smashing keyboard
-**6.** Surprise motherfucker
-**7.** Precious foot lettuce
-""")
         await ctx.send(embed=em)
 
     @commands.command()
