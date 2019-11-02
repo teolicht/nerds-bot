@@ -46,23 +46,22 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
-    if message.guild is not None:
-        if message.author in muted_members:
-            return await message.delete()
-        if message.channel.name == 'music' and message.guild == nerds:
-            DJ_cmds = ['play', 'disconnect', 'np', 'aliases', 'ping', 'skip',
-             'seek', 'soundcloud', 'remove', 'loopqueue', 'search', 'stats',
-             'loop', 'donate', 'shard', 'join', 'lyrics', 'info', 'resume',
-             'settings', 'move', 'forward', 'skipto', 'clear', 'replay',
-             'clean', 'pause', 'removedupes', 'volume', 'rewind', 'playtop',
-             'playskip', 'invite', 'shuffle', 'queue', 'leavecleanup']
-            if message.content[1:] not in DJ_cmds:
-                if message.author.id not in [235088799074484224,
-                                             252128902418268161]:
-                    await message.delete()
-        await bot.process_commands(message)
-    else:
+    if message.guild is None:
         return
+    if message.author in muted_members:
+        return await message.delete()
+    if message.channel.name == "music" and message.guild == NERDS:
+        DJ_cmds = ['play', 'disconnect', 'np', 'aliases', 'ping', 'skip',
+         'seek', 'soundcloud', 'remove', 'loopqueue', 'search', 'stats',
+         'loop', 'donate', 'shard', 'join', 'lyrics', 'info', 'resume',
+         'settings', 'move', 'forward', 'skipto', 'clear', 'replay',
+         'clean', 'pause', 'removedupes', 'volume', 'rewind', 'playtop',
+         'playskip', 'invite', 'shuffle', 'queue', 'leavecleanup']
+        if message.content[1:] not in DJ_cmds:
+            if message.author.id not in [235088799074484224, 252128902418268161]: # Music bots
+                await message.delete()
+    await bot.process_commands(message)
+
 
 @bot.event
 async def on_member_join(member):
