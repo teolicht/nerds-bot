@@ -9,7 +9,6 @@ import os
 
 
 PATH = os.path.dirname(__file__)
-dead_members = []
 
 class Fun(object):
     def __init__(self, bot):
@@ -177,71 +176,61 @@ class Fun(object):
     @commands.command()
     async def suicide(self, ctx):
         member = ctx.author
-        if member in dead_members:
-            return await ctx.send(":x: You're already dead.")
-
         nick = self.mname(member)
+        if '💀' in nick:
+            return await ctx.send(":x: You're already dead.")
         em = discord.Embed(
-            description=':skull: {0.mention} has suicided!'.format(member),
+            description=f":skull: {nick} has suicided!",
             color=discord.Colour.red())
-        if len(nick) > 25:
+        if len(nick) > 30:
             return await ctx.send(embed=em)
         try:
-            await member.edit(nick='{} (DEAD)'.format(nick))
-            dead_members.append(member)
+            await member.edit(nick='💀{}'.format(nick))
             await ctx.send(embed=em)
         except discord.errors.Forbidden:
             await ctx.send(embed=em)
 
     @commands.command()
     async def kill(self, ctx, member: discord.Member):
-        try:
-            if member == self.bot.user:
-                await self.nope(ctx.message)
-                return
-        except:
-            await ctx.send("No.")
-
-        if member == ctx.author:
-            return await ctx.send("If you want to kill yourself, " +
-                "~~you should totally type `n!suicide`~~")
-        if member in dead_members:
-            return await ctx.send(":x: That member is already dead.")
-
         nick = self.mname(member)
+        if member == self.bot.user:
+            return await self.nope(ctx.message)
+        if member == ctx.author:
+            return await ctx.send(":x: If you want to kill yourself, you should  type `n!suicide`")
+        if '💀' in nick:
+            return await ctx.send(":x: That member is already dead.")
         em = discord.Embed(
-            description=':skull: {0.mention} has been killed by '.format(
-                member) + '{0.author.mention}!'.format(ctx),
+            description=f":skull: {nick} has been killed by {ctx.author.mention}!",
             color=discord.Colour.red())
-        if len(nick) > 25:
+        if len(nick) > 30:
             return await ctx.send(embed=em)
         try:
-            await member.edit(nick='{} (DEAD)'.format(nick))
+            await member.edit(nick=f"💀{nick}")
             await ctx.send(embed=em)
-            dead_members.append(member)
         except discord.errors.Forbidden:
             await ctx.send(embed=em)
 
     @commands.command()
     async def respawn(self, ctx, member: discord.Member):
+        nick = self.mname(member)
         if member == ctx.author:
             return await ctx.send(":x: Sorry, you can't respawn yourself.")
-        if member not in dead_members:
-            if member == ctx.author:
-                await ctx.send(":x: You're not even dead, mate.")
-            else:
-                nick = self.mname(member)
-                await ctx.send(":x: {} is not even dead, mate.".format(nick))
-            return
-
-        if member.nick and '(DEAD)' in member.nick:
-            new_name = member.nick[:-7] # Cuts out '(DEAD)' from member's nick
+        if '💀' in nick:
+            new_name = nick.replace('💀', '')
             await member.edit(nick=new_name)
-            dead_members.remove(member)
-            await ctx.send(":innocent: Welcome back, {}.".format(new_name))
+            await ctx.send(f":innocent: Welcome back, {new_name}.")
         else:
+            await ctx.send(f":x: {nick} is not even dead, mate.")
+
+    @commands.command()
+    async def cure(self, ctx):
+        members = ctx.guild.members
+        for member in members:
             nick = self.mname(member)
-            await ctx.send(":innocent: Welcome back, {}.".format(nick))
+            if '💀' in nick:
+                new_name = nick.replace('💀', '')
+                await member.edit(nick=new_name)
+        await ctx.send(":angel: Everyone has respawned!")
 
     @commands.command()
     async def rps(self, ctx, choice):
