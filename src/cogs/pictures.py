@@ -16,7 +16,7 @@ with open(os.path.join(THIS_PATH, "text", "pics_links.txt")) as links:
     for x, links in enumerate(pics_links):
         pics_links[x] = pics_links[x].split()
 
-class Pictures(object):
+class Pictures(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -33,7 +33,7 @@ class Pictures(object):
         em = discord.Embed(title=':dog: A dog pic/GIF')
         em.set_image(url=IMGUR + picture)
         await ctx.send(embed=em)
-        
+
 
 def setup(bot):
     bot.add_cog(Pictures(bot))

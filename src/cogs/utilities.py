@@ -10,7 +10,7 @@ import os
 
 PATH = os.path.dirname(__file__)
 
-class Utilities():
+class Utilities(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 

@@ -16,7 +16,7 @@ mute_cooldown_members = {}
 chatmute_cooldown_members = {}
 COOLDOWN_MSG = ":x: You can use this command again in `%dh%02dm%02ds`."
 
-class Moderation():
+class Moderation(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 

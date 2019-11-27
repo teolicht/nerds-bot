@@ -18,7 +18,7 @@ class Emoji(object):
     dnd = "<:DND:466770290421137409>"
     bot = "<:BOT:476896189631954945>"
 
-class Information():
+class Information(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 

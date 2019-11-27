@@ -8,7 +8,7 @@ r = praw.Reddit(client_id=Reddit.client_id,
                 client_secret=Reddit.client_secret, password=Reddit.password,
                 user_agent="teodorlicht", username=Reddit.username)
 
-class Reddit(object):
+class Reddit(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 

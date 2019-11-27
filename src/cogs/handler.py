@@ -6,22 +6,24 @@ import traceback
 import sys
 
 
-class ErrorHandler():
+class ErrorHandler(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
-        content = ctx.message.content
-        cmd = ctx.message.content.split()[0]
-        cmd = cmd[2:]
-        specify_member = ":x: You must specify a member.\n"
-
         if hasattr(ctx.command, 'on_error'):
             return
+        try:
+            cmd = ctx.command.qualified_name
+        except AttributeError:
+            pass
         error = getattr(error, 'original', error)
-        if isinstance(error, commands.CommandNotFound):
+        ignored = (commands.CommandNotFound, commands.NotOwner)
+        specify_member = ":x: You must specify a member.\n"
+        if isinstance(error, ignored):
             return
-        if isinstance(error, commands.MissingRequiredArgument):
+        elif isinstance(error, commands.MissingRequiredArgument):
             if cmd == 'member':
                 return await ctx.send(specify_member +
                     "Command usage: `n!member <member>`")
@@ -61,7 +63,7 @@ class ErrorHandler():
                 return await ctx.send(specify_member +
                     "Command usage: `n!annoy <member> [times]`")
             elif cmd == '8ball':
-                return await ctx.send(":x: What question do you want to ask " +
+                return await ctx.send(":x: What do you want to ask " +
                     "the magic 8-ball?\nCommand usage: `n!8ball <question>`")
             elif cmd == 'sound':
                 return await ctx.send("This command is currently disabled " +
@@ -160,12 +162,6 @@ class ErrorHandler():
             if cmd == 'sound':
                 return await ctx.send(":x: *A sound is already playing.* " +
                     "Wait until the bot disconnects from the voice channel.")
-
-        elif isinstance(error, commands.NotOwner):
-            return
-
-        elif isinstance(error, discord.errors.NotFound):
-            return
 
         print("Ignoring exception in command {0.command}:".format(
             ctx, file=sys.stderr))

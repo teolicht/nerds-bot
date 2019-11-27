@@ -212,7 +212,7 @@ async def poll(ctx, question, duration: int, option1, option2, option3=None,
               fivesV, sixsV, sevensV, eightsV,
               ninesV, tensV]
 
-    cache_msg = await react_msg.channel.get_message(react_msg.id)
+    cache_msg = await react_msg.channel.fetch_message(react_msg.id)
     for reaction in cache_msg.reactions:
         async for user in reaction.users():
             if user != bot.user:

@@ -10,7 +10,7 @@ import os
 
 PATH = os.path.dirname(__file__)
 
-class Fun(object):
+class Fun(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -196,7 +196,7 @@ class Fun(object):
         if member == self.bot.user:
             return await self.nope(ctx.message)
         if member == ctx.author:
-            return await ctx.send(":x: If you want to kill yourself, you should  type `n!suicide`")
+            return await ctx.send(":x: If you want to kill yourself, you should type `n!suicide`")
         if '💀' in nick:
             return await ctx.send(":x: That member is already dead.")
         em = discord.Embed(
@@ -280,24 +280,29 @@ class Fun(object):
                     embed=endgame(ctx.author.mention, 'Scissors', botC))
 
     @commands.command()
-    async def annoy(self, ctx, member: discord.Member, times: int = 2):
+    async def annoy(self, ctx, member: discord.Member, times: int = 1):
         nick = self.mname(member)
+        minutes = round((30 * times) / 60, 1)
+        if times <= 0:
+            return await ctx.send(":x: Positive numbers only.")
+        elif times == 1:
+            start_msg = f":white_check_mark: Annoyed {nick}"
+            end_msg = None
+        elif times > 1:
+            start_msg = ":white_check_mark: Started annoying {} ".format(self.mname(member)) + f"(**{times}** times)"
+            end_msg = ":white_check_mark: Done annoying {0.mention} • `{1}min`".format(member, minutes)
         with open(os.path.join(PATH, "text", "bad_words.txt")) as file:
             bad_words = [line.rstrip('\n') for line in file]
-
-        await ctx.send(":white_check_mark: *Started annoying* {} ".format(
-            self.mname(member)) + "**{}** time(s)".format(times))
+        await ctx.send(start_msg)
         for i in range(0, times):
             word = random.choice(bad_words)
-            await member.send("**{}** • I was sent here to annoy ".format(
-                i + 1) + "you by {0.author.mention}, **{1}**.".format(
+            await member.send("**{}** • I was sent here to annoy ".format(i + 1)
+                + "you by {0.author.mention}, **{1}**.".format(
                     ctx, word))
             if not i == times - 1: # If not done yet
                 await asyncio.sleep(30)
-
-        minutes = round((30 * times) / 60, 1)
-        await ctx.send(":white_check_mark: *Done annoying* {0.mention} • ".format(member) +
-            "`{}min`".format(minutes))
+        if end_msg:
+            await ctx.send(end_msg)
 
     @commands.command(name='8ball')
     async def _8ball(self, ctx, *, question):
