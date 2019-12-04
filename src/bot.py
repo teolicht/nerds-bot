@@ -53,9 +53,13 @@ async def on_message(message):
          'loop', 'donate', 'shard', 'join', 'lyrics', 'info', 'resume',
          'settings', 'move', 'forward', 'skipto', 'clear', 'replay',
          'clean', 'pause', 'removedupes', 'volume', 'rewind', 'playtop',
-         'playskip', 'invite', 'shuffle', 'queue', 'leavecleanup', 'p', 's', 'q']
+         'playskip', 'invite', 'shuffle', 'queue', 'leavecleanup', 'p', 's', 'q',
+         'nowplaying', 'voteskip', 'stop', 'leave', 'repeat', 'reshuffle',
+         'fwd', 'rew', 'seek', 'restart', 'history', 'export', 'help', 'v', 'st',
+         'j', 'lv', 'rep', 'sh', 'resh', 'h', 'ex', 'vol']
+        music_bots = [235088799074484224, 252128902418268161, 184405311681986560]
         if message.content[1:] not in DJ_cmds:
-            if message.author.id not in [235088799074484224, 252128902418268161]: # Music bots
+            if message.author.id not in music_bots:
                 await message.delete()
     await bot.process_commands(message)
 
