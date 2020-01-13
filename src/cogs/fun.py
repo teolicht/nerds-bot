@@ -281,6 +281,8 @@ class Fun(commands.Cog):
 
     @commands.command()
     async def annoy(self, ctx, member: discord.Member, times: int = 1):
+        if times > 50:
+            return await ctx.send(":x: Max 50 times.")
         nick = self.mname(member)
         minutes = round((30 * times) / 60, 1)
         if times <= 0:
