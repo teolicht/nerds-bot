@@ -452,6 +452,16 @@ class Information(commands.Cog):
                 value="[{0.title.text}]({0.link.text})\n{0.pubDate.text}".format(news))
         await ctx.send(embed=em)
 
+    @commands.command()
+    async def sounds(self, ctx):
+        em = discord.Embed(title='``n!sound`` Sounds list',
+            description="""**1.** Doin' your mom
+**2.** Deja vu duck
+**3.** Pedron smashing keyboard
+**4.** Surprise motherfucker
+**5.** Lorengay singing
+
+""")
 
 def setup(bot):
     bot.add_cog(Information(bot))

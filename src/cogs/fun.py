@@ -317,7 +317,6 @@ class Fun(commands.Cog):
 
     @commands.command()
     async def sound(self, ctx, option, repeat: int = False):
-        await ctx.send("This command is currently disabled because I can't fucking get it to work.")
         sounds_path = os.path.join(PATH, "sounds/")
         def soundobj(sound):
             return discord.FFmpegPCMAudio(sounds_path + sound)
@@ -337,13 +336,11 @@ class Fun(commands.Cog):
             return await ctx.send(":x: Join a voice channel first.")
         channel = voice.channel
         options = {
-            '1': 'My name is jeff',
-            '2': 'Doin\' your mom',
-            '3': 'Somebody toucha my spaghet',
-            '4': 'Deja vu duck',
-            '5': 'Pedron\'s keyboard',
-            '6': 'Surprise motherfucker',
-            '7': 'Precious foot lettuce'}
+            '1': 'Doin\' your mom',
+            '2': 'Deja vu duck',
+            '3': 'Pedron smashing keyboard',
+            '4': 'Surprise motherfucker',
+            '5': 'Lorengay singing'}
         if option not in options:
             return await ctx.send(":x: Option `{}` not found.".format(option))
 
@@ -352,19 +349,15 @@ class Fun(commands.Cog):
             options[option]))
 
         if option == '1':
-            await playsound('jeff.mp3', repeat, 2)
-        elif option == '2':
             await playsound('doinurmom.mp3', repeat, 8.2)
-        elif option == '3':
-            await playsound('spaghet.mp3', repeat, 4.7)
-        elif option == '4':
+        elif option == '2':
             await playsound('initialduck.mp3', repeat, 14.7)
-        elif option == '5':
+        elif option == '3':
             await playsound('smashingKB.mp3', repeat, 7)
-        elif option == '6':
-            await playsound('surprise_motherfucker.mp3', repeat, 2.5)
-        elif option == '7':
-            await playsound('preciousfoot.mp3', repeat, 31)
+        elif option == '4':
+            await playsound('surpriseMF.mp3', repeat, 2.5)
+        elif option == '5':
+            await playsound('lorensing.mp3', repeat, 31)
         await vc.disconnect()
 
     @commands.command()
