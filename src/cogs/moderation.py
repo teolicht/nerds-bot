@@ -269,7 +269,9 @@ class Moderation(commands.Cog):
     @commands.command()
     @commands.is_owner()
     async def chatmute(self, ctx, member: discord.Member, duration: int = None):
-        if duration <= 0:
+        if duration == None:
+            pass
+        elif duration <= 0:
             return
         if ctx.author in disabled_members:
             return
