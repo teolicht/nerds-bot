@@ -9,6 +9,7 @@ import os
 
 
 PATH = os.path.dirname(__file__)
+annoyed_members = []
 
 class Fun(commands.Cog):
     def __init__(self, bot):
@@ -281,8 +282,10 @@ class Fun(commands.Cog):
 
     @commands.command()
     async def annoy(self, ctx, member: discord.Member, times: int = 1):
-        if times > 50:
-            return await ctx.send(":x: Max 50 times.")
+        if times > 20:
+            return await ctx.send(":x: Max 20 times.")
+        if member in annoyed_members:
+            return await ctx.send(":x: That member is already being annoyed.")
         nick = self.mname(member)
         minutes = round((30 * times) / 60, 1)
         if times <= 0:
@@ -291,10 +294,13 @@ class Fun(commands.Cog):
             start_msg = f":white_check_mark: Annoyed {nick}"
             end_msg = None
         elif times > 1:
-            start_msg = ":white_check_mark: Started annoying {} ".format(self.mname(member)) + f"(**{times}** times)"
-            end_msg = ":white_check_mark: Done annoying {0.mention} • `{1}min`".format(member, minutes)
+            start_msg = ":white_check_mark: Started annoying {} ".format(
+                self.mname(member)) + f"(**{times}** times)"
+            end_msg = ":white_check_mark: Done annoying {0.mention} • `{1}min`".format(
+                member, minutes)
         with open(os.path.join(PATH, "text", "bad_words.txt")) as file:
             bad_words = [line.rstrip('\n') for line in file]
+        annoyed_members.append(member)
         await ctx.send(start_msg)
         for i in range(0, times):
             word = random.choice(bad_words)
