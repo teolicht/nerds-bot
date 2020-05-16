@@ -38,6 +38,10 @@ class Reddit(commands.Cog):
         except discord.errors.HTTPException:
             em.description = post.url
             await ctx.send(embed=em)
+        except prawcore.exceptions.NotFound:
+            await ctx.send(":x: I wasn't able to find that subreddit.")
+        except IndexError:
+            await ctx.send(":x: I wasn't able to find that subreddit.")
 
 
 def setup(bot):
