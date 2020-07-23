@@ -66,11 +66,21 @@ async def on_message(message):
 
 @bot.event
 async def on_member_join(member):
-    if member.bot is False and member.guild == NERDS:
+    if member.guild == NERDS:
         general = discord.utils.get(NERDS.channels, name='general')
+        zap = discord.utils.get(NERDS.channels, name='zap')
         await general.send(":clown: **{0.mention} has joined the server** :white_check_mark:".format(member))
-        nrd_role = discord.utils.get(NERDS.roles, name='NRD')
-        await member.add_roles(nrd_role)
+        await zap.send(":clown: **{0.mention} has joined the server** :white_check_mark:".format(member))
+
+        if member.bot is False:
+            nrd_role = discord.utils.get(NERDS.roles, name='NRD')
+            zap_role = discord.utils.get(NERDS.roles, name='Zap')
+            await member.add_roles(nrd_role)
+            
+            # gael, dedo, rik
+            zap_members = [273969020489826306, 323304115017089024, 413700410482753537]
+            if member.id in zap_members:
+                await member.add_roles(zap_role)
 
 @bot.event
 async def on_member_remove(member):
