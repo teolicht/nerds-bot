@@ -42,6 +42,8 @@ class Reddit(commands.Cog):
             await ctx.send(":x: I wasn't able to find that subreddit.")
         except IndexError:
             await ctx.send(":x: I wasn't able to find that subreddit.")
+        except HTTPException:
+            await ctx.send(":x: I wasn't able to find that subreddit.")
 
 
 def setup(bot):
