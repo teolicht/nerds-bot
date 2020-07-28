@@ -18,11 +18,15 @@ class ErrorHandler(commands.Cog):
             cmd = ctx.command.qualified_name
         except AttributeError:
             pass
+
         error = getattr(error, 'original', error)
-        ignored = (commands.CommandNotFound, commands.NotOwner)
+        ignored = (commands.NotOwner)
         specify_member = ":x: You must specify a member.\n"
+
         if isinstance(error, ignored):
             return
+        elif isinstance(error, commands.CommandNotFound):
+            return await ctx.message.add_reaction('❔')
         elif isinstance(error, commands.MissingRequiredArgument):
             if cmd == 'member':
                 return await ctx.send(specify_member +
@@ -66,12 +70,10 @@ class ErrorHandler(commands.Cog):
                 return await ctx.send(":x: What do you want to ask " +
                     "the magic 8-ball?\nCommand usage: `n!8ball <question>`")
             elif cmd == 'sound':
-                return await ctx.send("This command is currently disabled " +
-                    "because I can't fucking get it to work.")
-                # return await ctx.send(":x: Specify the sound you want " +
-                #     "me to play.\nCommand usage: `n!sound <sound> " +
-                #         "[times to repeat]`\nType `n!sounds` for a list " +
-                #             "of available sounds.")
+                return await ctx.send(":x: Specify the sound you want " +
+                    "me to play.\nCommand usage: `n!sound <sound> " +
+                        "[times to repeat]`\nType `n!sounds` for a list " +
+                            "of available sounds.")
             elif cmd == 'kill':
                 return await ctx.send(specify_member +
                     "Command usage: `n!kill <member>`")
@@ -138,6 +140,9 @@ class ErrorHandler(commands.Cog):
             elif cmd == 'tag':
                 return await ctx.send(":x: What do you want to do?\nCommand " +
                     "usage: `n!tag <create|edit|delete|list>`")
+            elif cmd in ['redditunban', 'rUnban', 'runban']:
+                return await ctx.send(":x: Specify the subreddit.\nCommand " +
+                    "usage: `n!rUnban <subreddit>`")
 
         elif isinstance(error, commands.BadArgument):
             if cmd in ['member', 'gay', 'gg', 'roast', 'kick', 'ban', 'mute',

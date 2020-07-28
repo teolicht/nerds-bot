@@ -76,7 +76,7 @@ async def on_member_join(member):
             nrd_role = discord.utils.get(NERDS.roles, name='NRD')
             zap_role = discord.utils.get(NERDS.roles, name='Zap')
             await member.add_roles(nrd_role)
-            
+
             # gael, dedo, rik
             zap_members = [273969020489826306, 323304115017089024, 413700410482753537]
             if member.id in zap_members:

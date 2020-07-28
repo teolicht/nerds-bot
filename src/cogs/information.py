@@ -75,11 +75,11 @@ class Information(commands.Cog):
         if ctx.invoked_subcommand is None:
             em = discord.Embed(title="Commands", color=0xffc700)
             em.add_field(name='info', value='Informative commands.')
-            em.add_field(name='pics', value='Picture commands.')
-            em.add_field(name='fun', value='Fun commands.')
+            em.add_field(name='pics', value='Picture commands.', inline=False)
+            em.add_field(name='fun', value='Fun commands.', inline=False)
             # em.add_field(name='mod', value='Moderation commands.')
-            em.add_field(name='util', value='Utility commands.')
-            em.add_field(name='reddit', value='Reddit commands.')
+            em.add_field(name='util', value='Useful commands.', inline=False)
+            em.add_field(name='reddit', value='Reddit commands.', inline=False)
             em.set_footer(text='To view category: "n!help <category>"')
             await ctx.send(embed=em)
 
@@ -155,7 +155,7 @@ class Information(commands.Cog):
 
     @help.command(aliases=['utilities', 'utils'])
     async def util(self, ctx):
-        em = discord.Embed(title="Utility commands (8)", color=0xffc700)
+        em = discord.Embed(title="Useful commands (8)", color=0xffc700)
         em.clear_fields()
         em.add_field(name='delete <amount>', value='Delete messages in the ' +
             'channel.')
@@ -175,10 +175,13 @@ class Information(commands.Cog):
 
     @help.command()
     async def reddit(self, ctx):
-        em = discord.Embed(title='Reddit commands (1)', color=0xffc700)
+        em = discord.Embed(title='Reddit commands (4)', color=0xffc700)
         em.clear_fields()
         em.add_field(name='reddit <subreddit>', value='Random hot post from ' +
                                                       'specified subreddit.')
+        em.add_field(name='reddit ban <subreddit>', value='Ban a subreddit.', inline=False)
+        em.add_field(name='reddit unban <subreddit>', value='Unban a subreddit.', inline=False)
+        em.add_field(name='reddit banlist', value='List of banned subreddits.', inline=False)
         em.set_footer(text='<required> | [optional]')
         await ctx.send(embed=em)
 
@@ -454,14 +457,14 @@ class Information(commands.Cog):
 
     @commands.command()
     async def sounds(self, ctx):
-        em = discord.Embed(title='``n!sound`` Sounds list',
+        em = discord.Embed(title='``n!sound`` Sounds list', color=0xffc700,
             description="""**1.** Doin' your mom
 **2.** Deja vu duck
 **3.** Pedron smashing keyboard
 **4.** Surprise motherfucker
 **5.** Lorengay singing
-
 """)
+        await ctx.send(embed=em)
 
 def setup(bot):
     bot.add_cog(Information(bot))
