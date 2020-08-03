@@ -3,16 +3,21 @@ import discord
 import praw, prawcore
 import random
 import os
+import threading
 from .config import Reddit
 
 r = praw.Reddit(client_id=Reddit.client_id,
                 client_secret=Reddit.client_secret, password=Reddit.password,
                 user_agent="teodorlicht", username=Reddit.username)
 subs_path = os.path.join(os.path.join(os.path.dirname(__file__), "text/bannedsubs.txt"))
+ban_cooldown = []
 
 class Reddit(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
+    def ban_done(self, sub):
+        ban_cooldown.remove(sub)
 
     @commands.command()
     async def reddit(self, ctx, option, subreddit=None):
@@ -30,12 +35,18 @@ class Reddit(commands.Cog):
                 subs.close()
                 await ctx.send(":white_check_mark: Banned ``r/{}``".format(subreddit))
 
+                ban_cooldown.append(subreddit)
+                timer = threading.Timer(600.0, self.ban_done, args=[subreddit])
+                timer.start()
+
         elif option == "unban":
             subs.close()
             if subreddit is None:
                 await ctx.send(":x: Specify the subreddit.\nCommand usage: `n!reddit unban <subreddit>`")
             elif subreddit not in subs_list:
                 await ctx.send(":x: That subreddit isn't even banned.")
+            elif subreddit in ban_cooldown:
+                await ctx.send(":x: Please wait before unbanning that subreddit.")
             else:
                 subs_list.remove(subreddit)
                 subs = open(subs_path, "w")
