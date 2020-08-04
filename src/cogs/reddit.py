@@ -81,6 +81,8 @@ class Reddit(commands.Cog):
                 submissions = []
                 for submission in r.subreddit(option).hot(limit=100):
                     submissions.append(submission)
+                if submissions == []:
+                    return await ctx.send(":x: There are no posts in that subreddit.")
                 post = random.choice(submissions)
                 em = discord.Embed(title=post.title,
                                    url='https://www.reddit.com' + post.permalink)
