@@ -7,3 +7,4 @@ config.py
 *.swp
 core.21426
 tags.json
+.vscode
