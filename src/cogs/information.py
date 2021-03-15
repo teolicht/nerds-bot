@@ -281,8 +281,7 @@ class Information(commands.Cog):
 
         def get_memberstatus(self, guild):
             """Get status of each member in a guild"""
-            on_members, off_members, idle_members = 0, 0, 0
-            dnd_members, bot_members = 0, 0
+            on_members, off_members, idle_members, dnd_members, bot_members = 0, 0, 0, 0, 0
             for member in guild.members:
                 if member.bot:
                     bot_members += 1
@@ -328,8 +327,7 @@ class Information(commands.Cog):
         guild = ctx.guild
         roles = []
         textchannels, voicechannels, to_remove = 0, 0, 0
-        on_members, off_members, idle_members, dnd_members, bot_members = get_memberstatus(
-            self, guild)
+        on_members, off_members, idle_members, dnd_members, bot_members = get_memberstatus(self, guild)
         verificationlevel = get_verificationlevel(guild)
         contentfilter = get_contentfilter(guild)
 
@@ -353,7 +351,7 @@ class Information(commands.Cog):
             # More than one year ago, display "year(s) ago"
             created_format = "{}\n└ **{}** year(s) ago."
         guild_created = created_format.format(created_guild_date,
-            self.get_digits(created_guild_ago))
+                        self.get_digits(created_guild_ago))
 
 
         if guild.mfa_level == 1:

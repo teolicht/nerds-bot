@@ -13,8 +13,9 @@ from cogs.config import botoken
 from cogs.emojis import Emoji
 from cogs.nerds import nerds
 
-description = "A personal Discord bot for friends."
-prefix = ('n!', 'N!')
+DESCRIPTION = "A personal Discord bot for friends."
+PREFIX = ('n!', 'N!')
+INTENTS = discord.Intents().all()
 
 initial_extensions = [
     'cogs.handler',
@@ -27,8 +28,9 @@ initial_extensions = [
     'cogs.reddit']
 
 bot = commands.Bot(
-    description=description,
-    command_prefix=prefix)
+    description=DESCRIPTION,
+    command_prefix=PREFIX,
+    intents=INTENTS)
 bot.remove_command('help')
 bot.launch_time = datetime.datetime.utcnow()
 
