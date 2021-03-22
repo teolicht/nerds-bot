@@ -4,10 +4,12 @@ import asyncio
 import random
 import datetime
 import os
+import threading
 
 
 PATH = os.path.dirname(__file__)
 annoyed_members = []
+on_cooldown = False
 
 class Fun(commands.Cog):
     def __init__(self, bot):
@@ -20,6 +22,10 @@ class Fun(commands.Cog):
             return member.nick
         else:
             return member.name
+
+    def cooldown_timer(self):
+        global on_cooldown
+        on_cooldown = False
 
     async def nope(self, msg):
         await msg.add_reaction('\U0001f1f3') # N
@@ -447,15 +453,24 @@ class Fun(commands.Cog):
 
     @commands.command()
     async def cum(self, ctx):
+        global on_cooldown
+        if on_cooldown is True:
+            return await ctx.send(":x: Please wait.")
+        else:
+            on_cooldown = True
+            timer = threading.Timer(10.0, self.cooldown_timer)
+            timer.start()
         await asyncio.sleep(2)
-        await ctx.send("**Fase 1: Iniciación** :smiling_imp:\nhttps://tenor.com/view/he-hehe-boy-boi-boyi-gif-7890844")
+        await ctx.send("**Fase 1: Iniciación** :smiling_imp:")
+        await ctx.send("https://tenor.com/view/he-hehe-boy-boi-boyi-gif-7890844")
         await asyncio.sleep(5)
-        await ctx.send("**Fase 2: Excitación** :flushed:\nhttps://tenor.com/view/hmm-sulley-monsters-inc-james-sullivan-shocked-gif-15802869")
+        await ctx.send("**Fase 2: Excitación** :flushed:")
+        await ctx.send("https://tenor.com/view/hmm-sulley-monsters-inc-james-sullivan-shocked-gif-15802869")
         await asyncio.sleep(5)
         await ctx.send("**Fase 3: Finalización** :sunglasses:")
         await ctx.send("""
-:sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops:"
-:sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops:"
+:sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops:
+:sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops:
 :sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops:CUM:sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops:""")
         await ctx.send("""
 :sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops:
