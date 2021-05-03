@@ -1,6 +1,7 @@
 from discord.ext import commands
 import discord
-import praw, prawcore
+import asyncpraw as praw
+import asyncprawcore
 import random
 import os
 import threading
@@ -73,17 +74,21 @@ class Reddit(commands.Cog):
                 return await ctx.send(":x: That subreddit is banned.")
             try:
                 r.subreddits.search_by_name(option, exact=True)
-            except prawcore.exceptions.NotFound:
+            except asyncprawcore.exceptions.NotFound:
                 return await ctx.send(":x: I wasn't able to find that subreddit.")
             except discord.errors.HTTPException:
                 return await ctx.send(":x: I wasn't able to find that subreddit.")
+            except asyncprawcore.exceptions.Forbidden:
+                return await ctx.send(":x: Private subreddit.")
             try:
+                subreddit = await r.subreddit(option)
                 submissions = []
-                for submission in r.subreddit(option).hot(limit=100):
-                    submissions.append(submission)
+                async for post in subreddit.hot(limit=100):
+                    submissions.append(post)
                 if submissions == []:
-                    return await ctx.send(":x: There are no posts in that subreddit.")
+                    return await ctx.send(":x: That subreddit is empty.")
                 post = random.choice(submissions)
+
                 em = discord.Embed(title=post.title,
                                    url='https://www.reddit.com' + post.permalink)
                 em.set_footer(text='u/{0.author.name} • {0.ups} points'.format(post))
@@ -98,8 +103,10 @@ class Reddit(commands.Cog):
             except discord.errors.HTTPException:
                 em.description = post.url
                 await ctx.send(embed=em)
-            except prawcore.exceptions.NotFound:
+            except asyncprawcore.exceptions.NotFound:
                 await ctx.send(":x: I wasn't able to find that subreddit.")
+            except asyncprawcore.exceptions.Forbidden:
+                await ctx.send(":x: Private subreddit.")
 
 
 def setup(bot):
