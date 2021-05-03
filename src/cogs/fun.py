@@ -393,22 +393,6 @@ class Fun(commands.Cog):
             color=0xE10D91)
         await ctx.send(embed=em)
 
-    @commands.command()
-    async def nigger(self, ctx, member: discord.Member):
-        if member == self.bot.user:
-            return await self.nope(ctx.message)
-
-        nick = self.mname(member)
-        nigger_role = discord.utils.get(ctx.guild.roles, name="NIGGER")
-        if nigger_role in member.roles:
-            return await ctx.send(":x: That member is already a nigger.")
-        try:
-            await member.add_roles(nigger_role)
-            await ctx.send(":white_check_mark: {} is now a nigger!!!".format(nick))
-        except:
-            return await ctx.send(":x: I wasn't able to do that. Check if a " +
-                "'NIGGER' role exists in this server.")
-
     @commands.command(aliases=['unigger', 'unniger'])
     async def unnigger(self, ctx, member: discord.Member):
         if ctx.author == member:
