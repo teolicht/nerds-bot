@@ -5,16 +5,14 @@ import ago
 import bs4
 import lxml
 import random
+import json
+import os
 from bs4 import BeautifulSoup as soup
 from urllib.request import urlopen
 from datetime import datetime
 
-class Emoji(object):
-    on = "<:ON:466770290739773440>"
-    off = "<:OFF:466770290601361408>"
-    idle = "<:IDLE:466770290865733633>"
-    dnd = "<:DND:466770290421137409>"
-    bot = "<:BOT:476896189631954945>"
+
+EMOJI = json.load(open(os.path.join(os.path.dirname(__file__), "text", "config.json"), 'r'))["emojis"]
 
 class Information(commands.Cog):
     def __init__(self, bot):
@@ -50,16 +48,16 @@ class Information(commands.Cog):
     def get_status(self, member):
         """Get a member's status emoji"""
         if member.status == discord.Status.online:
-            return Emoji.on
+            return EMOJI["online"]
         elif member.status == discord.Status.offline:
-            return Emoji.off
+            return EMOJI["offline"]
         elif member.status == discord.Status.idle:
-            return Emoji.idle
+            return EMOJI["idle"]
         elif member.status in [discord.Status.dnd,
                                discord.Status.do_not_disturb]:
-            return Emoji.dnd
+            return EMOJI["dnd"]
         else:
-            return Emoji.off
+            return EMOJI["offline"]
 
     def get_roles(self, member):
         """Return a member's list of roles"""
@@ -71,7 +69,7 @@ class Information(commands.Cog):
     @commands.group()
     async def help(self, ctx):
         if ctx.invoked_subcommand is None:
-            em = discord.Embed(title="Commands", color=0xffc700)
+            em = discord.Embed(title="Commands", color=0xff2b29)
             em.add_field(name='info', value='Informative commands.')
             em.add_field(name='pics', value='Picture commands.', inline=False)
             em.add_field(name='fun', value='Fun commands.', inline=False)
@@ -83,7 +81,7 @@ class Information(commands.Cog):
 
     @help.command()
     async def info(self, ctx):
-        em = discord.Embed(title="Informative commands (5)", color=0xffc700)
+        em = discord.Embed(title="Informative commands (5)", color=0xff2b29)
         em.clear_fields()
         em.add_field(name='member <member>', value='Get info on a member.')
         em.add_field(name='server', value='Get info on this server.',
@@ -97,7 +95,7 @@ class Information(commands.Cog):
 
     @help.command()
     async def pics(self, ctx):
-        em = discord.Embed(title="Picture commands (2)", color=0xffc700)
+        em = discord.Embed(title="Picture commands (2)", color=0xff2b29)
         em.clear_fields()
         em.add_field(name='cat', value='A cat pic/GIF.')
         em.add_field(name='dog', value='A dog pic/GIF.', inline=False)
@@ -106,7 +104,7 @@ class Information(commands.Cog):
 
     @help.command()
     async def fun(self, ctx):
-        em = discord.Embed(title="Fun commands (15)", color=0xffc700)
+        em = discord.Embed(title="Fun commands (13)", color=0xff2b29)
         em.clear_fields()
         em.add_field(name='say <text>', value='Speak as if you were me.')
         em.add_field(name='big <text>', value='Speak as if you were me, ' +
@@ -132,7 +130,7 @@ class Information(commands.Cog):
 
     # @help.command()
     # async def mod(self, ctx):
-    #     em = discord.Embed(title="Moderation commands (8)", color=0xffc700)
+    #     em = discord.Embed(title="Moderation commands (8)", color=0xff2b29)
     #     em.clear_fields()
     #     em.add_field(name='kick <member> [reason]', value='Kick someone.')
     #     em.add_field(name='ban <member> [reason]', value='Ban someone.',
@@ -153,7 +151,7 @@ class Information(commands.Cog):
 
     @help.command(aliases=['utilities', 'utils'])
     async def util(self, ctx):
-        em = discord.Embed(title="Useful commands (8)", color=0xffc700)
+        em = discord.Embed(title="Useful commands (8)", color=0xff2b29)
         em.clear_fields()
         em.add_field(name='delete <amount>', value='Delete messages in the ' +
             'channel.')
@@ -173,7 +171,7 @@ class Information(commands.Cog):
 
     @help.command()
     async def reddit(self, ctx):
-        em = discord.Embed(title='Reddit commands (4)', color=0xffc700)
+        em = discord.Embed(title='Reddit commands (4)', color=0xff2b29)
         em.clear_fields()
         em.add_field(name='reddit <subreddit>', value='Random hot post from ' +
                                                       'specified subreddit.')
@@ -188,7 +186,7 @@ class Information(commands.Cog):
         # Member's current status
         status = self.get_status(member)
         if member.bot:
-            status = f"{status}{Emoji.bot}"
+            status = f'{status}{EMOJI["bot"]}'
         # List with member's roles' names
         roles = self.get_roles(member)
         avatar = member.avatar_url
@@ -240,6 +238,7 @@ class Information(commands.Cog):
 
         em = discord.Embed(
             title='User Information',
+            color=0xff2b29,
             description='{}{}'.format(member.mention, status))
         em.set_thumbnail(url=avatar)
         em.add_field(
@@ -373,7 +372,7 @@ class Information(commands.Cog):
             voicechannels += 1
 
         em = discord.Embed(
-            title='Server Information')
+            title='Server Information', color=0xff2b29)
         em.add_field(
             name='Name:',
             value=guild.name)
@@ -385,9 +384,9 @@ class Information(commands.Cog):
             value='`{0.owner}`'.format(guild))
         em.add_field(
             name='Members:',
-            value='{0.on}{1}   {0.off}{2}   {0.idle}{3}   {0.dnd}{4}   '.format(
-                Emoji, on_members, off_members, idle_members, dnd_members) +
-                    '{0.bot}{1}'.format(Emoji, bot_members))
+            value=f'{EMOJI["online"]}{on_members}   {EMOJI["offline"]}{off_members}   {EMOJI["idle"]}{idle_members}' +
+                  f'   {EMOJI["dnd"]}{dnd_members}   \n{EMOJI["bot"]}{bot_members}')
+
         em.add_field(
             name='Channels ({}):'.format(textchannels + voicechannels),
             value='Text: **{}**\nVoice: **{}**'.format(
@@ -440,7 +439,7 @@ class Information(commands.Cog):
         soup_page = soup(xml_page, 'xml')
         news_list = soup_page.findAll('item')
 
-        em = discord.Embed(title='Google News')
+        em = discord.Embed(title='Google News', color=0xff2b29)
         amount = 0
         for news in news_list:
             amount += 1
@@ -453,7 +452,7 @@ class Information(commands.Cog):
 
     @commands.command()
     async def sounds(self, ctx):
-        em = discord.Embed(title='``n!sound`` Sounds list', color=0xffc700,
+        em = discord.Embed(title='``n!sound`` Sounds list', color=0xff2b29,
             description="""**1.** Doin' your mom
 **2.** Deja vu duck
 **3.** Pedron smashing keyboard
