@@ -271,6 +271,7 @@ class Fun(commands.Cog):
         if choice.lower() not in ['r', 'rock', 'p', 'paper', 's', 'scissors']:
             await ctx.send("`{}` is not a valid choice.".format(choice))
         else:
+            await asyncio.sleep(1)
             await ctx.send("I choose **{}**".format(botC))
             await asyncio.sleep(1)
 
@@ -327,7 +328,7 @@ class Fun(commands.Cog):
 
     @commands.command()
     async def sound(self, ctx, option, repeat: int = False):
-        sounds_path = os.path.join(PATH, "sounds/")
+        sounds_path = os.path.join(PATH, "sounds")
         def soundobj(sound):
             return discord.FFmpegPCMAudio(sounds_path + sound)
 
@@ -390,7 +391,7 @@ class Fun(commands.Cog):
             title=':heart: I ship {} and {} :heart:'.format(nick1, nick2),
             description=':two_hearts::revolving_hearts: {} '.format(ship_name) +
                 ':revolving_hearts::two_hearts:',
-            color=0xE10D91)
+            color=0xff2b29)
         await ctx.send(embed=em)
 
     @commands.command(aliases=['unigger', 'unniger'])
