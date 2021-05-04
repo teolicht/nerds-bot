@@ -56,18 +56,39 @@ class Reddit(commands.Cog):
                 await ctx.send(":white_check_mark: Unbanned ``r/{}``".format(subreddit))
 
         elif option == "banlist":
-            amount = 0
-            subs_print = []
-            for sub in subs_list:
-                amount += 1
-                subs_print.append(f"**{amount}.** {sub}\n")
-            subs_print = "".join(subs_print[:-1])
-            if subs_print == "":
-                await ctx.send("There are no banned subreddits.")
-            else:
+            try:
+                amount = 0
+                subs_print = []
+                for sub in subs_list:
+                    amount += 1
+                    subs_print.append(f"**{amount}.** {sub}\n")
+                subs_print = "".join(subs_print[:-1]) # [:-1] is to exclude \n in last line
                 em = discord.Embed(title="Banned subreddits", color=0xffc700,
                                    description=subs_print)
                 await ctx.send(embed=em)
+            except discord.errors.HTTPException:
+                half_list = len(subs_list) / 2 # Middle point of the list as an int
+                half_list = int(round(half_list, 0))
+                # First half of the list
+                amount_1 = 0
+                subs_print_1 = []
+                for sub in subs_list[:half_list]:
+                    amount_1 += 1
+                    subs_print_1.append(f"**{amount_1}.** {sub}\n")
+                subs_print_1 = "".join(subs_print_1[:-1]) # [:-1] is to exclude \n in last line
+                # Second half of the list
+                amount_2 = amount_1
+                subs_print_2 = []
+                for sub in subs_list[half_list:]:
+                    amount_2 += 1
+                    subs_print_2.append(f"**{amount_2}.** {sub}\n")
+                subs_print_2 = "".join(subs_print_2[:-1]) # [:-1] is to exclude \n in last line
+
+                em_1 = discord.Embed(title="Banned subreddits ({})".format(len(subs_list) - 1),
+                                     color=0xffc700, description=subs_print_1)
+                em_2 = discord.Embed(color=0xffc700, description=subs_print_2)
+                await ctx.send(embed=em_1)
+                await ctx.send(embed=em_2)
 
         else:
             if option in subs_list:
