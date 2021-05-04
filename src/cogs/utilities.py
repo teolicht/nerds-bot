@@ -151,7 +151,7 @@ Possible reasons:
             for tag in dict:
                 i += 1
                 tag_list += f"**{i}.** {tag}\n"
-            em = discord.Embed(description=tag_list, color=0xffc700)
+            em = discord.Embed(description=tag_list, color=0xff2b29)
             await ctx.send(embed=em)
 
         else:
