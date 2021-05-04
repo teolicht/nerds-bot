@@ -9,13 +9,13 @@ import datetime
 import logging
 import psutil
 import os
-from cogs.config import botoken
-from cogs.emojis import Emoji
-from cogs.nerds import nerds
+import json
+
 
 DESCRIPTION = "A personal Discord bot for friends."
 PREFIX = ('n!', 'N!')
 INTENTS = discord.Intents().all()
+CONFIG = json.load(open(os.path.join(os.path.dirname(__file__), "cogs", "text", "config.json"), 'r'))
 
 initial_extensions = [
     'cogs.handler',
@@ -40,8 +40,13 @@ async def on_ready():
     print(bot.user.name)
     print(bot.user.id)
     print("------")
-    global NERDS
+    global NERDS, GENERAL, ZAP, NRD_ROLE, ZAP_ROLE, NRD_LIST
     NERDS = bot.get_guild(300762607164325893)
+    GENERAL = discord.utils.get(NERDS.channels, name='general')
+    ZAP = discord.utils.get(NERDS.channels, name='zap')
+    NRD_ROLE = discord.utils.get(NERDS.roles, name='NRD')
+    ZAP_ROLE = discord.utils.get(NERDS.roles, name='ZAP')
+    NRD_LIST = CONFIG["nrd_members"]
 
 @bot.event
 async def on_message(message):
@@ -63,30 +68,24 @@ async def on_message(message):
                 await message.delete()
     await bot.process_commands(message)
 
-
 @bot.event
 async def on_member_join(member):
-    if member.guild == NERDS:
-        general = discord.utils.get(NERDS.channels, name='general')
-        zap = discord.utils.get(NERDS.channels, name='zap')
-        await general.send(":clown: **{0.mention} has joined the server** :white_check_mark:".format(member))
-        await zap.send(":clown: **{0.mention} has joined the server** :white_check_mark:".format(member))
-
-        if member.bot is False:
-            nrd_role = discord.utils.get(NERDS.roles, name='NRD')
-            zap_role = discord.utils.get(NERDS.roles, name='Zap')
+    if member.guild == NERDS and member.bot is False:
+        nrd_list = CONFIG["nrd_members"]
+        if member.id in NRD_LIST:
             await member.add_roles(nrd_role)
-
-            # gael, dedo, rik
-            zap_members = [273969020489826306, 323304115017089024, 413700410482753537]
-            if member.id in zap_members:
-                await member.add_roles(zap_role)
+            await general.send(":clown: **{0.mention} has joined the server** :white_check_mark:".format(member))
+        else:
+            await member.add_roles(zap_role)
+            await zap.send(":clown: **{0.mention} has joined the server** :white_check_mark:".format(member))
 
 @bot.event
 async def on_member_remove(member):
-    if member.bot is False and member.guild == NERDS:
-        general = discord.utils.get(NERDS.channels, name='general')
-        await general.send(":clown: **{0.mention} has left the server** :x:".format(member))
+    if member.guild == NERDS and member.bot is False:
+        if member.id in NRD_LIST:
+            await general.send(":clown: **{0.mention} has left the server** :x:".format(member))
+        else:
+            await zap.send(":clown: **{0.mention} has left the server** :x:".format(member))
 
 @bot.command()
 async def ping(ctx):
@@ -96,7 +95,6 @@ async def ping(ctx):
     t_1 = time.perf_counter()
     await ctx.trigger_typing()
     t_2 = time.perf_counter()
-
     ping = round((t_2 - t_1) * 1000)
     if ping <= 100:
         color = color(0, 211, 14)
@@ -150,7 +148,7 @@ async def info(ctx):
         if "Merge branch" in commit:
             revision.remove(commit)
     em = discord.Embed(description='Latest changes:\n' + '\n'.join(revision),
-                       color=0xffc700)
+                       color=0xff2b29)
     em.set_author(
         name='Nerds Bot',
         icon_url=bot.user.avatar_url)
@@ -310,4 +308,4 @@ if __name__ == '__main__':
                 extension, file=sys.stderr))
             traceback.print_exc()
 
-    bot.run(botoken)
+    bot.run(CONFIG["token"])
