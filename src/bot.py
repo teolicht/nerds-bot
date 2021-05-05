@@ -147,11 +147,11 @@ async def info(ctx):
     for commit in revision:
         if "Merge branch" in commit:
             revision.remove(commit)
-    em = discord.Embed(description='Latest changes:\n' + '\n'.join(revision),
-                       color=0xff2b29)
+    em = discord.Embed(description='**Latest changes:**\n' + '\n'.join(revision) + '\n⠀', color=0xff2b29)
     em.set_author(
-        name='Nerds Bot',
-        icon_url=bot.user.avatar_url)
+        name='GitHub',
+        icon_url='https://cdn.discordapp.com/attachments/477239188203503628/839336908210962442/unknown.png',
+        url='https://github.com/teolicht/nerds-bot')
     em.add_field(
         name='Language',
         value=f'Python {major}.{minor}.{micro}')
@@ -161,9 +161,8 @@ async def info(ctx):
     em.add_field(
         name='Process',
         value=f'Memory: {memory_usage:.2f} MiB\nCPU: {cpu_usage}%')
-    em.add_field(
-        name='Uptime',
-        value=f'{d}d {h}h {m}m {s}s')
+    em.set_footer(
+        text=f'✅ Uptime: {d}d {h}h {m}m {s}s')
     await ctx.send(embed=em)
 
 @bot.command()
@@ -171,7 +170,6 @@ async def poll(ctx, question, duration: int, option1, option2, option3=None,
                 option4=None, option5=None, option6=None, option7=None,
                 option8=None, option9=None, option10=None):
     await ctx.message.delete()
-
     initial_options = [option1, option2, option3, option4, option5, option6,
                        option7, option8, option9, option10]
     options = []
@@ -191,9 +189,9 @@ async def poll(ctx, question, duration: int, option1, option2, option3=None,
 
     description = []
     for x, option in enumerate(options):
-        description += '\n{} {}'.format(reactions[x], option)
+        description += '\n{} {}\n⠀'.format(reactions[x], option)
     em = discord.Embed(title=question, description=''.join(description))
-    em.set_author(name='Poll', icon_url=ctx.author.avatar_url)
+    em.set_author(name=f'{ctx.author.name}\'s poll', icon_url=ctx.author.avatar_url)
     react_msg = await ctx.send(embed=em)
 
     for reaction in reactions[:len(options)]:
@@ -204,7 +202,7 @@ async def poll(ctx, question, duration: int, option1, option2, option3=None,
             second = "seconds"
         else:
             second = "second"
-        em.set_footer(text="This poll will be closed in {} {}.".format(
+        em.set_footer(text="This poll will end in {} {}.".format(
             duration, second))
         await react_msg.edit(embed=em)
 
@@ -232,16 +230,24 @@ async def poll(ctx, question, duration: int, option1, option2, option3=None,
 
     highest_num = max(numbers)
     highest_nums = []
-
     for num in numbers:
         if num == highest_num:
             highest_nums.append(num)
     if len(highest_nums) > 1:
         winner_option = False
         tie_options = []
-        for x, num in enumerate(numbers):
-            if num == highest_nums[0]:
-                tie_options.append(options[x])
+        try:
+            for x, num in enumerate(numbers):
+                if num == highest_nums[0]:
+                    tie_options.append(options[x])
+        except IndexError:
+            em.set_footer(text='❌ No one voted.')
+            await react_msg.edit(embed=em)
+            for reaction in cache_msg.reactions:
+                async for user in reaction.users():
+                    await cache_msg.remove_reaction(reaction, user)
+            return
+
         tie_winner = random.choice(tie_options)
         em.set_footer(text='It\'s a tie! Picking a random winner...')
         await react_msg.edit(embed=em)
@@ -250,7 +256,7 @@ async def poll(ctx, question, duration: int, option1, option2, option3=None,
         for x, num in enumerate(numbers):
             if num == highest_nums[0]:
                 winner_option = options[x]
-        em.set_footer(text='❌ This poll has been closed.')
+        em.set_footer(text='❌ This poll has ended.')
         await react_msg.edit(embed=em)
 
     for reaction in cache_msg.reactions:
@@ -281,9 +287,9 @@ async def poll(ctx, question, duration: int, option1, option2, option3=None,
             title=question,
             description="__Result__{}".format(
                 ''.join(total)))
-    em.set_author(name='Poll', icon_url=ctx.author.avatar_url)
+    em.set_author(name=f'{ctx.author.name}\'s poll', icon_url=ctx.author.avatar_url)
     if winner_option:
-        em.set_footer(text='❌ This poll has been closed.')
+        em.set_footer(text='❌ This poll has ended.')
         await react_msg.edit(embed=em)
     else:
         em.set_footer(text="It's a tie! Picking a random winner...")
@@ -294,8 +300,8 @@ async def poll(ctx, question, duration: int, option1, option2, option3=None,
             title=question,
             description="__Result__{}\n:star: {}".format(
                 ''.join(total), tie_winner))
-        em.set_author(name='Poll', icon_url=ctx.author.avatar_url)
-        em.set_footer(text='❌ This poll has been closed.')
+        em.set_author(name=f'{ctx.author.name}\'s poll', icon_url=ctx.author.avatar_url)
+        em.set_footer(text='❌ This poll has ended.')
         await react_msg.edit(embed=em)
 
 
