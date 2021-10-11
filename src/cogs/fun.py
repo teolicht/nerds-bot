@@ -169,7 +169,7 @@ class Fun(commands.Cog):
             await self.nope(ctx.message)
             return
 
-        with open(os.path.join(PATH, "text", "roasts.txt")) as file:
+        with open(os.path.join(PATH, "text/roasts.txt")) as file:
             roasts = [line.rstrip('\n') for line in file]
         roast = random.choice(roasts)
 
@@ -303,7 +303,7 @@ class Fun(commands.Cog):
                 self.mname(member)) + f"(**{times}** times)"
             end_msg = ":white_check_mark: Done annoying {0.mention} • `{1}min`".format(
                 member, minutes)
-        with open(os.path.join(PATH, "text", "bad_words.txt")) as file:
+        with open(os.path.join(PATH, "text/bad_words.txt")) as file:
             bad_words = [line.rstrip('\n') for line in file]
         annoyed_members.append(member)
         await ctx.send(start_msg)

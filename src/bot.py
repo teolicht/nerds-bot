@@ -15,7 +15,7 @@ import json
 DESCRIPTION = "A personal Discord bot for friends."
 PREFIX = ('n!', 'N!')
 INTENTS = discord.Intents().all()
-CONFIG = json.load(open(os.path.join(os.path.dirname(__file__), "cogs", "text", "config.json"), 'r'))
+CONFIG = json.load(open(os.path.join(os.path.dirname(__file__), "cogs/text/config.json"), 'r'))
 
 initial_extensions = [
     'cogs.handler',
@@ -52,20 +52,7 @@ async def on_ready():
 async def on_message(message):
     if message.guild is None:
         return
-    if message.channel.name == "music" and message.guild == NERDS:
-        DJ_cmds = ['play', 'disconnect', 'np', 'aliases', 'ping', 'skip',
-         'seek', 'soundcloud', 'remove', 'loopqueue', 'search', 'stats',
-         'loop', 'donate', 'shard', 'join', 'lyrics', 'info', 'resume',
-         'settings', 'move', 'forward', 'skipto', 'clear', 'replay',
-         'clean', 'pause', 'removedupes', 'volume', 'rewind', 'playtop',
-         'playskip', 'invite', 'shuffle', 'queue', 'leavecleanup', 'p', 's', 'q',
-         'nowplaying', 'voteskip', 'stop', 'leave', 'repeat', 'reshuffle',
-         'fwd', 'rew', 'seek', 'restart', 'history', 'export', 'help', 'v', 'st',
-         'j', 'lv', 'rep', 'sh', 'resh', 'h', 'ex', 'vol']
-        music_bots = [235088799074484224, 252128902418268161, 184405311681986560]
-        if message.content[1:] not in DJ_cmds:
-            if message.author.id not in music_bots:
-                await message.delete()
+
     await bot.process_commands(message)
 
 @bot.event

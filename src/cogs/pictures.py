@@ -7,7 +7,7 @@ import os
 IMGUR = 'https://i.imgur.com/'
 NSFW_MSG = ":x: This must be a NSFW channel."
 # Take lists of links in file and put them all in a single list
-with open(os.path.join(os.path.dirname(__file__), "text", "pics_links.txt")) as links:
+with open(os.path.join(os.path.dirname(__file__), "text/pics_links.txt")) as links:
     links = links.readlines()
     pics_links = [links[0], links[1], links[2], links[3], links[4]]
     # Remove the '\n' from the last link of each list

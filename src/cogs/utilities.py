@@ -100,63 +100,64 @@ Possible reasons:
 
     @commands.command()
     async def tag(self, ctx, option, name=None, *, content=None):
-        tags_list = open(os.path.join(PATH, "text", "tags.json"), "r")
-        dict = json.load(tags_list)
-
+        TAGS = open(os.path.join(PATH, "text/text.json"), 'r')
+        tags_json = json.load(TAGS)
+        TAGS.close()
         if option == "create":
             if name is None:
                 return await ctx.send(":x: Please specify the tag's name.")
             if name in ['create', 'delete', 'edit', 'list']:
                 return await ctx.send(":x: You cannot create a tag with that name.")
-            if name in dict:
+            if name in tags_json["tags"]:
                 return await ctx.send(":x: That tag already exists.")
             if content is None:
                 return await ctx.send(":x: Please enter some content for the tag.")
-            content = ''.join(content)
-            dict[name] = content
-            file = open(os.path.join(PATH, "text", "tags.json"), "w")
-            json.dump(dict, file)
-            file.close()
-            await ctx.send(":white_check_mark: Tag created sucessfully.")
+            content = "".join(content)
+            print(name)
+            print(content)# TAGS ARE NOT BEING WRITTEN INTO JSON FILE
+            tags_json["tags"][name] = content
+            tags_file = open(os.path.join(PATH, "text/tags.json"), 'w')
+            json.dump(tags_json, tags_file, indent=4)
+            tags_file.close()
+            await ctx.send(":white_check_mark: Created tag sucessfully.")
 
         elif option == "delete":
             if name is None:
                 return await ctx.send(":x: Please specify the tag's name.")
-            delete_key = dict.pop(name, None)
-            file = open(os.path.join(PATH, "text", "tags.json"), "w")
-            json.dump(dict, file)
-            file.close()
-            if delete_key is None:
+            if name not in tags_json["tags"]:
                 await ctx.send(":x: That tag doesn't exist.")
-            else:
-                await ctx.send(":white_check_mark: Tag deleted successfully.")
+            tags_json.pop(name)
+            tags_file = open(os.path.join(PATH, "text/tags.json"), 'w')
+            json.dump(tags_json, tags_file, indent=4)
+            tags_file.close()
+            await ctx.send(":white_check_mark: Deleted tag successfully.")
 
         elif option == "edit":
             if name is None:
                 return await ctx.send(":x: Please specify the tag's name.")
-            if name not in dict:
+            if name not in tags_json:
                 return await ctx.send(":x: That tag doesn't exist.")
             if content is None:
                 return await ctx.send(":x: Please enter some content for the tag.")
-            content = ''.join(content)
-            dict[name] = content
-            file = open(os.path.join(PATH, "text", "tags.json"), "w")
-            json.dump(dict, file)
-            file.close()
-            await ctx.send(":white_check_mark: Tag edited successfully.")
+            content = "".join(content)
+            tags_json["tags"][name] = content
+            tags_file = open(os.path.join(PATH, "text/tags.json"), 'w')
+            json.dump(tags_json, tags_file, indent=4)
+            json_file.close()
+            await ctx.send(":white_check_mark: Edited tag sucessfully.")
 
         elif option == "list":
-            i = 0
+            amount = 0
             tag_list = ""
-            for tag in dict:
-                i += 1
-                tag_list += f"**{i}.** {tag}\n"
-            em = discord.Embed(description=tag_list, color=0xff2b29)
+            for tag in tags_json["tags"]:
+                amount += 1
+                tag_list += f"**{amount}.** {tag}\n"
+            em = discord.Embed(title=f"Tag list ({amount})", description=tag_list, color=0xff2b29)
             await ctx.send(embed=em)
 
         else:
-            if option in dict:
-                await ctx.send(dict[option])
+            if option in tags_json["tags"]:
+                await ctx.send(tags_json["tags"][option])
             else:
                 await ctx.send(":x: That tag doesn't exist.")
 

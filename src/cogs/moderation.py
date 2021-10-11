@@ -274,10 +274,6 @@ class Moderation(commands.Cog):
             return
         if member.id == 300761654411526154: # me
             return
-        # if ctx.author in chatmute_cooldown_members:
-        #     m, s = divmod(chatmute_cooldown_members[ctx.author], 60)
-        #     h, m = divmod(m, 60)
-        #     return await ctx.send(COOLDOWN_MSG % (h, m, s))
         nick = self.mname(member)
         muted = discord.utils.get(ctx.guild.roles, name="Muted")
         if muted in member.roles:
@@ -287,22 +283,15 @@ class Moderation(commands.Cog):
             await ctx.send(f":mute: Chatmuted {nick}")
         else:
             if duration == 1:
-                sec = str(duration) + " second."
+                sec =  f"{duration} second."
             else:
-                sec = str(duration) + " seconds."
-            await ctx.send(f":mute: Chatmuted {nick} for {sec}".format(
-                member, duration))
+                sec =  f"{duration} seconds."
+            await ctx.send(f":mute: Chatmuted {nick} for {sec}")
             await asyncio.sleep(duration)
             if muted in member.roles:
                 await member.remove_roles(muted)
                 await ctx.send(":loud_sound: {0.mention} is no longer chatmuted.".format(
                     member))
-        # i = 1800
-        # while i != 0:
-        #     chatmute_cooldown_members[ctx.author] = i
-        #     await asyncio.sleep(1)
-        #     i -= 1
-        # del chatmute_cooldown_members[ctx.author]
 
     @commands.command()
     @commands.is_owner()

@@ -12,7 +12,7 @@ from urllib.request import urlopen
 from datetime import datetime
 
 
-EMOJI = json.load(open(os.path.join(os.path.dirname(__file__), "text", "config.json"), 'r'))["emojis"]
+EMOJI = json.load(open(os.path.join(os.path.dirname(__file__), "text/config.json"), 'r'))["emojis"]
 
 class Information(commands.Cog):
     def __init__(self, bot):

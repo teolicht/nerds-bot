@@ -7,11 +7,10 @@ import os
 import threading
 import json
 
-
-REDDIT = json.load(open(os.path.join(os.path.dirname(__file__), "text", "config.json"), 'r'))["reddit"]
+THIS_PATH = os.path.dirname(__file__)
+REDDIT = json.load(open(os.path.join(THIS_PATH, "text", "config.json"), 'r'))["reddit"]
 r = praw.Reddit(client_id=REDDIT["client_id"], client_secret=REDDIT["client_secret"], 
                 password=REDDIT["password"], user_agent=REDDIT["username"], username=REDDIT["username"])
-SUBS_PATH = os.path.join(os.path.dirname(__file__), "text", "bannedsubs.txt")
 ban_cooldown = []
 
 class Reddit(commands.Cog):
@@ -23,76 +22,75 @@ class Reddit(commands.Cog):
 
     @commands.command()
     async def reddit(self, ctx, option, subreddit=None):
-        subs = open(SUBS_PATH, "r")
-        subs_list = subs.read().split(",")
-
+        SUBS = open(os.path.join(THIS_PATH, "text/text.json"), 'r')
+        subs_json = json.load(SUBS)
+        SUBS.close()
         if option == "ban":
             if subreddit is None:
                 await ctx.send(":x: Specify the subreddit.\nCommand usage: `n!reddit ban <subreddit>`")
-            elif subreddit in subs_list:
+            elif subreddit in subs_json["bannedsubs"]:
                 await ctx.send(":x: That subreddit is already banned.")
             else:
-                subs = open(SUBS_PATH, "a+")
-                subs.write(subreddit + ",")
-                subs.close()
+                subs_json["bannedsubs"].append(subreddit)
+                subs_file = open(os.path.join(THIS_PATH, "text/text.json"), 'w')
+                json.dump(subs_json, subs_file, indent=4)
+                subs_file.close()
                 await ctx.send(":white_check_mark: Banned ``r/{}``".format(subreddit))
-
                 ban_cooldown.append(subreddit)
                 timer = threading.Timer(600.0, self.ban_done, args=[subreddit])
                 timer.start()
 
         elif option == "unban":
-            subs.close()
             if subreddit is None:
                 await ctx.send(":x: Specify the subreddit.\nCommand usage: `n!reddit unban <subreddit>`")
-            elif subreddit not in subs_list:
+            elif subreddit not in subs_json["bannedsubs"]:
                 await ctx.send(":x: That subreddit isn't even banned.")
             elif subreddit in ban_cooldown:
                 await ctx.send(":x: Please wait before unbanning that subreddit.")
             else:
-                subs_list.remove(subreddit)
-                subs = open(SUBS_PATH, "w")
-                subs.write(",".join(subs_list))
-                subs.close()
+                subs_json["bannedsubs"].remove(subreddit)
+                subs_file = open(os.path.join(THIS_PATH, "text/text.json"), 'w')
+                json.dump(subs_json, subs_file, indent=4)
+                subs_file.close()
                 await ctx.send(":white_check_mark: Unbanned ``r/{}``".format(subreddit))
 
         elif option == "banlist":
+            subs_list = subs_json["bannedsubs"]
             try:
+                subs_print = ["⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n"]
                 amount = 0
-                subs_print = []
                 for sub in subs_list:
                     amount += 1
                     subs_print.append(f"**{amount}.** {sub}\n")
-                subs_print = "".join(subs_print[:-1]) # [:-1] is to exclude \n in last line
-                em = discord.Embed(title="Banned subreddits ({})".format(len(subs_list) - 1),
+                subs_print = "".join(subs_print)
+                em = discord.Embed(title="Banned subreddits ({})".format(amount),
                                    color=0xff2b29, description=subs_print)
                 await ctx.send(embed=em)
             except discord.errors.HTTPException:
-                half_list = len(subs_list) / 2 # Middle point of the list as an int
+                half_list = len(subs_list) / 2
                 half_list = int(round(half_list, 0))
                 # First half of the list
-                amount_1 = 0
-                subs_print_1 = []
+                subs_print_1 = ["⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n"]
+                amount = 0
                 for sub in subs_list[:half_list]:
-                    amount_1 += 1
-                    subs_print_1.append(f"**{amount_1}.** {sub}\n")
-                subs_print_1 = "".join(subs_print_1[:-1]) # [:-1] is to exclude \n in last line
+                    amount += 1
+                    subs_print_1.append(f"**{amount}.** {sub}\n")
+                subs_print_1 = "".join(subs_print_1)
                 # Second half of the list
-                amount_2 = amount_1
-                subs_print_2 = []
+                subs_print_2 = ["⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n"]
                 for sub in subs_list[half_list:]:
-                    amount_2 += 1
-                    subs_print_2.append(f"**{amount_2}.** {sub}\n")
-                subs_print_2 = "".join(subs_print_2[:-1]) # [:-1] is to exclude \n in last line
+                    amount += 1
+                    subs_print_2.append(f"**{amount}.** {sub}\n")
+                subs_print_2 = "".join(subs_print_2)
 
-                em_1 = discord.Embed(title="Banned subreddits ({})".format(len(subs_list) - 1),
+                em_1 = discord.Embed(title="Banned subreddits ({})".format(amount),
                                      color=0xff2b29, description=subs_print_1)
                 em_2 = discord.Embed(color=0xff2b29, description=subs_print_2)
                 await ctx.send(embed=em_1)
                 await ctx.send(embed=em_2)
 
         else:
-            if option in subs_list:
+            if option in subs_json["bannedsubs"]:
                 return await ctx.send(":x: That subreddit is banned.")
             try:
                 r.subreddits.search_by_name(option, exact=True)
