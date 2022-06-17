@@ -113,12 +113,10 @@ Possible reasons:
             if content is None:
                 return await ctx.send(":x: Please enter some content for the tag.")
             content = "".join(content)
-            print(name)
-            print(content)# TAGS ARE NOT BEING WRITTEN INTO JSON FILE
             tags_json["tags"][name] = content
-            tags_file = open(os.path.join(PATH, "text/tags.json"), 'w')
-            json.dump(tags_json, tags_file, indent=4)
-            tags_file.close()
+            with open(os.path.join(PATH, "text/text.json"), 'w') as f:
+                json.dump(tags_json, f, indent=4)
+                f.close()
             await ctx.send(":white_check_mark: Created tag sucessfully.")
 
         elif option == "delete":
@@ -126,8 +124,8 @@ Possible reasons:
                 return await ctx.send(":x: Please specify the tag's name.")
             if name not in tags_json["tags"]:
                 await ctx.send(":x: That tag doesn't exist.")
-            tags_json.pop(name)
-            tags_file = open(os.path.join(PATH, "text/tags.json"), 'w')
+            tags_json["tags"].pop(name)
+            tags_file = open(os.path.join(PATH, "text/text.json"), 'w')
             json.dump(tags_json, tags_file, indent=4)
             tags_file.close()
             await ctx.send(":white_check_mark: Deleted tag successfully.")
@@ -135,15 +133,15 @@ Possible reasons:
         elif option == "edit":
             if name is None:
                 return await ctx.send(":x: Please specify the tag's name.")
-            if name not in tags_json:
+            if name not in tags_json["tags"]:
                 return await ctx.send(":x: That tag doesn't exist.")
             if content is None:
                 return await ctx.send(":x: Please enter some content for the tag.")
             content = "".join(content)
             tags_json["tags"][name] = content
-            tags_file = open(os.path.join(PATH, "text/tags.json"), 'w')
+            tags_file = open(os.path.join(PATH, "text/text.json"), 'w')
             json.dump(tags_json, tags_file, indent=4)
-            json_file.close()
+            tags_file.close()
             await ctx.send(":white_check_mark: Edited tag sucessfully.")
 
         elif option == "list":
