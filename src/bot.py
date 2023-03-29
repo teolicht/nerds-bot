@@ -13,26 +13,16 @@ import json
 
 
 DESCRIPTION = "A personal Discord bot for friends."
-PREFIX = ('n!', 'N!')
+PREFIX = ("n!", "N!")
 INTENTS = discord.Intents().all()
-CONFIG = json.load(open(os.path.join(os.path.dirname(__file__), "cogs/text/config.json"), 'r'))
+CONFIG = json.load(
+    open(os.path.join(os.path.dirname(__file__), "cogs/text/config.json"), "r")
+)
 
-initial_extensions = [
-    'cogs.handler',
-    'cogs.invites',
-    'cogs.information',
-    'cogs.moderation',
-    'cogs.pictures',
-    'cogs.fun',
-    'cogs.utilities',
-    'cogs.reddit']
-
-bot = commands.Bot(
-    description=DESCRIPTION,
-    command_prefix=PREFIX,
-    intents=INTENTS)
-bot.remove_command('help')
+bot = commands.Bot(description=DESCRIPTION, command_prefix=PREFIX, intents=INTENTS)
+bot.remove_command("help")
 bot.launch_time = datetime.datetime.utcnow()
+
 
 @bot.event
 async def on_ready():
@@ -42,11 +32,12 @@ async def on_ready():
     print("------")
     global NERDS, GENERAL, ZAP, NRD_ROLE, ZAP_ROLE, NRD_LIST
     NERDS = bot.get_guild(300762607164325893)
-    GENERAL = discord.utils.get(NERDS.channels, name='general')
-    ZAP = discord.utils.get(NERDS.channels, name='zap')
-    NRD_ROLE = discord.utils.get(NERDS.roles, name='NRD')
-    ZAP_ROLE = discord.utils.get(NERDS.roles, name='ZAP')
+    GENERAL = discord.utils.get(NERDS.channels, name="general")
+    ZAP = discord.utils.get(NERDS.channels, name="zap")
+    NRD_ROLE = discord.utils.get(NERDS.roles, name="NRD")
+    ZAP_ROLE = discord.utils.get(NERDS.roles, name="ZAP")
     NRD_LIST = CONFIG["nrd_members"]
+
 
 @bot.event
 async def on_message(message):
@@ -55,24 +46,42 @@ async def on_message(message):
 
     await bot.process_commands(message)
 
+
 @bot.event
 async def on_member_join(member):
     if member.guild == NERDS and member.bot is False:
         nrd_list = CONFIG["nrd_members"]
         if member.id in NRD_LIST:
-            await member.add_roles(nrd_role)
-            await general.send(":clown: **{0.mention} has joined the server** :white_check_mark:".format(member))
+            await member.add_roles(NRD_ROLE)
+            await GENERAL.send(
+                ":clown: **{0.mention} has joined the server** :white_check_mark:".format(
+                    member
+                )
+            )
         else:
-            await member.add_roles(zap_role)
-            await zap.send(":clown: **{0.mention} has joined the server** :white_check_mark:".format(member))
+            await member.add_roles(ZAP_ROLE)
+            await ZAP.send(
+                ":clown: **{0.mention} has joined the server** :white_check_mark:".format(
+                    member
+                )
+            )
+
 
 @bot.event
 async def on_member_remove(member):
     if member.guild == NERDS and member.bot is False:
         if member.id in NRD_LIST:
-            await general.send(":clown: **{0.mention} has left the server** :x:".format(member))
+            await GENERAL.send(
+                ":clown: **{0.mention} has left the server** :x:".format(member)
+            )
         else:
-            await zap.send(":clown: **{0.mention} has left the server** :x:".format(member))
+            await ZAP.send(
+                ":clown: **{0.mention} has left the server** :x:".format(member)
+            )
+
+
+
+
 
 @bot.command()
 async def ping(ctx):
@@ -80,7 +89,7 @@ async def ping(ctx):
         return discord.Colour.from_rgb(r, g, b)
 
     t_1 = time.perf_counter()
-    await ctx.trigger_typing()
+    await ctx.channel.typing()
     t_2 = time.perf_counter()
     ping = round((t_2 - t_1) * 1000)
     if ping <= 100:
@@ -104,11 +113,9 @@ async def ping(ctx):
     else:
         color = color(211, 0, 0)
 
-    em = discord.Embed(
-        title='🏓 Pong!',
-        description='*{}ms*'.format(ping),
-        color=color)
+    em = discord.Embed(title="🏓 Pong!", description="*{}ms*".format(ping), color=color)
     await ctx.send(embed=em)
+
 
 @bot.command()
 async def info(ctx):
@@ -122,43 +129,65 @@ async def info(ctx):
     cpu_usage = psutil.cpu_percent()
 
     cmd = r'git show -s HEAD~3..HEAD --format="[{}](https://github.com/teolicht/nerds-bot/commit/%H) %s (%cr)"'
-    if os.name == 'posix':
-        cmd = cmd.format(r'\`%h\`')
+    if os.name == "posix":
+        cmd = cmd.format(r"\`%h\`")
     else:
-        cmd = cmd.format(r'`%h`')
+        cmd = cmd.format(r"`%h`")
 
     try:
-        revision = os.popen(cmd).read().strip().split('\n')
+        revision = os.popen(cmd).read().strip().split("\n")
     except OSError:
         revision = "Could not fetch due to memory error."
     for commit in revision:
         if "Merge branch" in commit:
             revision.remove(commit)
-    em = discord.Embed(description='**Latest changes:**\n' + '\n'.join(revision) + '\n⠀', color=0xff2b29)
+    em = discord.Embed(
+        description="**Latest changes:**\n" + "\n".join(revision) + "\n⠀",
+        color=0xFF2B29,
+    )
     em.set_author(
-        name='GitHub',
-        icon_url='https://cdn.discordapp.com/attachments/477239188203503628/839336908210962442/unknown.png',
-        url='https://github.com/teolicht/nerds-bot')
+        name="GitHub",
+        icon_url="https://cdn.discordapp.com/attachments/477239188203503628/839336908210962442/unknown.png",
+        url="https://github.com/teolicht/nerds-bot",
+    )
+    em.add_field(name="Language", value=f"Python {major}.{minor}.{micro}")
+    em.add_field(name="API", value="discord.py {}".format(discord.__version__))
     em.add_field(
-        name='Language',
-        value=f'Python {major}.{minor}.{micro}')
-    em.add_field(
-        name='API',
-        value='discord.py {}'.format(discord.__version__))
-    em.add_field(
-        name='Process',
-        value=f'Memory: {memory_usage:.2f} MiB\nCPU: {cpu_usage}%')
-    em.set_footer(
-        text=f'✅ Uptime: {d}d {h}h {m}m {s}s')
+        name="Process", value=f"Memory: {memory_usage:.2f} MiB\nCPU: {cpu_usage}%"
+    )
+    em.set_footer(text=f"✅ Uptime: {d}d {h}h {m}m {s}s")
     await ctx.send(embed=em)
 
+
 @bot.command()
-async def poll(ctx, question, duration: int, option1, option2, option3=None,
-                option4=None, option5=None, option6=None, option7=None,
-                option8=None, option9=None, option10=None):
+async def poll(
+    ctx,
+    question,
+    duration: int,
+    option1,
+    option2,
+    option3=None,
+    option4=None,
+    option5=None,
+    option6=None,
+    option7=None,
+    option8=None,
+    option9=None,
+    option10=None,
+):
     await ctx.message.delete()
-    initial_options = [option1, option2, option3, option4, option5, option6,
-                       option7, option8, option9, option10]
+    initial_options = [
+        option1,
+        option2,
+        option3,
+        option4,
+        option5,
+        option6,
+        option7,
+        option8,
+        option9,
+        option10,
+    ]
     options = []
     for option in initial_options:
         if option is not None:
@@ -172,16 +201,16 @@ async def poll(ctx, question, duration: int, option1, option2, option3=None,
     elif len(options) > 10:
         return await ctx.send(":x: Max 10 options allowed.")
 
-    reactions = ['1⃣', '2⃣', '3⃣', '4⃣', '5⃣', '6⃣', '7⃣', '8⃣', '9⃣', '🔟']
+    reactions = ["1⃣", "2⃣", "3⃣", "4⃣", "5⃣", "6⃣", "7⃣", "8⃣", "9⃣", "🔟"]
 
     description = []
     for x, option in enumerate(options):
-        description += '\n{} {}\n⠀'.format(reactions[x], option)
-    em = discord.Embed(title=question, description=''.join(description))
-    em.set_author(name=f'{ctx.author.name}\'s poll', icon_url=ctx.author.avatar_url)
+        description += "\n{} {}\n\u200b".format(reactions[x], option)
+    em = discord.Embed(title=question, description="".join(description))
+    em.set_author(name=f"{ctx.author.name}'s poll", icon_url=ctx.author.display_avatar)
     react_msg = await ctx.send(embed=em)
 
-    for reaction in reactions[:len(options)]:
+    for reaction in reactions[: len(options)]:
         await react_msg.add_reaction(reaction)
 
     while duration > 0:
@@ -189,8 +218,7 @@ async def poll(ctx, question, duration: int, option1, option2, option3=None,
             second = "seconds"
         else:
             second = "second"
-        em.set_footer(text="This poll will end in {} {}.".format(
-            duration, second))
+        em.set_footer(text="This poll will end in {} {}.".format(duration, second))
         await react_msg.edit(embed=em)
 
         await asyncio.sleep(1)
@@ -199,12 +227,20 @@ async def poll(ctx, question, duration: int, option1, option2, option3=None,
     await react_msg.edit(embed=em)
 
     onesV, twosV, threesV, foursV, fivesV = [], [], [], [], []
-    sixsV, sevensV, eightsV, ninesV, tensV  = [], [], [], [], []
-    numbers = [ones, twos, threes, fours, fives,
-               sixs, sevens, eights, nines, tens]
-    voters = [onesV, twosV, threesV, foursV,
-              fivesV, sixsV, sevensV, eightsV,
-              ninesV, tensV]
+    sixsV, sevensV, eightsV, ninesV, tensV = [], [], [], [], []
+    numbers = [ones, twos, threes, fours, fives, sixs, sevens, eights, nines, tens]
+    voters = [
+        onesV,
+        twosV,
+        threesV,
+        foursV,
+        fivesV,
+        sixsV,
+        sevensV,
+        eightsV,
+        ninesV,
+        tensV,
+    ]
 
     cache_msg = await react_msg.channel.fetch_message(react_msg.id)
     for reaction in cache_msg.reactions:
@@ -228,7 +264,7 @@ async def poll(ctx, question, duration: int, option1, option2, option3=None,
                 if num == highest_nums[0]:
                     tie_options.append(options[x])
         except IndexError:
-            em.set_footer(text='❌ No one voted.')
+            em.set_footer(text="❌ No one voted.")
             await react_msg.edit(embed=em)
             for reaction in cache_msg.reactions:
                 async for user in reaction.users():
@@ -236,25 +272,25 @@ async def poll(ctx, question, duration: int, option1, option2, option3=None,
             return
 
         tie_winner = random.choice(tie_options)
-        em.set_footer(text='It\'s a tie! Picking a random winner...')
+        em.set_footer(text="It's a tie! Picking a random winner...")
         await react_msg.edit(embed=em)
 
     else:
         for x, num in enumerate(numbers):
             if num == highest_nums[0]:
                 winner_option = options[x]
-        em.set_footer(text='❌ This poll has ended.')
+        em.set_footer(text="❌ This poll has ended.")
         await react_msg.edit(embed=em)
 
     for reaction in cache_msg.reactions:
         async for user in reaction.users():
             await cache_msg.remove_reaction(reaction, user)
 
-    format1 = '**{}**\n └ {}' # To be used the option has at least one voter
-    format2 = '**{}**' # To be used if the option has no voters
+    format1 = "**{}**\n └ {}"  # To be used the option has at least one voter
+    format2 = "**{}**"  # To be used if the option has no voters
     results = []
     for x, voter in enumerate(voters):
-        voters[x] = ', '.join(voters[x])
+        voters[x] = ", ".join(voters[x])
         if numbers[x] > 0:
             results.append(format1.format(numbers[x], voters[x]))
         else:
@@ -262,21 +298,20 @@ async def poll(ctx, question, duration: int, option1, option2, option3=None,
 
     total = []
     for x, option in enumerate(options):
-        total += '\n`{}`: {}\n'.format(option, results[x])
+        total += "\n`{}`: {}\n".format(option, results[x])
 
     if winner_option:
         em = discord.Embed(
             title=question,
-            description="__Result__{}\n:star: {}".format(
-                ''.join(total), winner_option))
+            description="__Result__{}\n:star: {}".format("".join(total), winner_option),
+        )
     else:
         em = discord.Embed(
-            title=question,
-            description="__Result__{}".format(
-                ''.join(total)))
-    em.set_author(name=f'{ctx.author.name}\'s poll', icon_url=ctx.author.avatar_url)
+            title=question, description="__Result__{}".format("".join(total))
+        )
+    em.set_author(name=f"{ctx.author.name}'s poll", icon_url=ctx.author.display_avatar)
     if winner_option:
-        em.set_footer(text='❌ This poll has ended.')
+        em.set_footer(text="❌ This poll has ended.")
         await react_msg.edit(embed=em)
     else:
         em.set_footer(text="It's a tie! Picking a random winner...")
@@ -285,20 +320,28 @@ async def poll(ctx, question, duration: int, option1, option2, option3=None,
 
         em = discord.Embed(
             title=question,
-            description="__Result__{}\n:star: {}".format(
-                ''.join(total), tie_winner))
-        em.set_author(name=f'{ctx.author.name}\'s poll', icon_url=ctx.author.avatar_url)
-        em.set_footer(text='❌ This poll has ended.')
+            description="__Result__{}\n:star: {}".format("".join(total), tie_winner),
+        )
+        em.set_author(
+            name=f"{ctx.author.name}'s poll", icon_url=ctx.author.display_avatar
+        )
+        em.set_footer(text="❌ This poll has ended.")
         await react_msg.edit(embed=em)
 
 
-if __name__ == '__main__':
-    for extension in initial_extensions:
-        try:
-            bot.load_extension(extension)
-        except Exception as e:
-            print("Failed to load extension {}:".format(
-                extension, file=sys.stderr))
-            traceback.print_exc()
+async def load():
+    for filename in os.listdir("./cogs"):
+        if filename.endswith(".py"):
+            try:
+                await bot.load_extension(f"cogs.{filename[:-3]}")
+            except Exception as e:
+                print("Failed to load extension {}:".format(filename, file=sys.stderr))
+                traceback.print_exc()
 
-    bot.run(CONFIG["token"])
+
+async def main():
+    await load()
+    await bot.start(CONFIG["token"])
+
+
+asyncio.run(main())
