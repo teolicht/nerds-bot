@@ -4,7 +4,7 @@ import random
 import os
 
 
-IMGUR = 'https://i.imgur.com/'
+IMGUR = "https://i.imgur.com/"
 NSFW_MSG = ":x: This must be a NSFW channel."
 # Take lists of links in file and put them all in a single list
 with open(os.path.join(os.path.dirname(__file__), "text/pics_links.txt")) as links:
@@ -14,6 +14,7 @@ with open(os.path.join(os.path.dirname(__file__), "text/pics_links.txt")) as lin
     for x, links in enumerate(pics_links):
         pics_links[x] = pics_links[x].split()
 
+
 class Pictures(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -21,17 +22,17 @@ class Pictures(commands.Cog):
     @commands.command()
     async def cat(self, ctx):
         picture = random.choice(pics_links[0])
-        em = discord.Embed(title=':smiley_cat: A cat pic/GIF', color=0xff2b29)
+        em = discord.Embed(title=":smiley_cat: A cat pic/GIF", color=0xFF2B29)
         em.set_image(url=IMGUR + picture)
         await ctx.send(embed=em)
 
     @commands.command()
     async def dog(self, ctx):
         picture = random.choice(pics_links[1])
-        em = discord.Embed(title=':dog: A dog pic/GIF', color=0xff2b29)
+        em = discord.Embed(title=":dog: A dog pic/GIF", color=0xFF2B29)
         em.set_image(url=IMGUR + picture)
         await ctx.send(embed=em)
 
 
-def setup(bot):
-    bot.add_cog(Pictures(bot))
+async def setup(bot):
+    await bot.add_cog(Pictures(bot))

@@ -1,3 +1,7 @@
 {
-    "python.pythonPath": "/Users/Teolicht/Library/miniconda3/bin/python3.8"
+    "python.pythonPath": "/Users/Teolicht/Library/miniconda3/bin/pythonw",
+    "files.exclude": {
+        "": true
+    },
+    "git.enabled": false
 }
