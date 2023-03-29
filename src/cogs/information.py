@@ -3,8 +3,6 @@ import discord
 import time
 import ago
 import bs4
-
-# import lxml
 import random
 import json
 import os
@@ -52,7 +50,7 @@ class Information(commands.Cog):
     def get_status(self, member):
         """Get a member's status emoji"""
         if member.bot:
-            return
+            return ""
         elif member.status == discord.Status.online:
             return EMOJI["online"]
         elif member.status == discord.Status.offline:
@@ -122,11 +120,9 @@ class Information(commands.Cog):
         em.add_field(name="suicide", value="Kill yourself.", inline=False)
         em.add_field(name="respawn <member>", value="Respawn someone.")
         em.add_field(name="rps", value="Play Rock, Paper, Scissors.", inline=False)
-        em.add_field(
-            name="annoy <member> [times]", value="Annoy someone.")
+        em.add_field(name="annoy <member> [times]", value="Annoy someone.")
         em.add_field(name="fact", value="Get a random fact.", inline=False)
-        em.add_field(
-            name="ship <member1> <member2>", value="Ship two members.")
+        em.add_field(name="ship <member1> <member2>", value="Ship two members.")
         em.title = f"Fun commands ({len(em.fields)})"
         em.set_footer(text="<required> | [optional]")
         await ctx.send(embed=em)

@@ -1,10 +1,11 @@
-from discord.ext import commands
-import discord
 import asyncio
 import random
 import datetime
 import os
 import threading
+import discord
+from discord import app_commands
+from discord.ext import commands
 
 
 PATH = os.path.dirname(__file__)
@@ -35,6 +36,11 @@ class Fun(commands.Cog):
         await msg.add_reaction("\U0001f1ea")  # E
         return
 
+    # @app_commands.command()
+    # @app_commands.describe(message="What should I say?")
+    # async def say(self, interaction: discord.Interaction, message: str):
+    #     await interaction.response.send_message(message)
+    
     @commands.command()
     async def say(self, ctx, *, text):
         try:
@@ -159,7 +165,6 @@ class Fun(commands.Cog):
                 ":x: I need the **Manage Messages** permission so "
                 + "I can delete your message first."
             )
-
 
     @commands.command()
     async def roast(self, ctx, member: discord.Member):
@@ -319,21 +324,6 @@ class Fun(commands.Cog):
         if end_msg:
             await ctx.send(end_msg)
 
-    @commands.command(name="8ball")
-    async def _8ball(self, ctx, *, question):
-        answers = [
-            "Concentrate and ask again",
-            "Outlook good",
-            "Without a doubt",
-            "You may rely on it",
-            "Ask again later",
-            "It is certain",
-            "Reply hazy, try again",
-            "My reply is no",
-            "My sources say no",
-        ]
-        answer = random.choice(answers)
-        await ctx.send(":8ball: {}".format(answer))
 
     @commands.command()
     async def sound(self, ctx, option, repeat: int = False):

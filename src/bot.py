@@ -1,5 +1,3 @@
-from discord.ext import commands
-import discord
 import time
 import traceback
 import sys
@@ -10,6 +8,9 @@ import logging
 import psutil
 import os
 import json
+import discord
+from discord import app_commands
+from discord.ext import commands
 
 
 DESCRIPTION = "A personal Discord bot for friends."
@@ -30,6 +31,11 @@ async def on_ready():
     print(bot.user.name)
     print(bot.user.id)
     print("------")
+    try:
+        synced = await bot.tree.sync()
+        print(f"Synced {len(synced)} commands")
+    except Exception as e:
+        print(e)
     global NERDS, GENERAL, ZAP, NRD_ROLE, ZAP_ROLE, NRD_LIST
     NERDS = bot.get_guild(300762607164325893)
     GENERAL = discord.utils.get(NERDS.channels, name="general")
@@ -50,7 +56,6 @@ async def on_message(message):
 @bot.event
 async def on_member_join(member):
     if member.guild == NERDS and member.bot is False:
-        nrd_list = CONFIG["nrd_members"]
         if member.id in NRD_LIST:
             await member.add_roles(NRD_ROLE)
             await GENERAL.send(
@@ -80,16 +85,13 @@ async def on_member_remove(member):
             )
 
 
-
-
-
-@bot.command()
-async def ping(ctx):
+@bot.tree.command(description="Test the bot's response time.")
+async def ping(interaction: discord.Interaction):
     def color(r, g, b):
         return discord.Colour.from_rgb(r, g, b)
 
     t_1 = time.perf_counter()
-    await ctx.channel.typing()
+    await interaction.channel.typing()
     t_2 = time.perf_counter()
     ping = round((t_2 - t_1) * 1000)
     if ping <= 100:
@@ -114,11 +116,11 @@ async def ping(ctx):
         color = color(211, 0, 0)
 
     em = discord.Embed(title="🏓 Pong!", description="*{}ms*".format(ping), color=color)
-    await ctx.send(embed=em)
+    await interaction.response.send_message(embed=em)
 
 
-@bot.command()
-async def info(ctx):
+@bot.tree.command(description="Information about the bot.")
+async def info(interaction: discord.Interaction):
     delta_uptime = datetime.datetime.utcnow() - bot.launch_time
     h, remainder = divmod(int(delta_uptime.total_seconds()), 3600)
     m, s = divmod(remainder, 60)
@@ -142,7 +144,7 @@ async def info(ctx):
         if "Merge branch" in commit:
             revision.remove(commit)
     em = discord.Embed(
-        description="**Latest changes:**\n" + "\n".join(revision) + "\n⠀",
+        description="**Latest changes:**\n" + "\n".join(revision) + "\n\u200b",
         color=0xFF2B29,
     )
     em.set_author(
@@ -156,7 +158,7 @@ async def info(ctx):
         name="Process", value=f"Memory: {memory_usage:.2f} MiB\nCPU: {cpu_usage}%"
     )
     em.set_footer(text=f"✅ Uptime: {d}d {h}h {m}m {s}s")
-    await ctx.send(embed=em)
+    await interaction.response.send_message(embed=em)
 
 
 @bot.command()
