@@ -23,6 +23,7 @@ CONFIG = json.load(
 bot = commands.Bot(description=DESCRIPTION, command_prefix=PREFIX, intents=INTENTS)
 bot.remove_command("help")
 bot.launch_time = datetime.datetime.utcnow()
+handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="w")
 
 
 @bot.event
@@ -331,7 +332,7 @@ async def poll(
         await react_msg.edit(embed=em)
 
 
-async def load():
+async def main():
     for filename in os.listdir("./cogs"):
         if filename.endswith(".py"):
             try:
@@ -340,10 +341,5 @@ async def load():
                 print("Failed to load extension {}:".format(filename, file=sys.stderr))
                 traceback.print_exc()
 
-
-async def main():
-    await load()
-    await bot.start(CONFIG["token"])
-
-
 asyncio.run(main())
+bot.run(CONFIG["token"], log_handler=handler)

@@ -10,6 +10,7 @@ from discord.ext import commands
 
 PATH = os.path.dirname(__file__)
 annoyed_members = []
+cure_members = []
 on_cooldown = False
 
 
@@ -17,7 +18,7 @@ class Fun(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    def mname(self, member):
+    def mname(self, member: discord.Member):
         """If member.nick exists, return it, otherwise,
         return member.name"""
         if member.nick:
@@ -29,18 +30,12 @@ class Fun(commands.Cog):
         global on_cooldown
         on_cooldown = False
 
-    async def nope(self, msg):
-        await msg.add_reaction("\U0001f1f3")  # N
-        await msg.add_reaction("\U0001f1f4")  # O
-        await msg.add_reaction("\U0001f1f5")  # P
-        await msg.add_reaction("\U0001f1ea")  # E
-        return
+    # async def nope(self, msg):
+    #     await msg.add_reaction("\U0001f1f3")  # N
+    #     await msg.add_reaction("\U0001f1f4")  # O
+    #     await msg.add_reaction("\U0001f1f5")  # P
+    #     await msg.add_reaction("\U0001f1ea")  # E
 
-    # @app_commands.command()
-    # @app_commands.describe(message="What should I say?")
-    # async def say(self, interaction: discord.Interaction, message: str):
-    #     await interaction.response.send_message(message)
-    
     @commands.command()
     async def say(self, ctx, *, text):
         try:
@@ -53,30 +48,32 @@ class Fun(commands.Cog):
                 + "so I can delete your message."
             )
 
-    @commands.command()
-    async def sayto(self, ctx, member: discord.Member, *, text):
-        text = "".join(text)
+    @app_commands.command(description="Make the bot send someone a DM.")
+    @app_commands.describe(target="A member in this server.")
+    @app_commands.describe(message="Message content.")
+    async def sayto(
+        self, interaction: discord.Interaction, target: discord.Member, message: str
+    ):
         em = discord.Embed(
-            title="Dear {0.name}".format(member),
-            description="*I was sent here by {0.author.mention} ".format(ctx)
-            + "to tell you this:*\n\n{}\n\u200b".format(text),
+            title=f"Dear {target.name}",
+            description=f"*I was sent here by {interaction.user.mention} to tell you this:*\n\n{message}\n\u200b",
             timestamp=discord.utils.utcnow(),
         )
-        await member.send(embed=em)
+        await target.send(embed=em)
         em = discord.Embed(
-            description=":white_check_mark: Sent message to {0.mention}".format(member)
+            description=f":white_check_mark: Sent message to {target.mention}"
         )
-        em.set_author(name=self.mname(ctx.author), icon_url=ctx.author.display_avatar)
-        await ctx.send(embed=em)
-        await asyncio.sleep(5)
-        await ctx.message.delete()
+        em.set_author(
+            name=self.mname(interaction.user), icon_url=interaction.user.display_avatar
+        )
+        await interaction.response.send_message(embed=em)
 
     @commands.command()
     async def big(self, ctx, *, text):
         msg = ""
 
         def big(letter):
-            return ":regional_indicator_{}: ".format(letter)
+            return f":regional_indicator_{letter}: "
 
         for char in "".join(text):
             char = char.lower()
@@ -155,94 +152,142 @@ class Fun(commands.Cog):
             elif char == " ":
                 msg += "    "
             else:
-                msg += str(char)
+                msg += char
 
         try:
             await ctx.message.delete()
             await ctx.send(msg)
         except discord.errors.Forbidden:
             await ctx.send(
-                ":x: I need the **Manage Messages** permission so "
-                + "I can delete your message first."
+                ":x: I need the **Manage Messages** permission so I can delete your message first."
             )
 
-    @commands.command()
-    async def roast(self, ctx, member: discord.Member):
-        if member == self.bot.user:
-            await self.nope(ctx.message)
-            return
+    @app_commands.command(description="Roast someone in the server.")
+    @app_commands.describe(target="A member in this server.")
+    async def roast(self, interaction: discord.Interaction, target: discord.Member):
+        if target == self.bot.user:
+            return await interaction.response.send_message(
+                ":regional_indicator_n::regional_indicator_o::regional_indicator_p::regional_indicator_e:"
+                ":exclamation: I shall not roast myself!"
+            )
 
         with open(os.path.join(PATH, "text/roasts.txt")) as file:
             roasts = [line.rstrip("\n") for line in file]
         roast = random.choice(roasts)
 
         em = discord.Embed(
-            description="{0.mention},\n{1}".format(member, roast),
+            description=f"{target.mention},\n{roast}",
             color=discord.Colour.red(),
         )
-        await ctx.send(embed=em)
+        await interaction.response.send_message(embed=em)
 
-    @commands.command()
-    async def suicide(self, ctx):
-        member = ctx.author
-        nick = self.mname(member)
+    @app_commands.command(description="Kill yourself.")
+    async def suicide(self, interaction: discord.Interaction):
+        author = interaction.user
+        nick = self.mname(author)
         if "💀" in nick:
-            return await ctx.send(":x: You're already dead.")
+            return await interaction.response.send_message(":x: You're already dead.")
         em = discord.Embed(
-            description=f":skull: {nick} has suicided!", color=discord.Colour.red()
+            description=f":skull: {interaction.user.mention} has suicided!",
+            color=discord.Colour.red(),
         )
+        # If the nick is longer than 31 characters (limit is 32), the skull cannot be added
         if len(nick) > 30:
-            return await ctx.send(embed=em)
+            return await interaction.response.send_message(embed=em)
         try:
-            await member.edit(nick="💀{}".format(nick))
-            await ctx.send(embed=em)
+            await author.edit(nick="💀{}".format(nick))
         except discord.errors.Forbidden:
-            await ctx.send(embed=em)
+            pass
+        await interaction.response.send_message(embed=em)
 
-    @commands.command()
-    async def kill(self, ctx, member: discord.Member):
-        nick = self.mname(member)
-        if member == self.bot.user:
-            return await self.nope(ctx.message)
-        if member == ctx.author:
-            return await ctx.send(
-                ":x: If you want to kill yourself, you should type `n!suicide`"
+    @app_commands.command(description="Kill a member in this server.")
+    @app_commands.describe(target="A member in this server.")
+    async def kill(self, interaction: discord.Interaction, target: discord.Member):
+        target_nick = self.mname(target)
+        author_nick = self.mname(interaction.user)
+        if target == self.bot.user:
+            return await interaction.response.send_message(
+                ":regional_indicator_n::regional_indicator_o::regional_indicator_p::regional_indicator_e::exclamation: I shall not kill myself!"
+            )
+        if target == interaction.user:
+            return await interaction.response.send_message(
+                ":x: If you want to kill yourself, you should use `/suicide`"
+            )
+        if "💀" in target_nick:
+            return await interaction.response.send_message(
+                ":x: That member is already dead."
+            )
+        if "💀" in author_nick:
+            return await interaction.response.send_message(
+                ":x: How are you going to kill someone if YOU are dead?"
+            )
+        em = discord.Embed(
+            description=f":skull: {target.mention} has been killed by {interaction.user.mention}! :skull_crossbones:",
+            color=discord.Colour.red(),
+        )
+        amongus_gifs = [
+            "https://media.tenor.com/F__GSvFsf20AAAAC/among-us-kill.gif",
+            "https://media.tenor.com/Zi1l60KaBGMAAAAC/among-us-kill.gif",
+            "https://media.tenor.com/0l5kHLfHhhgAAAAC/among-us.gif",
+        ]
+        gif = random.choice(amongus_gifs)
+        em.set_image(url=gif)
+        # If the nick is longer than 31 characters (limit is 32), the skull cannot be added, send just the message instead
+        if len(target_nick) > 31:
+            return await interaction.response.send_message(embed=em)
+        try:
+            await target.edit(nick=f"💀{target_nick}")
+        except discord.errors.Forbidden:
+            pass
+        await interaction.response.send_message(embed=em)
+
+    @app_commands.command(description="Respawn a dead member.")
+    @app_commands.describe(target="A member in this server.")
+    async def respawn(self, interaction: discord.Interaction, target: discord.Member):
+        nick = self.mname(target)
+        if target == interaction.user:
+            return await interaction.response.send_message(
+                ":x: You can't respawn yourself, that's not how it works..."
             )
         if "💀" in nick:
-            return await ctx.send(":x: That member is already dead.")
-        em = discord.Embed(
-            description=f":skull: {nick} has been killed by {ctx.author.mention}!",
-            color=discord.Colour.red(),
-        )
-        if len(nick) > 30:
-            return await ctx.send(embed=em)
-        try:
-            await member.edit(nick=f"💀{nick}")
-            await ctx.send(embed=em)
-        except discord.errors.Forbidden:
-            await ctx.send(embed=em)
-
-    @commands.command()
-    async def respawn(self, ctx, member: discord.Member):
-        nick = self.mname(member)
-        if member == ctx.author:
-            return await ctx.send(":x: Sorry, you can't respawn yourself.")
-        if "💀" in nick:
             new_name = nick.replace("💀", "")
-            await member.edit(nick=new_name)
-            await ctx.send(f":innocent: Welcome back, {new_name}.")
+            await target.edit(nick=new_name)
+            await interaction.response.send_message(
+                f":innocent: Welcome back, {target.mention}. You have been respawned!"
+            )
         else:
-            await ctx.send(f":x: {nick} is not even dead, mate.")
+            await interaction.response.send_message(
+                f":x: {target.mention} is not even dead, mate."
+            )
 
-    @commands.command()
-    async def cure(self, ctx):
-        members = ctx.guild.members
-        for member in members:
-            nick = self.mname(member)
-            if "💀" in nick:
-                new_name = nick.replace("💀", "")
-                await member.edit(nick=new_name)
-        await ctx.send(":angel: Everyone has respawned!")
+    @app_commands.command(
+        description="Respawn all dead members. Three people needed for this command."
+    )
+    async def cure(self, interaction: discord.Interaction):
+        global cure_members
+        # if len is 2, then only one more member is required to cure, so there are 3 members already
+        if len(cure_members) == 2:
+            members = interaction.guild.members
+            for member in members:
+                nick = self.mname(member)
+                if "💀" in nick:
+                    new_name = nick.replace("💀", "")
+                    await member.edit(nick=new_name)
+            cure_members = []
+            return await interaction.response.send_message(
+                ":angel: Everyone has respawned!"
+            )
+        if interaction.user in cure_members:
+            await interaction.response.send_message(
+                ":x: You've already used the cure command. Someone else needed!"
+            )
+        else:
+            cure_members.append(interaction.user)
+            members_needed = 3 - len(cure_members)
+            await interaction.response.send_message(
+                f":innocent: {interaction.user.mention} is trying to cure everyone! :sparkles:  "
+                f"{members_needed} more member(s) required."
+            )
 
     @commands.command()
     async def rps(self, ctx, choice):
@@ -323,7 +368,6 @@ class Fun(commands.Cog):
                 await asyncio.sleep(30)
         if end_msg:
             await ctx.send(end_msg)
-
 
     @commands.command()
     async def sound(self, ctx, option, repeat: int = False):
