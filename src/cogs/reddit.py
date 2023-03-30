@@ -31,6 +31,7 @@ class Reddit(commands.Cog):
         SUBS = open(os.path.join(THIS_PATH, "text/text.json"), "r")
         subs_json = json.load(SUBS)
         SUBS.close()
+        
         if option == "ban":
             if subreddit is None:
                 await ctx.send(
@@ -67,7 +68,8 @@ class Reddit(commands.Cog):
         elif option == "banlist":
             subs_list = subs_json["bannedsubs"]
             try:
-                subs_print = ["⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n"]
+                blank_line = "\u200b" * 22 
+                subs_print = [f"{blank_line}\n"]
                 amount = 0
                 for sub in subs_list:
                     amount += 1
@@ -83,14 +85,14 @@ class Reddit(commands.Cog):
                 half_list = len(subs_list) / 2
                 half_list = int(round(half_list, 0))
                 # First half of the list
-                subs_print_1 = ["⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n"]
+                subs_print_1 = [f"{blank_line}\n"]
                 amount = 0
                 for sub in subs_list[:half_list]:
                     amount += 1
                     subs_print_1.append(f"**{amount}.** {sub}\n")
                 subs_print_1 = "".join(subs_print_1)
                 # Second half of the list
-                subs_print_2 = ["⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n"]
+                subs_print_2 = [f"{blank_line}\n"]
                 for sub in subs_list[half_list:]:
                     amount += 1
                     subs_print_2.append(f"**{amount}.** {sub}\n")
@@ -119,7 +121,7 @@ class Reddit(commands.Cog):
             try:
                 subreddit = await r.subreddit(option)
                 submissions = []
-                async for post in subreddit.hot(limit=100):
+                async for post in subreddit.hot(limit=25):
                     submissions.append(post)
                 if submissions == []:
                     return await ctx.send(":x: That subreddit is empty.")
