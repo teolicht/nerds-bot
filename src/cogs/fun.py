@@ -14,6 +14,47 @@ cure_members = []
 on_cooldown = False
 
 
+class RPSView(discord.ui.View):
+    choice = None
+    user = None
+
+    async def disable_all_items(self):
+        for item in self.children:
+            item.disabled = True
+        await self.message.edit(view=self)
+
+    async def on_timeout(self) -> None:
+        await self.disable_all_items()
+
+    @discord.ui.button(label="Rock", style=discord.ButtonStyle.gray)
+    async def rock_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        self.choice = "rock"
+        self.user = interaction.user
+        await interaction.response.send_message(f"> {self.user.mention} chose **rock**")
+        self.stop()
+
+    @discord.ui.button(label="Paper", style=discord.ButtonStyle.gray)
+    async def paper_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        self.choice = "paper"
+        self.user = interaction.user
+        await interaction.response.send_message(f"> {self.user.mention} chose **paper**")
+        self.stop()
+
+    @discord.ui.button(label="Scissors", style=discord.ButtonStyle.gray)
+    async def scissors_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        self.choice = "scissors"
+        self.user = interaction.user
+        await interaction.response.send_message(f"> {self.user.mention} chose **scissors**")
+        self.stop()
+
+    @discord.ui.button(label="Quit", style=discord.ButtonStyle.danger)
+    async def quit_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        self.choice = "quit"
+        # await self.disable_all_items()
+        await interaction.message.delete()
+        self.stop()
+
+
 class Fun(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -49,19 +90,19 @@ class Fun(commands.Cog):
             )
 
     @app_commands.command(description="Make the bot send someone a DM.")
-    @app_commands.describe(target="A member in this server.")
+    @app_commands.describe(user="A member in this server.")
     @app_commands.describe(message="Message content.")
     async def sayto(
-        self, interaction: discord.Interaction, target: discord.Member, message: str
+        self, interaction: discord.Interaction, user: discord.Member, message: str
     ):
         em = discord.Embed(
-            title=f"Dear {target.name}",
+            title=f"Dear {user.name}",
             description=f"*I was sent here by {interaction.user.mention} to tell you this:*\n\n{message}\n\u200b",
             timestamp=discord.utils.utcnow(),
         )
-        await target.send(embed=em)
+        await user.send(embed=em)
         em = discord.Embed(
-            description=f":white_check_mark: Sent message to {target.mention}"
+            description=f":white_check_mark: Sent message to {user.mention}"
         )
         em.set_author(
             name=self.mname(interaction.user), icon_url=interaction.user.display_avatar
@@ -163,9 +204,9 @@ class Fun(commands.Cog):
             )
 
     @app_commands.command(description="Roast someone in the server.")
-    @app_commands.describe(target="A member in this server.")
-    async def roast(self, interaction: discord.Interaction, target: discord.Member):
-        if target == self.bot.user:
+    @app_commands.describe(user="A member in this server.")
+    async def roast(self, interaction: discord.Interaction, user: discord.Member):
+        if user == self.bot.user:
             return await interaction.response.send_message(
                 ":regional_indicator_n::regional_indicator_o::regional_indicator_p::regional_indicator_e:"
                 ":exclamation: I shall not roast myself!"
@@ -176,7 +217,7 @@ class Fun(commands.Cog):
         roast = random.choice(roasts)
 
         em = discord.Embed(
-            description=f"{target.mention},\n{roast}",
+            description=f"{user.mention},\n{roast}",
             color=discord.Colour.red(),
         )
         await interaction.response.send_message(embed=em)
@@ -201,19 +242,19 @@ class Fun(commands.Cog):
         await interaction.response.send_message(embed=em)
 
     @app_commands.command(description="Kill a member in this server.")
-    @app_commands.describe(target="A member in this server.")
-    async def kill(self, interaction: discord.Interaction, target: discord.Member):
-        target_nick = self.mname(target)
+    @app_commands.describe(user="A member in this server.")
+    async def kill(self, interaction: discord.Interaction, user: discord.Member):
+        user_nick = self.mname(user)
         author_nick = self.mname(interaction.user)
-        if target == self.bot.user:
+        if user == self.bot.user:
             return await interaction.response.send_message(
                 ":regional_indicator_n::regional_indicator_o::regional_indicator_p::regional_indicator_e::exclamation: I shall not kill myself!"
             )
-        if target == interaction.user:
+        if user == interaction.user:
             return await interaction.response.send_message(
                 ":x: If you want to kill yourself, you should use `/suicide`"
             )
-        if "💀" in target_nick:
+        if "💀" in user_nick:
             return await interaction.response.send_message(
                 ":x: That member is already dead."
             )
@@ -222,42 +263,41 @@ class Fun(commands.Cog):
                 ":x: How are you going to kill someone if YOU are dead?"
             )
         em = discord.Embed(
-            description=f":skull: {target.mention} has been killed by {interaction.user.mention}! :skull_crossbones:",
+            description=f":skull: {user.mention} has been killed by {interaction.user.mention}! :skull_crossbones:",
             color=discord.Colour.red(),
         )
         amongus_gifs = [
             "https://media.tenor.com/F__GSvFsf20AAAAC/among-us-kill.gif",
             "https://media.tenor.com/Zi1l60KaBGMAAAAC/among-us-kill.gif",
-            "https://media.tenor.com/0l5kHLfHhhgAAAAC/among-us.gif",
-        ]
-        gif = random.choice(amongus_gifs)
-        em.set_image(url=gif)
+            "https://media.tenor.com/0l5kHLfHhhgAAAAC/among-us.gif"]
+        em.set_image(url=random.choice(amongus_gifs))
+
         # If the nick is longer than 31 characters (limit is 32), the skull cannot be added, send just the message instead
-        if len(target_nick) > 31:
+        if len(user_nick) > 31:
             return await interaction.response.send_message(embed=em)
         try:
-            await target.edit(nick=f"💀{target_nick}")
+            await user.edit(nick=f"💀{user_nick}")
         except discord.errors.Forbidden:
             pass
         await interaction.response.send_message(embed=em)
 
     @app_commands.command(description="Respawn a dead member.")
-    @app_commands.describe(target="A member in this server.")
-    async def respawn(self, interaction: discord.Interaction, target: discord.Member):
-        nick = self.mname(target)
-        if target == interaction.user:
+    @app_commands.describe(user="A member in this server.")
+    async def respawn(self, interaction: discord.Interaction, user: discord.Member):
+        nick = self.mname(user)
+        if user == interaction.user:
             return await interaction.response.send_message(
                 ":x: You can't respawn yourself, that's not how it works..."
             )
         if "💀" in nick:
             new_name = nick.replace("💀", "")
-            await target.edit(nick=new_name)
+            await user.edit(nick=new_name)
             await interaction.response.send_message(
-                f":innocent: Welcome back, {target.mention}. You have been respawned!"
+                f":innocent: Welcome back, {user.mention}. You have been respawned!"
             )
         else:
             await interaction.response.send_message(
-                f":x: {target.mention} is not even dead, mate."
+                f":x: {user.mention} is not even dead, mate."
             )
 
     @app_commands.command(
@@ -289,103 +329,107 @@ class Fun(commands.Cog):
                 f"{members_needed} more member(s) required."
             )
 
-    @commands.command()
-    async def rps(self, ctx, choice):
-        def comparison(userC, botC):
-            if userC == botC:
-                return "Tie"
-            elif userC == "Rock" and botC == "Scissors":
-                return "Win"
-            elif userC == "Paper" and botC == "Rock":
-                return "Win"
-            elif userC == "Scissors" and botC == "Paper":
-                return "Win"
-            else:
-                return "Lose"
+    # COMMAND WITH CHOICES -------------------------------------------------------
+    # @app_commands.command(description="Testing command.")
+    # @app_commands.choices(choice=[
+    #     app_commands.Choice(name="Rock", value="rock"),
+    #     app_commands.Choice(name="Paper", value="paper"),
+    #     app_commands.Choice(name="Scissors", value="scissors")
+    # ])
+    # async def test(self, interaction: discord.Interaction, choice: str):
+    #     await interaction.response.send_message(f"{choice} is a good choice!")
+    # ----------------------------------------------------------------------------
 
-        def endgame(member, userC, botC):
-            em = discord.Embed()
-            if comparison(userC, botC) == "Tie":
-                em = discord.Embed(description=member + ", it's a tie!")
-            elif comparison(userC, botC) == "Win":
+    @app_commands.command(description="Play a game of Rock, Paper, Scissors.")
+    async def rps(self, interaction: discord.Interaction):
+        em = discord.Embed(title="Rock, Paper, Scissors",
+                           description="Click on your choice below! Then I'll make mine."
+                           )
+        await interaction.response.send_message(embed=em)
+        
+        view = RPSView(timeout=60.0)
+        message = await interaction.channel.send(view=view)
+        view.message = message
+        await view.wait()
+        if view.choice == "quit":
+            return await interaction.delete_original_response()
+        await view.disable_all_items()
+        # If no one made a choice, and the game timed out, then just return
+        if view.choice is None:
+            return
+        
+        def comparison(user_choice, bot_choice):
+            if user_choice == bot_choice:
+                return "tie"
+            elif user_choice == "rock" and bot_choice == "scissors":
+                return "win"
+            elif user_choice == "paper" and bot_choice == "rock":
+                return "win"
+            elif user_choice == "scissors" and bot_choice == "paper":
+                return "win"
+            else:
+                return "loss"
+
+        def end_message(user, user_choice, bot_choice):
+            if comparison(user_choice, bot_choice) == "tie":
+                em = discord.Embed(description = f"{user.mention}, it's a tie!")
+            elif comparison(user_choice, bot_choice) == "win":
                 em = discord.Embed(
-                    description=member + ", you won!", color=discord.Colour.green()
+                    description=f"{user.mention}, you won!",
+                    color=discord.Colour.green()
                 )
             else:
                 em = discord.Embed(
-                    description=member + ", you lost!", color=discord.Colour.red()
+                    description=f"{user.mention}, you lost!",
+                    color=discord.Colour.red()
                 )
             return em
 
-        choices = ["Rock", "Paper", "Scissors"]
-        botC = random.choice(choices)
-        if choice.lower() not in ["r", "rock", "p", "paper", "s", "scissors"]:
-            await ctx.send("`{}` is not a valid choice.".format(choice))
-        else:
-            await asyncio.sleep(1)
-            await ctx.send("I choose **{}**".format(botC))
-            await asyncio.sleep(1)
+        bot_choice = random.choice(["rock", "paper", "scissors"])
+        # await interaction.channel.send(f"{view.user.mention} chose **{view.choice}**")
+        await asyncio.sleep(3)
+        await interaction.channel.send(f"> I choose **{bot_choice}**")
+        await asyncio.sleep(3)
 
-            if choice.lower() in ["r", "rock"]:
-                await ctx.send(embed=endgame(ctx.author.mention, "Rock", botC))
-            elif choice.lower() in ["p", "paper"]:
-                await ctx.send(embed=endgame(ctx.author.mention, "Paper", botC))
-            else:
-                await ctx.send(embed=endgame(ctx.author.mention, "Scissors", botC))
+        em = end_message(view.user, view.choice, bot_choice)
+        await interaction.channel.send(embed=em)
 
-    @commands.command()
-    async def annoy(self, ctx, member: discord.Member, times: int = 1):
+    @app_commands.command(description="Annoy a member in the server.")
+    @app_commands.describe(user="A member in this server.")
+    @app_commands.describe(times="How many times you want to annoy them. Defaults to 1.")
+    async def annoy(self, interaction: discord.Interaction, user: discord.Member, times: int = 1):
         if times > 20:
-            return await ctx.send(":x: Max 20 times.")
-        if member in annoyed_members:
-            return await ctx.send(":x: That member is already being annoyed.")
-        nick = self.mname(member)
-        minutes = round((30 * times) / 60, 1)
+            return await interaction.response.send_message(":x: Max 20 times.")
+        if user in annoyed_members:
+            return await interaction.response.send_message(":x: That member is already being annoyed.")
         if times <= 0:
-            return await ctx.send(":x: Positive numbers only.")
-        elif times == 1:
+            return await interaction.response.send_message(":x: Positive numbers only.")
+        nick = self.mname(user)
+        minutes = round((30 * times) / 60, 1)
+        if times == 1:
             start_msg = f":white_check_mark: Annoyed {nick}"
             end_msg = None
         elif times > 1:
-            start_msg = (
-                ":white_check_mark: Started annoying {} ".format(self.mname(member))
-                + f"(**{times}** times)"
-            )
-            end_msg = ":white_check_mark: Done annoying {0.mention} • `{1}min`".format(
-                member, minutes
-            )
+            start_msg = f":white_check_mark: Started annoying {nick} (**{times}** times"
+            end_msg = f":white_check_mark: Done annoying {user.mention} • `{minutes}min`"
         with open(os.path.join(PATH, "text/bad_words.txt")) as file:
             bad_words = [line.rstrip("\n") for line in file]
-        annoyed_members.append(member)
-        await ctx.send(start_msg)
+        annoyed_members.append(user)
+        await interaction.response.send_message(start_msg)
         for i in range(0, times):
             word = random.choice(bad_words)
-            await member.send(
-                "**{}** • I was sent here to annoy ".format(i + 1)
-                + "you by {0.author.mention}, **{1}**.".format(ctx, word)
+            await user.send(
+                f"**{i + 1}** • I was sent here to annoy you by {interaction.user.mention}, **{word}**."
             )
             if not i == times - 1:  # If not done yet
                 await asyncio.sleep(30)
         if end_msg:
-            await ctx.send(end_msg)
+            await interaction.response.send_message(end_msg)
+        annoyed_members.remove(user)
 
     @commands.command()
-    async def sound(self, ctx, option, repeat: int = False):
-        sounds_path = os.path.join(PATH, "sounds")
-
-        def soundobj(sound):
-            return discord.FFmpegPCMAudio(sounds_path + sound)
-
-        async def playsound(file, repeat, duration):
-            if repeat is False:
-                vc.play(soundobj(file))
-            else:
-                for i in range(0, repeat):
-                    vc.play(soundobj(file))
-                    await asyncio.sleep(duration)
-                    vc.stop()
-            await asyncio.sleep(duration)
-
+    async def sound(self, ctx, option, repeat: int = 0):
+        sounds_path = os.path.join(PATH, "sounds/")
         voice = ctx.author.voice
         if voice is None:
             return await ctx.send(":x: Join a voice channel first.")
@@ -399,13 +443,25 @@ class Fun(commands.Cog):
         }
         if option not in options:
             return await ctx.send(":x: Option `{}` not found.".format(option))
+        def soundobj(sound):
+            return discord.FFmpegPCMAudio(sounds_path + sound)
+
+        async def playsound(file, repeat, duration = None):
+            if repeat == 0:
+                vc.play(soundobj(file))
+            else:
+                for i in range(0, repeat):
+                    vc.play(soundobj(file))
+                    await asyncio.sleep(duration)
+                    vc.stop()
+            await asyncio.sleep(duration)
 
         vc = await channel.connect()
         await ctx.send(
-            ":white_check_mark: *Playing sound* `{}`".format(options[option])
+            f":white_check_mark: *Playing sound* `{options[option]}`"
         )
 
-        if option == "1":
+        if option == "1": # duration 8.2
             await playsound("doinurmom.mp3", repeat, 8.2)
         elif option == "2":
             await playsound("initialduck.mp3", repeat, 14.7)
@@ -417,15 +473,17 @@ class Fun(commands.Cog):
             await playsound("lorensing.mp3", repeat, 31)
         await vc.disconnect()
 
-    @commands.command()
-    async def fact(self, ctx):
+    @app_commands.command(description="Get a random fact.")
+    async def fact(self, interaction: discord.Interaction):
         with open(os.path.join(PATH, "text", "facts.txt")) as file:
             facts = [line.rstrip("\n") for line in file]
         fact = random.choice(facts)
-        await ctx.send(fact)
+        await interaction.response.send_message(fact)
 
-    @commands.command()
-    async def ship(self, ctx, member1: discord.Member, member2: discord.Member):
+    @app_commands.command(description="Ship two members in this server. Love is in the air!")
+    @app_commands.describe(member1="A member in this server.")
+    @app_commands.describe(member2="A member in this server")
+    async def ship(self, interaction: discord.Interaction, member1: discord.Member, member2: discord.Member):
         nick1 = self.mname(member1)
         nick2 = self.mname(member2)
         half_index1 = int(len(nick1) / 2)
@@ -434,99 +492,58 @@ class Fun(commands.Cog):
         half2 = nick2[half_index2:]
         ship_name = (half1 + half2).strip()
         em = discord.Embed(
-            title=":heart: I ship {} and {} :heart:".format(nick1, nick2),
-            description=":two_hearts::revolving_hearts: {} ".format(ship_name)
-            + ":revolving_hearts::two_hearts:",
+            title=f":heart: I ship {nick1} and {nick2} :heart:",
+            description=f"             :two_hearts::revolving_hearts: **{ship_name}** :revolving_hearts::two_hearts:",
             color=0xFF2B29,
         )
-        await ctx.send(embed=em)
+        love_gifs = ["https://media3.giphy.com/media/3o7TKoWXm3okO1kgHC/giphy.gif",
+                "https://media1.giphy.com/media/3CCXHZWV6F6O9VQ7FL/giphy.gif",
+                "https://media0.giphy.com/media/l0K4kWJir91VEoa1W/giphy.gif",
+                "https://media0.giphy.com/media/l0HlGdXFWYbKv5rby/giphy.gif"]
+        em.set_image(url=random.choice(love_gifs))
+        await interaction.response.send_message(embed=em)
 
-    @commands.command(aliases=["unigger", "unniger"])
-    async def unnigger(self, ctx, member: discord.Member):
-        if ctx.author == member:
-            return await ctx.send(":x: You can't un-nigger yourself.")
-        nick = self.mname(member)
-        nigger_role = discord.utils.get(ctx.guild.roles, name="NIGGER")
-        if nigger_role not in member.roles:
-            return await ctx.send(":x: That member isn't even a nigger.")
-        await member.remove_roles(nigger_role)
-        await ctx.send(":white_check_mark: {} is no longer a nigger.".format(nick))
-
-    @commands.command()
-    @commands.is_owner()
-    async def pt(self, ctx, member: discord.Member, times: int = 1):
-        if times == 1:
-            duration = 600
-            how_long = "10 minutes!"
-        elif times == 2:
-            duration = 1800
-            how_long = "30 minutes!"
-        elif times == 3:
-            duration = 3600
-            how_long = "1 hour!"
-        elif times == 4:
-            duration = 7200
-            how_long = "2 hours!"
-        elif times == 5:
-            duration = 18000
-            how_long = "5 hours!"
-        gay_role = discord.utils.get(ctx.guild.roles, name="GAY")
-        try:
-            await member.add_roles(gay_role)
-        except:
-            return await ctx.send(
-                ":x: I wasn't able to do that. Check if a "
-                + "'GAY' role exists in this server."
-            )
-        await ctx.send(
-            ":white_check_mark: {0.mention} is now ".format(member)
-            + "GAY for {}".format(how_long)
-        )
-        await asyncio.sleep(duration)
-        await member.remove_roles(gay_role)
-        await ctx.send("{0.mention} is no longer GAY.".format(member))
-
-    @commands.command()
-    async def cum(self, ctx):
+    @app_commands.command(description="Use at your own discretion.")
+    async def cum(self, interaction: discord.Interaction):
         global on_cooldown
         if on_cooldown is True:
-            return await ctx.send(":x: Please wait.")
+            return await interaction.response.send_message(":x: Go easy on yourself. Please wait before cumming again.")
         else:
             on_cooldown = True
-            timer = threading.Timer(10.0, self.cooldown_timer)
+            timer = threading.Timer(30.0, self.cooldown_timer)
             timer.start()
         await asyncio.sleep(2)
-        await ctx.send("**Fase 1: Iniciación** :smiling_imp:")
-        await ctx.send("https://tenor.com/view/he-hehe-boy-boi-boyi-gif-7890844")
+        await interaction.response.send_message("**Fase 1: Iniciación** :smiling_imp:")
+        await interaction.channel.send("https://tenor.com/view/he-hehe-boy-boi-boyi-gif-7890844")
         await asyncio.sleep(5)
-        await ctx.send("**Fase 2: Excitación** :flushed:")
-        await ctx.send(
+        await interaction.channel.send("**Fase 2: Excitación** :flushed:")
+        await interaction.channel.send(
             "https://tenor.com/view/hmm-sulley-monsters-inc-james-sullivan-shocked-gif-15802869"
         )
         await asyncio.sleep(5)
-        await ctx.send("**Fase 3: Finalización** :sunglasses:")
-        await ctx.send(
+        await interaction.channel.send("**Fase 3: Finalización** :sunglasses:")
+        await interaction.channel.send(
             """
 :sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops:
 :sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops:
 :sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops:CUM:sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops:"""
         )
-        await ctx.send(
+        await interaction.channel.send(
             """
 :sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops:
 :sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops:AHHHHH IM COOOMING:sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops:
 :sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops:"""
         )
-        await ctx.send(
+        await interaction.channel.send(
             """
 :sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops:FUCK:sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops:SEX:sweat_drops::sweat_drops::sweat_drops:
 :sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops:
 :sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops::sweat_drops:"""
         )
-        await asyncio.sleep(5)
-        await ctx.send("**5 minutos después:**")
-        await ctx.send(
-            "https://tenor.com/view/mike-wazowski-cursed-terror-moving-move-gif-16644513"
+        await asyncio.sleep(10)
+        await interaction.channel.send("**5 minutos después:**")
+        await interaction.channel.send(
+            "https://tenor.com/view/wazowski-mike-mike-sulivan-meme-monster-inc-gif-19634164"
         )
 
 

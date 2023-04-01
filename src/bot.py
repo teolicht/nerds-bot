@@ -23,7 +23,7 @@ CONFIG = json.load(
 bot = commands.Bot(description=DESCRIPTION, command_prefix=PREFIX, intents=INTENTS)
 bot.remove_command("help")
 bot.launch_time = datetime.datetime.utcnow()
-# handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="w")
+handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="w")
 
 
 @bot.event
@@ -86,7 +86,7 @@ async def on_member_remove(member):
             )
 
 
-@bot.tree.command(description="Test the bot's response time.")
+@app_commands.command(description="Test the bot's response time.")
 async def ping(interaction: discord.Interaction):
     def color(r, g, b):
         return discord.Colour.from_rgb(r, g, b)
@@ -120,7 +120,7 @@ async def ping(interaction: discord.Interaction):
     await interaction.response.send_message(embed=em)
 
 
-@bot.tree.command(description="Information about the bot.")
+@app_commands.command(description="Information about the bot.")
 async def info(interaction: discord.Interaction):
     delta_uptime = datetime.datetime.utcnow() - bot.launch_time
     h, remainder = divmod(int(delta_uptime.total_seconds()), 3600)
@@ -332,7 +332,7 @@ async def poll(
         await react_msg.edit(embed=em)
 
 
-async def main():
+async def load():
     for filename in os.listdir("./cogs"):
         if filename.endswith(".py"):
             try:
@@ -340,8 +340,8 @@ async def main():
             except Exception as e:
                 print("Failed to load extension {}:".format(filename, file=sys.stderr))
                 traceback.print_exc()
-    await bot.start(CONFIG["token"])
+    # await bot.start(CONFIG["token"])
 
-asyncio.run(main())
-# bot.run(CONFIG["token"], log_handler=handler)
+asyncio.run(load())
+bot.run(CONFIG["token"], log_handler=handler)
 
