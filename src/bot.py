@@ -4,7 +4,7 @@ import sys
 import random
 import asyncio
 import datetime
-import logging
+# import logging
 import psutil
 import os
 import json
@@ -23,7 +23,7 @@ CONFIG = json.load(
 bot = commands.Bot(description=DESCRIPTION, command_prefix=PREFIX, intents=INTENTS)
 bot.remove_command("help")
 bot.launch_time = datetime.datetime.utcnow()
-handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="w")
+# handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="w")
 
 
 @bot.event
@@ -340,8 +340,8 @@ async def load():
             except Exception as e:
                 print("Failed to load extension {}:".format(filename, file=sys.stderr))
                 traceback.print_exc()
-    # await bot.start(CONFIG["token"])
+    await bot.start(CONFIG["token"])
+
 
 asyncio.run(load())
-bot.run(CONFIG["token"], log_handler=handler)
-
+# bot.run(CONFIG["token"], log_handler=handler)

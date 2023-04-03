@@ -1,6 +1,7 @@
+from discord import app_commands
 from discord.ext import commands
 import discord
-import asyncpraw as praw
+import asyncpraw
 import asyncprawcore
 import random
 import os
@@ -9,29 +10,55 @@ import json
 
 THIS_PATH = os.path.dirname(__file__)
 REDDIT = json.load(open(os.path.join(THIS_PATH, "text", "config.json"), "r"))["reddit"]
-r = praw.Reddit(
-    client_id=REDDIT["client_id"],
-    client_secret=REDDIT["client_secret"],
-    password=REDDIT["password"],
-    user_agent=REDDIT["username"],
-    username=REDDIT["username"],
-)
 ban_cooldown = []
-
 
 class Reddit(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.reddit = asyncpraw.Reddit(
+            client_id=REDDIT["client_id"],
+            client_secret=REDDIT["client_secret"],
+            password=REDDIT["password"],
+            user_agent=REDDIT["username"],
+            username=REDDIT["username"],
+        )
+    
+    # def ban_done(self, sub):
+    #     ban_cooldown.remove(sub)
 
-    def ban_done(self, sub):
-        ban_cooldown.remove(sub)
+    # async def close(self):
+    #     await self.reddit.close()
+
+    # async def fetch_post(self, choice: str):
+    #     submissions = []
+    #     self.subreddit = await self.reddit.subreddit(choice)
+    #     async for submission in self.subreddit.hot(limit=25):
+    #         submissions.append(submission)
+    #     return random.choice(submissions)
+
+    # Remaking reddit commands #################################################################
+    # @app_commands.Group
+    # @app_commands.command(description="Reddit commands.")
+    # @app_commands.choices(option=[
+    #     app_commands.Choice(name="ban", value="ban"),
+    #     app_commands.Choice(name="unban", value="unban"),
+    #     app_commands.Choice(name="banlist", value="banlist")
+    # ])
+    # async def reddit(self, interaction: discord.Interaction, option: str, subreddit: str = None):
+    #     await interaction.response.send_message(f"You have chosen to {option} {subreddit}")
+
+    # @app_commands.command(description="Get a random post from a subreddit.")
+    # @app_commands.describe(subreddit="The name of the subreddit.")
+    # async def subreddit(self, interaction: discord.Interaction, subreddit: str):
+    #     post = await self.fetch_post(subreddit)
+    #     print(f"https://www.reddit.com{post.permalink}")
 
     @commands.command()
     async def reddit(self, ctx, option, subreddit=None):
         SUBS = open(os.path.join(THIS_PATH, "text/text.json"), "r")
         subs_json = json.load(SUBS)
         SUBS.close()
-        
+
         if option == "ban":
             if subreddit is None:
                 await ctx.send(
@@ -68,7 +95,7 @@ class Reddit(commands.Cog):
         elif option == "banlist":
             subs_list = subs_json["bannedsubs"]
             try:
-                blank_line = "\u200b" * 22 
+                blank_line = "\u200b" * 22
                 subs_print = [f"{blank_line}\n"]
                 amount = 0
                 for sub in subs_list:
@@ -82,6 +109,7 @@ class Reddit(commands.Cog):
                 )
                 await ctx.send(embed=em)
             except discord.errors.HTTPException:
+                ####### This only separates the list in 2. Hardcoding. What if more than two is needed?
                 half_list = len(subs_list) / 2
                 half_list = int(round(half_list, 0))
                 # First half of the list
@@ -111,7 +139,7 @@ class Reddit(commands.Cog):
             if option in subs_json["bannedsubs"]:
                 return await ctx.send(":x: That subreddit is banned.")
             try:
-                r.subreddits.search_by_name(option, exact=True)
+                self.reddit.subreddits.search_by_name(option, exact=True)
             except asyncprawcore.exceptions.NotFound:
                 return await ctx.send(":x: I wasn't able to find that subreddit.")
             except discord.errors.HTTPException:
@@ -119,7 +147,7 @@ class Reddit(commands.Cog):
             except asyncprawcore.exceptions.Forbidden:
                 return await ctx.send(":x: Private subreddit.")
             try:
-                subreddit = await r.subreddit(option)
+                subreddit = await self.reddit.subreddit(option)
                 submissions = []
                 async for post in subreddit.hot(limit=25):
                     submissions.append(post)
@@ -149,6 +177,10 @@ class Reddit(commands.Cog):
                 await ctx.send(":x: I wasn't able to find that subreddit.")
             except asyncprawcore.exceptions.Forbidden:
                 await ctx.send(":x: Private subreddit.")
+
+# async def main():
+#     reddit = Reddit()
+#     await reddit.close()
 
 
 async def setup(bot):
