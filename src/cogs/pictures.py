@@ -1,11 +1,12 @@
-from discord.ext import commands
-import discord
 import random
 import os
+import discord
+from discord import app_commands
 
 
-IMGUR = "https://i.imgur.com/"
-NSFW_MSG = ":x: This must be a NSFW channel."
+imgur = "https://i.imgur.com/"
+
+##### Isn't there an easier way to do this? Put the links as json
 # Take lists of links in file and put them all in a single list
 with open(os.path.join(os.path.dirname(__file__), "text/pics_links.txt")) as links:
     links = links.readlines()
@@ -15,24 +16,22 @@ with open(os.path.join(os.path.dirname(__file__), "text/pics_links.txt")) as lin
         pics_links[x] = pics_links[x].split()
 
 
-class Pictures(commands.Cog):
-    def __init__(self, bot):
-        self.bot = bot
+class Pictures(app_commands.Group):
 
-    @commands.command()
-    async def cat(self, ctx):
+    @app_commands.command(description="A cat pic/GIF.")
+    async def cat(self, interaction: discord.Interaction):
         picture = random.choice(pics_links[0])
         em = discord.Embed(title=":smiley_cat: A cat pic/GIF", color=0xFF2B29)
-        em.set_image(url=IMGUR + picture)
-        await ctx.send(embed=em)
+        em.set_image(url=imgur + picture)
+        await interaction.response.send_message(embed=em)
 
-    @commands.command()
-    async def dog(self, ctx):
+    @app_commands.command(description="A dog pic/GIF")
+    async def dog(self, interaction: discord.Interaction):
         picture = random.choice(pics_links[1])
         em = discord.Embed(title=":dog: A dog pic/GIF", color=0xFF2B29)
-        em.set_image(url=IMGUR + picture)
-        await ctx.send(embed=em)
+        em.set_image(url=imgur + picture)
+        await interaction.response.send_message(embed=em)
 
 
 async def setup(bot):
-    await bot.add_cog(Pictures(bot))
+    bot.tree.add_command(Pictures(name="pic", description="Picture commands."))
