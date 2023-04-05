@@ -109,9 +109,9 @@ Possible reasons:
 
     @commands.command()
     async def tag(self, ctx, option, name=None, *, content=None):
-        TAGS = open(os.path.join(PATH, "text/text.json"), "r")
-        tags_json = json.load(TAGS)
-        TAGS.close()
+        text_file = open(os.path.join(PATH, "text/text.json"), "r")
+        tags_json = json.load(text_file)
+        text_file.close()
         if option == "create":
             if name is None:
                 return await ctx.send(":x: Please specify the tag's name.")
@@ -123,9 +123,9 @@ Possible reasons:
                 return await ctx.send(":x: Please enter some content for the tag.")
             content = "".join(content)
             tags_json["tags"][name] = content
-            with open(os.path.join(PATH, "text/text.json"), "w") as f:
-                json.dump(tags_json, f, indent=4)
-                f.close()
+            with open(os.path.join(PATH, "text/text.json"), "w") as file:
+                json.dump(tags_json, file, indent=4)
+                file.close()
             await ctx.send(":white_check_mark: Created tag sucessfully.")
 
         elif option == "delete":
