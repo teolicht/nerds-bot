@@ -1,12 +1,11 @@
 from discord.ext import commands
+from discord import app_commands
 import discord
 import time
 import ago
-import bs4
-import random
 import json
 import os
-from bs4 import BeautifulSoup as soup
+from bs4 import BeautifulSoup
 from urllib.request import urlopen
 from datetime import datetime
 
@@ -68,139 +67,26 @@ class Information(commands.Cog):
         for role in member.roles:
             member_roles.append("`{0.name}`".format(role))
         return member_roles
+    
 
-    @commands.group()
-    async def help(self, ctx):
-        if ctx.invoked_subcommand is None:
-            em = discord.Embed(title="Commands", color=0xFF2B29)
-            em.add_field(name="info", value="Informative commands.")
-            em.add_field(name="pics", value="Picture commands.", inline=False)
-            em.add_field(name="fun", value="Fun commands.", inline=False)
-            # em.add_field(name='mod', value='Moderation commands.')
-            em.add_field(name="util", value="Useful commands.", inline=False)
-            em.add_field(name="reddit", value="Reddit commands.", inline=False)
-            em.set_footer(text='To view category: "n!help <category>"')
-            await ctx.send(embed=em)
+    @app_commands.command(description="Test the bot's response time.")
+    async def ping(self, interaction: discord.Interaction):
+        ping = int(self.bot.latency * 1000)
+        if ping <= 100:
+            color = discord.Colour.dark_green()
+        elif ping <= 200:
+            color = discord.Colour.brand_green()
+        elif ping <= 500:
+            color = discord.Colour.gold()
+        elif ping <= 800:
+            color = discord.Colour.orange()
+        elif ping <= 1000:
+            color = discord.Colour.red()
+        elif ping > 1000:
+            color = discord.Colour.dark_red()
+        em = discord.Embed(title="🏓 Pong!", description="*{}ms*".format(ping), color=color)
+        await interaction.response.send_message(embed=em)
 
-    @help.command()
-    async def info(self, ctx):
-        em = discord.Embed(color=0xFF2B29)
-        em.clear_fields()
-        em.add_field(name="member <member>", value="Get info on a member.")
-        em.add_field(name="server", value="Get info on this server.", inline=False)
-        em.add_field(name="ping", value="Check my latency.")
-        em.add_field(name="info", value="Check some info about me.", inline=False)
-        em.add_field(name="news", value="Check the latest news (Google News).")
-        em.title = f"Informative commands ({len(em.fields)})"
-        em.set_footer(text="<required> | [optional]")
-        await ctx.send(embed=em)
-
-    @help.command()
-    async def pics(self, ctx):
-        em = discord.Embed(title="Picture commands (2)", color=0xFF2B29)
-        em.clear_fields()
-        em.add_field(name="cat", value="A cat pic/GIF.")
-        em.add_field(name="dog", value="A dog pic/GIF.", inline=False)
-        em.set_footer(text="<required> | [optional]")
-        await ctx.send(embed=em)
-
-    @help.command()
-    async def fun(self, ctx):
-        em = discord.Embed(title="Fun commands (13)", color=0xFF2B29)
-        em.clear_fields()
-        em.add_field(name="say <text>", value="Speak as if you were me.")
-        em.add_field(
-            name="big <text>",
-            value="Speak as if you were me, but with emoji letters.",
-            inline=False,
-        )
-        em.add_field(name="sayto <member> <text>", value="Send someone a message.")
-        em.add_field(name="roast <member>", value="Roast someone.", inline=False)
-        em.add_field(name="kill <member>", value="Kill someone.")
-        em.add_field(name="suicide", value="Kill yourself.", inline=False)
-        em.add_field(name="respawn <member>", value="Respawn someone.")
-        em.add_field(name="rps", value="Play Rock, Paper, Scissors.", inline=False)
-        em.add_field(name="annoy <member> [times]", value="Annoy someone.")
-        em.add_field(name="fact", value="Get a random fact.", inline=False)
-        em.add_field(name="ship <member1> <member2>", value="Ship two members.")
-        em.title = f"Fun commands ({len(em.fields)})"
-        em.set_footer(text="<required> | [optional]")
-        await ctx.send(embed=em)
-
-    # @help.command()
-    # async def mod(self, ctx):
-    #     em = discord.Embed(title="Moderation commands (8)", color=0xff2b29)
-    #     em.clear_fields()
-    #     em.add_field(name='kick <member> [reason]', value='Kick someone.')
-    #     em.add_field(name='ban <member> [reason]', value='Ban someone.',
-    #         inline=False)
-    #     em.add_field(name='unban <usernum>', value='Unban someone. Check bans' +
-    #         ' to get user\'s number.')
-    #     em.add_field(name='bans', value='View banned users.', inline=False)
-    #     em.add_field(name='mute <member> [duration]', value='Mute someone ' +
-    #         '(voice).')
-    #     em.add_field(name='unmute <member>', value='Unmute someone.',
-    #         inline=False)
-    #     em.add_field(name='chatmute <member> [duration]', value='Chat-mute ' +
-    #         'someone.')
-    #     em.add_field(name='unchatmute <member>', value='Un-chat-mute someone.',
-    #         inline=False)
-    #     em.set_footer(text='<required> | [optional]')
-    #     await ctx.send(embed=em)
-
-    @help.command(aliases=["utilities", "utils"])
-    async def util(self, ctx):
-        em = discord.Embed(color=0xFF2B29)
-        em.clear_fields()
-        em.add_field(
-            name="delete <amount>", value="Delete messages in the " + "channel."
-        )
-        em.add_field(name="timer <secs>", value="Start a timer.", inline=False)
-        em.add_field(name="calc <expr>", value="Do a calculation.")
-        em.add_field(
-            name="flip",
-            value="Flip a coin. Can land on heads or tails.",
-            inline=False,
-        )
-        em.add_field(
-            name="randnum <min> <max>",
-            value="Generate a random number between min and max.",
-        )
-        em.add_field(
-            name="poll <question> <duration> <option1> <option2> [options3-10]",
-            value="Start a poll.",
-            inline=False,
-        )
-        em.add_field(name="choose", value="Choose from a list of options.")
-        em.add_field(
-            name="tag <create|delete|edit|list>",
-            value="Various tag commands.",
-            inline=False,
-        )
-        em.title = f"Useful commands ({len(em.fields)})"
-        em.set_footer(text="<required> | [optional]")
-        await ctx.send(embed=em)
-
-    @help.command()
-    async def reddit(self, ctx):
-        em = discord.Embed(color=0xFF2B29)
-        em.clear_fields()
-        em.add_field(
-            name="reddit <subreddit>",
-            value="Random hot post from specified subreddit.",
-        )
-        em.add_field(
-            name="reddit ban <subreddit>", value="Ban a subreddit.", inline=False
-        )
-        em.add_field(
-            name="reddit unban <subreddit>", value="Unban a subreddit.", inline=False
-        )
-        em.add_field(
-            name="reddit banlist", value="List of banned subreddits.", inline=False
-        )
-        em.title = f"Reddit commands ({len(em.fields)})"
-        em.set_footer(text="<required> | [optional]")
-        await ctx.send(embed=em)
 
     @commands.command()
     async def member(self, ctx, member: discord.Member):
@@ -447,7 +333,7 @@ class Information(commands.Cog):
         xml_page = Client.read()
         Client.close()
 
-        soup_page = soup(xml_page, "xml")
+        soup_page = BeautifulSoup(xml_page, "xml")
         news_list = soup_page.findAll("item")
 
         em = discord.Embed(color=0xFFFFFF)
