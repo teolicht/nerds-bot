@@ -8,23 +8,24 @@ import os
 import threading
 import json
 
-THIS_PATH = os.path.dirname(__file__)
-REDDIT = json.load(open(os.path.join(THIS_PATH, "text", "config.json"), "r"))["reddit"]
+with open("cogs/text/config.json", "r") as file:
+    reddit_json = json.load(file)["reddit"]
+    file.close()
 ban_cooldown = []
 
 class Reddit(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.reddit = asyncpraw.Reddit(
-            client_id=REDDIT["client_id"],
-            client_secret=REDDIT["client_secret"],
-            password=REDDIT["password"],
-            user_agent=REDDIT["username"],
-            username=REDDIT["username"],
+            client_id=reddit_json["client_id"],
+            client_secret=reddit_json["client_secret"],
+            password=reddit_json["password"],
+            user_agent=reddit_json["username"],
+            username=reddit_json["username"],
         )
     
-    # def ban_done(self, sub):
-    #     ban_cooldown.remove(sub)
+    def ban_done(self, sub):
+        ban_cooldown.remove(sub)
 
     # async def close(self):
     #     await self.reddit.close()
@@ -55,9 +56,9 @@ class Reddit(commands.Cog):
 
     @commands.command()
     async def reddit(self, ctx, option, subreddit=None):
-        SUBS = open(os.path.join(THIS_PATH, "text/text.json"), "r")
-        subs_json = json.load(SUBS)
-        SUBS.close()
+        with open("cogs/text/text.json", "r") as file:
+            subs_json = json.load(file)
+            file.close()
 
         if option == "ban":
             if subreddit is None:
@@ -68,9 +69,9 @@ class Reddit(commands.Cog):
                 await ctx.send(":x: That subreddit is already banned.")
             else:
                 subs_json["bannedsubs"].append(subreddit)
-                subs_file = open(os.path.join(THIS_PATH, "text/text.json"), "w")
-                json.dump(subs_json, subs_file, indent=4)
-                subs_file.close()
+                with open("cogs/text/text.json", "w") as file:
+                    json.dump(subs_json, file, indent=4)
+                    file.close()
                 await ctx.send(":white_check_mark: Banned ``r/{}``".format(subreddit))
                 ban_cooldown.append(subreddit)
                 timer = threading.Timer(600.0, self.ban_done, args=[subreddit])
@@ -87,9 +88,9 @@ class Reddit(commands.Cog):
                 await ctx.send(":x: Please wait before unbanning that subreddit.")
             else:
                 subs_json["bannedsubs"].remove(subreddit)
-                subs_file = open(os.path.join(THIS_PATH, "text/text.json"), "w")
-                json.dump(subs_json, subs_file, indent=4)
-                subs_file.close()
+                with open("cogs/text/text.json", "w") as file:
+                    json.dump(subs_json, file, indent=4)
+                    file.close()
                 await ctx.send(":white_check_mark: Unbanned ``r/{}``".format(subreddit))
 
         elif option == "banlist":

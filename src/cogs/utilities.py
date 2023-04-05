@@ -109,9 +109,10 @@ Possible reasons:
 
     @commands.command()
     async def tag(self, ctx, option, name=None, *, content=None):
-        text_file = open(os.path.join(PATH, "text/text.json"), "r")
-        tags_json = json.load(text_file)
-        text_file.close()
+        with open("cogs/text/text.json", "r") as file:
+            tags_json = json.load(file)
+            file.close()
+
         if option == "create":
             if name is None:
                 return await ctx.send(":x: Please specify the tag's name.")
@@ -123,7 +124,7 @@ Possible reasons:
                 return await ctx.send(":x: Please enter some content for the tag.")
             content = "".join(content)
             tags_json["tags"][name] = content
-            with open(os.path.join(PATH, "text/text.json"), "w") as file:
+            with open("cogs/text/text.json", "w") as file:
                 json.dump(tags_json, file, indent=4)
                 file.close()
             await ctx.send(":white_check_mark: Created tag sucessfully.")
@@ -134,9 +135,9 @@ Possible reasons:
             if name not in tags_json["tags"]:
                 await ctx.send(":x: That tag doesn't exist.")
             tags_json["tags"].pop(name)
-            tags_file = open(os.path.join(PATH, "text/text.json"), "w")
-            json.dump(tags_json, tags_file, indent=4)
-            tags_file.close()
+            with open("cogs/text/text.json", "w") as file:
+                json.dump(tags_json, file, indent=4)
+                file.close()
             await ctx.send(":white_check_mark: Deleted tag successfully.")
 
         elif option == "edit":
@@ -148,9 +149,9 @@ Possible reasons:
                 return await ctx.send(":x: Please enter some content for the tag.")
             content = "".join(content)
             tags_json["tags"][name] = content
-            tags_file = open(os.path.join(PATH, "text/text.json"), "w")
-            json.dump(tags_json, tags_file, indent=4)
-            tags_file.close()
+            with open("cogs/text/text.json", "w") as file:
+                json.dump(tags_json, file, indent=4)
+                file.close()
             await ctx.send(":white_check_mark: Edited tag sucessfully.")
 
         elif option == "list":
@@ -165,10 +166,9 @@ Possible reasons:
             await ctx.send(embed=em)
 
         else:
-            if option in tags_json["tags"]:
-                await ctx.send(tags_json["tags"][option])
-            else:
-                await ctx.send(":x: That tag doesn't exist.")
+            if option not in tags_json["tags"]:
+                return await ctx.send(":x: That tag doesn't exist.")
+            await ctx.send(tags_json["tags"][option])
 
 
 async def setup(bot):

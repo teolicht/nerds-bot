@@ -8,9 +8,10 @@ imgur = "https://i.imgur.com/"
 
 ##### Isn't there an easier way to do this? Put the links as json
 # Take lists of links in file and put them all in a single list
-with open(os.path.join(os.path.dirname(__file__), "text/pics_links.txt")) as links:
-    links = links.readlines()
+with open("cogs/text/pics_links.txt", "r") as file:
+    links = file.readlines()
     pics_links = [links[0], links[1], links[2], links[3], links[4]]
+    file.close()
     # Remove the '\n' from the last link of each list
     for x, links in enumerate(pics_links):
         pics_links[x] = pics_links[x].split()

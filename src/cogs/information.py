@@ -10,10 +10,9 @@ from urllib.request import urlopen
 from datetime import datetime
 
 
-EMOJI = json.load(
-    open(os.path.join(os.path.dirname(__file__), "text/config.json"), "r")
-)["emojis"]
-
+with open("cogs/text/config.json", "r") as file:
+    emojis = json.load(file)["emojis"]
+    file.close()
 
 class Information(commands.Cog):
     def __init__(self, bot):
@@ -51,15 +50,15 @@ class Information(commands.Cog):
         if member.bot:
             return ""
         elif member.status == discord.Status.online:
-            return EMOJI["online"]
+            return emojis["online"]
         elif member.status == discord.Status.offline:
-            return EMOJI["offline"]
+            return emojis["offline"]
         elif member.status == discord.Status.idle:
-            return EMOJI["idle"]
+            return emojis["idle"]
         elif member.status in [discord.Status.dnd, discord.Status.do_not_disturb]:
-            return EMOJI["dnd"]
+            return emojis["dnd"]
         else:
-            return EMOJI["offline"]
+            return emojis["offline"]
 
     def get_roles(self, member):
         """Return a member's list of roles"""
@@ -93,7 +92,7 @@ class Information(commands.Cog):
         # Member's current status
         status = self.get_status(member)
         if member.bot:
-            status = f'{status}{EMOJI["bot"]}'
+            status = f'{status}{emojis["bot"]}'
         # List with member's roles' names
         roles = self.get_roles(member)
         avatar = member.display_avatar
@@ -297,8 +296,8 @@ class Information(commands.Cog):
         em.add_field(name="Owner:", value="`{0.owner}`".format(guild))
         em.add_field(
             name=f"Members ({len(guild.members)}):",
-            value=f'{EMOJI["online"]}{on_members}   {EMOJI["offline"]}{off_members}   {EMOJI["idle"]}{idle_members}'
-            + f'   {EMOJI["dnd"]}{dnd_members}   \n{EMOJI["bot"]}{bot_members}',
+            value=f'{emojis["online"]}{on_members}   {emojis["offline"]}{off_members}   {emojis["idle"]}{idle_members}'
+            + f'   {emojis["dnd"]}{dnd_members}   \n{emojis["bot"]}{bot_members}',
         )
 
         em.add_field(

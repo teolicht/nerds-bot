@@ -1,6 +1,5 @@
 import asyncio
 import random
-import datetime
 import os
 import threading
 import discord
@@ -224,8 +223,9 @@ class Fun(commands.Cog):
                 ":exclamation: I shall not roast myself!"
             )
 
-        with open(os.path.join(PATH, "text/roasts.txt")) as file:
+        with open("cogs/text/roasts.txt", "r") as file:
             roasts = [line.rstrip("\n") for line in file]
+            file.close()
         roast = random.choice(roasts)
 
         em = discord.Embed(
@@ -275,7 +275,7 @@ class Fun(commands.Cog):
                 ":x: How are you going to kill someone if YOU are dead?"
             )
         em = discord.Embed(
-            description=f":skull: {user.mention} has been killed by {interaction.user.mention}! :skull_crossbones:",
+            description=f":skull: **{user.mention} has been killed by {interaction.user.mention}!** :skull_crossbones:",
             color=discord.Colour.red(),
         )
         amongus_gifs = [
@@ -305,9 +305,9 @@ class Fun(commands.Cog):
         if "💀" in nick:
             new_name = nick.replace("💀", "")
             await user.edit(nick=new_name)
-            await interaction.response.send_message(
-                f":innocent: Welcome back, {user.mention}. You have been respawned!"
-            )
+            em = discord.Embed(color=discord.Colour.brand_green())
+            em.description=f":innocent: **Welcome back, {user.mention}.** You have been respawned!"
+            await interaction.response.send_message(embed=em)
         else:
             await interaction.response.send_message(
                 f":x: {user.mention} is not even dead, mate."
@@ -433,8 +433,9 @@ class Fun(commands.Cog):
             end_msg = (
                 f":white_check_mark: Done annoying {user.mention} • `{minutes}min`"
             )
-        with open(os.path.join(PATH, "text/bad_words.txt")) as file:
+        with open("cogs/text/bad_words.txt", "r") as file:
             bad_words = [line.rstrip("\n") for line in file]
+            file.close()
         annoyed_members.append(user)
         await interaction.response.send_message(start_msg)
         for i in range(0, times):
@@ -495,8 +496,9 @@ class Fun(commands.Cog):
 
     @app_commands.command(description="Get a random fact.")
     async def fact(self, interaction: discord.Interaction):
-        with open(os.path.join(PATH, "text", "facts.txt")) as file:
+        with open("cogs/text/facts.txt", "r") as file:
             facts = [line.rstrip("\n") for line in file]
+            file.close()
         fact = random.choice(facts)
         await interaction.response.send_message(fact)
 

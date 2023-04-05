@@ -15,9 +15,6 @@ description = "A personal Discord bot for friends."
 handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="w")
 discord.utils.setup_logging(handler=handler)
 intents = discord.Intents().all()
-# config = json.load(
-#     open(os.path.join(os.path.dirname(__file__), "cogs/text/config.json"), "r")
-# )
 config_json = json.load(open("cogs/text/config.json", "r"))
 bot = commands.Bot(
     description=description,
