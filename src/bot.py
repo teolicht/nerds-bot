@@ -26,6 +26,8 @@ bot.remove_command("help")
 
 @bot.event
 async def on_ready():
+    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="/help"))
+    
     try:
         print("Logged in as")
         print(bot.user.name)
@@ -110,7 +112,7 @@ async def info(interaction: discord.Interaction):
             revision.remove(commit)
     em = discord.Embed(
         description="**Latest changes:**\n" + "\n".join(revision) + "\n\u200b",
-        color=discord.Colour.red(),
+        color=0xff0414,
     )
     em.set_author(
         name="GitHub",
