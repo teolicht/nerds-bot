@@ -178,10 +178,6 @@ class Reddit(commands.Cog):
             except asyncprawcore.exceptions.Forbidden:
                 await ctx.send(":x: Private subreddit.")
 
-# async def main():
-#     reddit = Reddit()
-#     await reddit.close()
-
 
 async def setup(bot):
     await bot.add_cog(Reddit(bot))
