@@ -1,133 +1,100 @@
-import time
 import traceback
 import sys
 import random
 import asyncio
 import datetime
-# import logging
-import psutil
+import logging
 import os
 import json
+import psutil
 import discord
-from discord import app_commands
 from discord.ext import commands
 
 
-DESCRIPTION = "A personal Discord bot for friends."
-PREFIX = ("n!", "N!")
-INTENTS = discord.Intents().all()
-CONFIG = json.load(
-    open(os.path.join(os.path.dirname(__file__), "cogs/text/config.json"), "r")
+description = "A personal Discord bot for friends."
+handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="w")
+discord.utils.setup_logging(handler=handler)
+intents = discord.Intents().all()
+# config = json.load(
+#     open(os.path.join(os.path.dirname(__file__), "cogs/text/config.json"), "r")
+# )
+config_json = json.load(open("cogs/text/config.json", "r"))
+bot = commands.Bot(
+    description=description,
+    command_prefix=commands.when_mentioned_or("n!", "N!"),
+    intents=intents,
 )
-
-bot = commands.Bot(description=DESCRIPTION, command_prefix=PREFIX, intents=INTENTS)
 bot.remove_command("help")
-bot.launch_time = datetime.datetime.utcnow()
-# handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="w")
 
 
 @bot.event
 async def on_ready():
-    print("Logged in as")
-    print(bot.user.name)
-    print(bot.user.id)
-    print("------")
     try:
-        synced = await bot.tree.sync()
-        print(f"Synced {len(synced)} commands")
+        print("Logged in as")
+        print(bot.user.name)
+        print(bot.user.id)
+        print("------")
     except Exception as e:
         print(e)
-    global NERDS, GENERAL, ZAP, NRD_ROLE, ZAP_ROLE, NRD_LIST
-    NERDS = bot.get_guild(300762607164325893)
-    GENERAL = discord.utils.get(NERDS.channels, name="general")
-    ZAP = discord.utils.get(NERDS.channels, name="zap")
-    NRD_ROLE = discord.utils.get(NERDS.roles, name="NRD")
-    ZAP_ROLE = discord.utils.get(NERDS.roles, name="ZAP")
-    NRD_LIST = CONFIG["nrd_members"]
 
+    global launch_time, nerds_guild, general_channel, zap_channel, nrd_role, zap_role, nrd_list
+    launch_time = datetime.datetime.utcnow()
+    nerds_guild = bot.get_guild(300762607164325893)
+    general_channel = discord.utils.get(nerds_guild.channels, id=556223165584637982)
+    zap_channel = discord.utils.get(nerds_guild.channels, id=698683502148845568)
+    nrd_role = discord.utils.get(nerds_guild.roles, name="NRD")
+    zap_role = discord.utils.get(nerds_guild.roles, name="ZAP")
+    nrd_list = config_json["nrd_members"]
+    
 
 @bot.event
 async def on_message(message):
     if message.guild is None:
         return
-
     await bot.process_commands(message)
 
 
 @bot.event
 async def on_member_join(member):
-    if member.guild == NERDS and member.bot is False:
-        if member.id in NRD_LIST:
-            await member.add_roles(NRD_ROLE)
-            await GENERAL.send(
-                ":clown: **{0.mention} has joined the server** :white_check_mark:".format(
-                    member
-                )
-            )
-        else:
-            await member.add_roles(ZAP_ROLE)
-            await ZAP.send(
-                ":clown: **{0.mention} has joined the server** :white_check_mark:".format(
-                    member
-                )
-            )
+    if member.bot is True:
+        return
+    if member.guild != nerds_guild:
+        return
+    if member.id in nrd_list:
+        await member.add_roles(nrd_role)
+        await general_channel.send(f":clown: **{member.mention} has joined the server** :white_check_mark:")
+        await zap_channel.send(f":clown: **{member.mention} has joined the server** :white_check_mark:")
+    else:
+        await member.add_roles(zap_role)
+        await zap_channel.send(f":clown: **{member.mention} has joined the server** :white_check_mark:")
 
 
 @bot.event
-async def on_member_remove(member):
-    if member.guild == NERDS and member.bot is False:
-        if member.id in NRD_LIST:
-            await GENERAL.send(
-                ":clown: **{0.mention} has left the server** :x:".format(member)
-            )
-        else:
-            await ZAP.send(
-                ":clown: **{0.mention} has left the server** :x:".format(member)
-            )
+async def on_member_remove(member: discord.Member):
+    if member.guild == nerds_guild and member.bot is False:
+        await general_channel.send(f"**{member.mention} has left the server** :x:")
+        await zap_channel.send(f"**{member.mention} has left the server** :x:")
 
 
-@app_commands.command(description="Test the bot's response time.")
-async def ping(interaction: discord.Interaction):
-    def color(r, g, b):
-        return discord.Colour.from_rgb(r, g, b)
-
-    t_1 = time.perf_counter()
-    await interaction.channel.typing()
-    t_2 = time.perf_counter()
-    ping = round((t_2 - t_1) * 1000)
-    if ping <= 100:
-        color = color(0, 211, 14)
-    elif ping <= 150:
-        color = color(106, 255, 0)
-    elif ping <= 200:
-        color = color(195, 255, 0)
-    elif ping <= 250:
-        color = color(255, 255, 0)
-    elif ping <= 350:
-        color = color(255, 212, 0)
-    elif ping <= 400:
-        color = color(255, 174, 0)
-    elif ping <= 500:
-        color = color(255, 127, 0)
-    elif ping <= 750:
-        color = color(255, 72, 0)
-    elif ping <= 900:
-        color = color(255, 0, 0)
-    else:
-        color = color(211, 0, 0)
-
-    em = discord.Embed(title="🏓 Pong!", description="*{}ms*".format(ping), color=color)
-    await interaction.response.send_message(embed=em)
+@bot.command()
+async def sync(ctx):
+    if ctx.author.id != config_json["nrd_members"]["lanit"]:
+        return ctx.send(":x: You cannot use this command.") 
+    synced = await ctx.bot.tree.sync()
+    await ctx.send(f":white_check_mark: Synced `{len(synced)}` commands")
 
 
-@app_commands.command(description="Information about the bot.")
-async def info(interaction: discord.Interaction):
-    delta_uptime = datetime.datetime.utcnow() - bot.launch_time
+@bot.tree.command(description="Information about the bot.")
+async def info(interaction: discord.Interaction):   
+    delta_uptime = datetime.datetime.utcnow() - launch_time
+    # 1h = 3600s, therefore this equals hours
     h, remainder = divmod(int(delta_uptime.total_seconds()), 3600)
+    # 1m = 60s, therefore this equals minutes
     m, s = divmod(remainder, 60)
+    # 1d = 24h, therefore this equals days
     d, h = divmod(h, 24)
     major, minor, micro = sys.version_info[:3]
-
+    # Converts bytes (B) to mebibytes (MiB)
     memory_usage = psutil.Process().memory_full_info().uss / 1024**2
     cpu_usage = psutil.cpu_percent()
 
@@ -146,7 +113,7 @@ async def info(interaction: discord.Interaction):
             revision.remove(commit)
     em = discord.Embed(
         description="**Latest changes:**\n" + "\n".join(revision) + "\n\u200b",
-        color=0xFF2B29,
+        color=discord.Colour.red(),
     )
     em.set_author(
         name="GitHub",
@@ -160,7 +127,6 @@ async def info(interaction: discord.Interaction):
     )
     em.set_footer(text=f"✅ Uptime: {d}d {h}h {m}m {s}s")
     await interaction.response.send_message(embed=em)
-
 
 @bot.command()
 async def poll(
@@ -332,7 +298,7 @@ async def poll(
         await react_msg.edit(embed=em)
 
 
-async def load():
+async def load(bot):
     for filename in os.listdir("./cogs"):
         if filename.endswith(".py"):
             try:
@@ -340,8 +306,6 @@ async def load():
             except Exception as e:
                 print("Failed to load extension {}:".format(filename, file=sys.stderr))
                 traceback.print_exc()
-    await bot.start(CONFIG["token"])
+    await bot.start(config_json["token"])
 
-
-asyncio.run(load())
-# bot.run(CONFIG["token"], log_handler=handler)
+asyncio.run(load(bot))
