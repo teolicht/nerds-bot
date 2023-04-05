@@ -5,7 +5,7 @@ import random
 import json
 
 
-transparent_color = 0x302c34
+transparent_color = 0x302C34
 
 
 class Utilities(commands.Cog):
@@ -160,7 +160,9 @@ Possible reasons:
                 amount += 1
                 tag_list += f"**{amount}.** {tag}\n"
             em = discord.Embed(
-                title=f"Tag list ({amount})", description=tag_list, color=transparent_color
+                title=f"Tag list ({amount})",
+                description=tag_list,
+                color=transparent_color,
             )
             await ctx.send(embed=em)
 

@@ -5,7 +5,7 @@ from discord import app_commands
 
 
 imgur = "https://i.imgur.com/"
-transparent_color = 0x302c34
+transparent_color = 0x302C34
 
 ##### Isn't there an easier way to do this? Put the links as json
 # Take lists of links in file and put them all in a single list
@@ -19,7 +19,6 @@ with open("cogs/text/pics_links.txt", "r") as file:
 
 
 class Pictures(app_commands.Group):
-
     @app_commands.command(description="A cat pic/GIF.")
     async def cat(self, interaction: discord.Interaction):
         picture = random.choice(pics_links[0])

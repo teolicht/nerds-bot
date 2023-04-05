@@ -6,19 +6,36 @@ class Help(app_commands.Group):
     @app_commands.command(description="All command categories.")
     async def categories(self, interaction: discord.Interaction):
         bot = discord.utils.get(interaction.guild.members, id=465945853220093954)
-        em = discord.Embed(color=0xff0414)
+        em = discord.Embed(color=0xFF0414)
         em.set_author(name="NerdsBot Commands", icon_url=bot.display_avatar)
-        em.add_field(name="/help info", value=":information_source: View the informative commands.")
-        em.add_field(name="/help pics", value=":camera: View the picture commands.", inline=False)
-        em.add_field(name="/help fun", value=":jigsaw: View the fun commands.", inline=False)
-        em.add_field(name="/help utils", value=":wrench: View the utility commands.", inline=False)
-        em.add_field(name="/help reddit", value="<:REDDIT:1093033093687951451> View the Reddit commands.", inline=False)
-        em.add_field(name="/help music", value=":musical_note: View the music commands.")
+        em.add_field(
+            name="/help info",
+            value=":information_source: View the informative commands.",
+        )
+        em.add_field(
+            name="/help pics", value=":camera: View the picture commands.", inline=False
+        )
+        em.add_field(
+            name="/help fun", value=":jigsaw: View the fun commands.", inline=False
+        )
+        em.add_field(
+            name="/help utils",
+            value=":wrench: View the utility commands.",
+            inline=False,
+        )
+        em.add_field(
+            name="/help reddit",
+            value="<:REDDIT:1093033093687951451> View the Reddit commands.",
+            inline=False,
+        )
+        em.add_field(
+            name="/help music", value=":musical_note: View the music commands."
+        )
         await interaction.response.send_message(embed=em)
 
     @app_commands.command(description="Informative commands.")
     async def info(self, interaction: discord.Interaction):
-        em = discord.Embed(color=0xff0414)
+        em = discord.Embed(color=0xFF0414)
         em.add_field(name="/member", value="Get info on a member.")
         em.add_field(name="/server", value="Get info on this server.", inline=False)
         em.add_field(name="/ping", value="Check my latency.")
@@ -29,7 +46,7 @@ class Help(app_commands.Group):
 
     @app_commands.command(description="Picture commands.")
     async def pics(self, interaction: discord.Interaction):
-        em = discord.Embed(color=0xff0414)
+        em = discord.Embed(color=0xFF0414)
         em.add_field(name="/pic cat", value="A cat pic/GIF.")
         em.add_field(name="/pic dog", value="A dog pic/GIF.", inline=False)
         em.title = f":camera: Picture commands ({len(em.fields)})"
@@ -37,7 +54,7 @@ class Help(app_commands.Group):
 
     @app_commands.command(description="Fun commands.")
     async def fun(self, interaction: discord.Interaction):
-        em = discord.Embed(color=0xff0414)
+        em = discord.Embed(color=0xFF0414)
         em.add_field(name="n!say <text>", value="Speak as if you were me.")
         em.add_field(
             name="n!big <text>",
@@ -57,13 +74,10 @@ class Help(app_commands.Group):
         em.title = f":jigsaw: Fun commands ({len(em.fields)})"
         await interaction.response.send_message(embed=em)
 
-
     @app_commands.command(description="Useful commands.")
     async def utils(self, interaction: discord.Interaction):
-        em = discord.Embed(color=0xff0414)
-        em.add_field(
-            name="/delete", value="Delete messages in the channel."
-        )
+        em = discord.Embed(color=0xFF0414)
+        em.add_field(name="/delete", value="Delete messages in the channel.")
         em.add_field(name="/timer", value="Start a timer.", inline=False)
         em.add_field(name="/calc", value="Do a calculation.")
         em.add_field(
@@ -91,17 +105,13 @@ class Help(app_commands.Group):
 
     @app_commands.command(description="Reddit commands.")
     async def reddit(self, interaction: discord.Interaction):
-        em = discord.Embed(color=0xff0414)
+        em = discord.Embed(color=0xFF0414)
         em.add_field(
             name="/reddit",
             value="Random hot post from specified subreddit.",
         )
-        em.add_field(
-            name="/reddit ban", value="Ban a subreddit.", inline=False
-        )
-        em.add_field(
-            name="/reddit unban", value="Unban a subreddit.", inline=False
-        )
+        em.add_field(name="/reddit ban", value="Ban a subreddit.", inline=False)
+        em.add_field(name="/reddit unban", value="Unban a subreddit.", inline=False)
         em.add_field(
             name="/reddit banlist", value="List of banned subreddits.", inline=False
         )
@@ -110,12 +120,13 @@ class Help(app_commands.Group):
 
     @app_commands.command(description="Music commands.")
     async def music(self, interaction: discord.Interaction):
-        em = discord.Embed(color=0xff0414)
+        em = discord.Embed(color=0xFF0414)
         em.add_field(name="Coming soon", value="...")
         em.title = f":musical_note: Music commands ({len(em.fields)})"
         await interaction.response.send_message(embed=em)
 
 
-
 async def setup(bot):
-    bot.tree.add_command(Help(name="help", description="Information on all the commands."))
+    bot.tree.add_command(
+        Help(name="help", description="Information on all the commands.")
+    )

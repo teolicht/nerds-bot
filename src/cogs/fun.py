@@ -10,7 +10,8 @@ from discord.ext import commands
 annoyed_members = []
 cure_members = []
 on_cooldown = False
-transparent_color = 0x302c34
+transparent_color = 0x302C34
+
 
 class RPSView(discord.ui.View):
     choice = None
@@ -49,7 +50,9 @@ class RPSView(discord.ui.View):
         )
         self.stop()
 
-    @discord.ui.button(emoji=scissors_emoji, label="Scissors", style=discord.ButtonStyle.gray)
+    @discord.ui.button(
+        emoji=scissors_emoji, label="Scissors", style=discord.ButtonStyle.gray
+    )
     async def scissors_button(
         self, interaction: discord.Interaction, button: discord.ui.Button
     ):
@@ -304,7 +307,9 @@ class Fun(commands.Cog):
             new_name = nick.replace("💀", "")
             await user.edit(nick=new_name)
             em = discord.Embed(color=transparent_color)
-            em.description=f":innocent: **Welcome back, {user.mention}.** You have been respawned!"
+            em.description = (
+                f":innocent: **Welcome back, {user.mention}.** You have been respawned!"
+            )
             await interaction.response.send_message(embed=em)
         else:
             await interaction.response.send_message(

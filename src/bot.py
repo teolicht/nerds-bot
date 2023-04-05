@@ -26,8 +26,10 @@ bot.remove_command("help")
 
 @bot.event
 async def on_ready():
-    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="/help"))
-    
+    await bot.change_presence(
+        activity=discord.Activity(type=discord.ActivityType.listening, name="/help")
+    )
+
     try:
         print("Logged in as")
         print(bot.user.name)
@@ -44,7 +46,7 @@ async def on_ready():
     nrd_role = discord.utils.get(nerds_guild.roles, name="NRD")
     zap_role = discord.utils.get(nerds_guild.roles, name="ZAP")
     nrd_list = config_json["nrd_members"]
-    
+
 
 @bot.event
 async def on_message(message):
@@ -61,11 +63,17 @@ async def on_member_join(member):
         return
     if member.id in nrd_list:
         await member.add_roles(nrd_role)
-        await general_channel.send(f":clown: **{member.mention} has joined the server** :white_check_mark:")
-        await zap_channel.send(f":clown: **{member.mention} has joined the server** :white_check_mark:")
+        await general_channel.send(
+            f":clown: **{member.mention} has joined the server** :white_check_mark:"
+        )
+        await zap_channel.send(
+            f":clown: **{member.mention} has joined the server** :white_check_mark:"
+        )
     else:
         await member.add_roles(zap_role)
-        await zap_channel.send(f":clown: **{member.mention} has joined the server** :white_check_mark:")
+        await zap_channel.send(
+            f":clown: **{member.mention} has joined the server** :white_check_mark:"
+        )
 
 
 @bot.event
@@ -78,13 +86,13 @@ async def on_member_remove(member: discord.Member):
 @bot.command()
 async def sync(ctx):
     if ctx.author.id != config_json["nrd_members"]["lanit"]:
-        return ctx.send(":x: You cannot use this command.") 
+        return ctx.send(":x: You cannot use this command.")
     synced = await ctx.bot.tree.sync()
     await ctx.send(f":white_check_mark: Synced `{len(synced)}` commands")
 
 
 @bot.tree.command(description="Information about the bot.")
-async def info(interaction: discord.Interaction):   
+async def info(interaction: discord.Interaction):
     delta_uptime = datetime.datetime.utcnow() - launch_time
     # 1h = 3600s, therefore this equals hours
     h, remainder = divmod(int(delta_uptime.total_seconds()), 3600)
@@ -112,7 +120,7 @@ async def info(interaction: discord.Interaction):
             revision.remove(commit)
     em = discord.Embed(
         description="**Latest changes:**\n" + "\n".join(revision) + "\n\u200b",
-        color=0xff0414,
+        color=0xFF0414,
     )
     em.set_author(
         name="GitHub",
@@ -126,6 +134,7 @@ async def info(interaction: discord.Interaction):
     )
     em.set_footer(text=f"✅ Uptime: {d}d {h}h {m}m {s}s")
     await interaction.response.send_message(embed=em)
+
 
 @bot.command()
 async def poll(
@@ -306,5 +315,6 @@ async def load(bot):
                 print("Failed to load extension {}:".format(filename, file=sys.stderr))
                 traceback.print_exc()
     await bot.start(config_json["token"])
+
 
 asyncio.run(load(bot))

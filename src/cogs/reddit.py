@@ -10,7 +10,7 @@ import json
 
 
 ban_cooldown = []
-transparent_color = 0x302c34
+transparent_color = 0x302C34
 
 with open("cogs/text/config.json", "r") as file:
     reddit_json = json.load(file)["reddit"]
@@ -27,7 +27,7 @@ class Reddit(commands.Cog):
             user_agent=reddit_json["username"],
             username=reddit_json["username"],
         )
-    
+
     def ban_done(self, sub):
         ban_cooldown.remove(sub)
 

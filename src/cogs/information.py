@@ -6,26 +6,28 @@ from bs4 import BeautifulSoup
 from urllib.request import urlopen
 
 
-transparent_color = 0x302c34
+transparent_color = 0x302C34
 
 with open("cogs/text/config.json", "r") as file:
     emojis = json.load(file)["emojis"]
     file.close()
 
+
 def delta_time(date: discord.utils.utcnow):
-        delta_time = discord.utils.utcnow() - date
-        hour, remainder = divmod(int(delta_time.total_seconds()), 3600)
-        min = int(remainder / 60)
-        day, hour = divmod(hour, 24)
-        month, day = divmod(day, 30)
-        year, month = divmod(month, 12)
-        if year > 0:
-            return f"**{year}** year(s), **{month}** month(s) ago"
-        if month > 0:
-            return f"**{month} month(s), **{day}** day(s) ago"
-        if day > 0:
-            return f"**{day} day(s), **{hour}** hour(s) ago"
-        return f"**{hour}** hour(s), **{min}** minute(s) ago"
+    delta_time = discord.utils.utcnow() - date
+    hour, remainder = divmod(int(delta_time.total_seconds()), 3600)
+    min = int(remainder / 60)
+    day, hour = divmod(hour, 24)
+    month, day = divmod(day, 30)
+    year, month = divmod(month, 12)
+    if year > 0:
+        return f"**{year}** year(s), **{month}** month(s) ago"
+    if month > 0:
+        return f"**{month} month(s), **{day}** day(s) ago"
+    if day > 0:
+        return f"**{day} day(s), **{hour}** hour(s) ago"
+    return f"**{hour}** hour(s), **{min}** minute(s) ago"
+
 
 def get_status(user: discord.User):
     """Get a user's status emoji"""
@@ -41,18 +43,20 @@ def get_status(user: discord.User):
         return emojis["dnd"]
     else:
         return emojis["offline"]
-    
+
+
 def get_roles(user: discord.User):
-        """Return a user's list of roles"""
-        user_roles = []
-        for role in user.roles:
-            user_roles.append("`{0.name}`".format(role))
-        return user_roles
-    
+    """Return a user's list of roles"""
+    user_roles = []
+    for role in user.roles:
+        user_roles.append("`{0.name}`".format(role))
+    return user_roles
+
+
 def get_userstatus(guild: discord.Guild):
     """Get status of each user in a guild"""
     on_users, off_users, idle_users, dnd_users, bot_users = (
-        0, 0, 0, 0, 0, # fmt: skip
+        0, 0, 0, 0, 0,  # fmt: skip
     )
     for user in guild.members:
         if user.bot:
@@ -71,6 +75,7 @@ def get_userstatus(guild: discord.Guild):
         else:
             off_users += 1
     return on_users, off_users, idle_users, dnd_users, bot_users
+
 
 def get_verificationlevel(guild: discord.Guild):
     """Get the verification level of a guild"""
@@ -91,6 +96,7 @@ def get_verificationlevel(guild: discord.Guild):
     else:
         return "None"
 
+
 def get_contentfilter(guild: discord.Guild):
     """Get a guild's explicit content filter setting"""
     if guild.explicit_content_filter == discord.ContentFilter.disabled:
@@ -103,8 +109,8 @@ def get_contentfilter(guild: discord.Guild):
 
 class Information(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot    
-        
+        self.bot = bot
+
     @app_commands.command(description="Test the bot's response time.")
     async def ping(self, interaction: discord.Interaction):
         ping = int(self.bot.latency * 1000)
@@ -120,7 +126,9 @@ class Information(commands.Cog):
             color = discord.Colour.red()
         elif ping > 1000:
             color = discord.Colour.dark_red()
-        em = discord.Embed(title="🏓 Pong!", description="*{}ms*".format(ping), color=color)
+        em = discord.Embed(
+            title="🏓 Pong!", description="*{}ms*".format(ping), color=color
+        )
         await interaction.response.send_message(embed=em)
 
     @app_commands.command(description="View information on a member.")
@@ -129,7 +137,7 @@ class Information(commands.Cog):
         discord_join_date = user.created_at.strftime("%d/%m/%Y • %H:%M")
         discord_join_ago = delta_time(user.created_at)
         guild_join_date = user.joined_at.strftime("%d/%m/%Y • %H:%M")
-        guild_join_ago = delta_time(user.joined_at) 
+        guild_join_ago = delta_time(user.joined_at)
 
         if user.bot:
             status = emojis["bot"]
@@ -150,8 +158,13 @@ class Information(commands.Cog):
         em.add_field(name="Discord name:", value=f"`{user}`")
         em.add_field(name=f"Roles ({len(roles)}):", value=", ".join(roles))
         em.add_field(name="Top role:", value=f"`{user.top_role.name}`")
-        em.add_field(name="Joined server:", value=f"{guild_join_date} (UTC)\n└ {guild_join_ago}")
-        em.add_field(name="Joined Discord:", value=f"{discord_join_date} (UTC)\n└ {discord_join_ago}")
+        em.add_field(
+            name="Joined server:", value=f"{guild_join_date} (UTC)\n└ {guild_join_ago}"
+        )
+        em.add_field(
+            name="Joined Discord:",
+            value=f"{discord_join_date} (UTC)\n└ {discord_join_ago}",
+        )
         await interaction.response.send_message(embed=em)
 
     @app_commands.command(description="View the latest Google News.")
@@ -256,7 +269,9 @@ class Server(app_commands.Group):
         em.add_field(name="2-FA:", value=mfa_level)
         em.add_field(name="Verification level:", value=verificationlevel)
         em.add_field(name="Explicit content filter:", value=contentfilter)
-        em.add_field(name="Created:", value=f"{guild_create_date} (UTC)\n└ {guild_create_ago}")
+        em.add_field(
+            name="Created:", value=f"{guild_create_date} (UTC)\n└ {guild_create_ago}"
+        )
         em.set_thumbnail(url=guild.icon)
         await interaction.response.send_message(embed=em)
 
@@ -269,12 +284,16 @@ class Server(app_commands.Group):
                 animated_emojis_list.append(f"<a:{emoji.name}:{emoji.id}>")
             else:
                 normal_emojis_list.append(f"<:{emoji.name}:{emoji.id}>")
-        em = discord.Embed(color=transparent_color,
-                           description=f"Custom emojis **({len(normal_emojis_list)}):**\n{' '.join(normal_emojis_list)}"
-                           + f"\n\u200b\nAnimated emojis **({len(animated_emojis_list)}):**\n{' '.join(animated_emojis_list)}")
-        em.set_author(name=f"Server emojis ({len(interaction.guild.emojis)})", icon_url=interaction.guild.icon)
+        em = discord.Embed(
+            color=transparent_color,
+            description=f"Custom emojis **({len(normal_emojis_list)}):**\n{' '.join(normal_emojis_list)}"
+            + f"\n\u200b\nAnimated emojis **({len(animated_emojis_list)}):**\n{' '.join(animated_emojis_list)}",
+        )
+        em.set_author(
+            name=f"Server emojis ({len(interaction.guild.emojis)})",
+            icon_url=interaction.guild.icon,
+        )
         await interaction.response.send_message(embed=em)
-
 
 
 async def setup(bot):
