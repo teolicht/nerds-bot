@@ -118,4 +118,4 @@ class Help(app_commands.Group):
 
 
 async def setup(bot):
-    bot.tree.add_command(Help(name="help", description="Get information on all the commands."))
+    bot.tree.add_command(Help(name="help", description="Information on all the commands."))

@@ -8,10 +8,14 @@ import os
 import threading
 import json
 
+
+ban_cooldown = []
+transparent_color = 0x302c34
+
 with open("cogs/text/config.json", "r") as file:
     reddit_json = json.load(file)["reddit"]
     file.close()
-ban_cooldown = []
+
 
 class Reddit(commands.Cog):
     def __init__(self, bot):
@@ -105,7 +109,7 @@ class Reddit(commands.Cog):
                 subs_print = "".join(subs_print)
                 em = discord.Embed(
                     title="Banned subreddits ({})".format(amount),
-                    color=0xFF2B29,
+                    color=transparent_color,
                     description=subs_print,
                 )
                 await ctx.send(embed=em)
@@ -129,10 +133,10 @@ class Reddit(commands.Cog):
 
                 em_1 = discord.Embed(
                     title="Banned subreddits ({})".format(amount),
-                    color=0xFF2B29,
+                    color=transparent_color,
                     description=subs_print_1,
                 )
-                em_2 = discord.Embed(color=0xFF2B29, description=subs_print_2)
+                em_2 = discord.Embed(color=transparent_color, description=subs_print_2)
                 await ctx.send(embed=em_1)
                 await ctx.send(embed=em_2)
 

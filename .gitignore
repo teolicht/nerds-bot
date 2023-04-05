@@ -14,3 +14,4 @@ tags.json
 .vscode
 settings.json
 *.log
+.vscode/*

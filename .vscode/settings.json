@@ -3,5 +3,5 @@
     "files.exclude": {
         "": true
     },
-    "git.enabled": false
+    "git.enabled": true
 }

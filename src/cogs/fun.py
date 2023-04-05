@@ -7,15 +7,17 @@ from discord import app_commands
 from discord.ext import commands
 
 
-PATH = os.path.dirname(__file__)
 annoyed_members = []
 cure_members = []
 on_cooldown = False
-
+transparent_color = 0x302c34
 
 class RPSView(discord.ui.View):
     choice = None
     user = None
+    rock_emoji = "\N{raised fist}"
+    paper_emoji = "\N{raised hand}"
+    scissors_emoji = "\N{victory hand}"
 
     async def disable_all_items(self):
         for item in self.children:
@@ -25,31 +27,34 @@ class RPSView(discord.ui.View):
     async def on_timeout(self) -> None:
         await self.disable_all_items()
 
-    @discord.ui.button(label="Rock", style=discord.ButtonStyle.gray)
+    @discord.ui.button(emoji=rock_emoji, label="Rock", style=discord.ButtonStyle.gray)
     async def rock_button(
         self, interaction: discord.Interaction, button: discord.ui.Button
     ):
         self.choice = "rock"
+        self.emoji = self.rock_emoji
         self.user = interaction.user
         await interaction.response.send_message(f"> {self.user.mention} chose **rock**")
         self.stop()
 
-    @discord.ui.button(label="Paper", style=discord.ButtonStyle.gray)
+    @discord.ui.button(emoji=paper_emoji, label="Paper", style=discord.ButtonStyle.gray)
     async def paper_button(
         self, interaction: discord.Interaction, button: discord.ui.Button
     ):
         self.choice = "paper"
+        self.emoji = self.paper_emoji
         self.user = interaction.user
         await interaction.response.send_message(
             f"> {self.user.mention} chose **paper**"
         )
         self.stop()
 
-    @discord.ui.button(label="Scissors", style=discord.ButtonStyle.gray)
+    @discord.ui.button(emoji=scissors_emoji, label="Scissors", style=discord.ButtonStyle.gray)
     async def scissors_button(
         self, interaction: discord.Interaction, button: discord.ui.Button
     ):
         self.choice = "scissors"
+        self.emoji = self.scissors_emoji
         self.user = interaction.user
         await interaction.response.send_message(
             f"> {self.user.mention} chose **scissors**"
@@ -61,7 +66,6 @@ class RPSView(discord.ui.View):
         self, interaction: discord.Interaction, button: discord.ui.Button
     ):
         self.choice = "quit"
-        # await self.disable_all_items()
         await interaction.message.delete()
         self.stop()
 
@@ -81,12 +85,6 @@ class Fun(commands.Cog):
     def cooldown_timer(self):
         global on_cooldown
         on_cooldown = False
-
-    # async def nope(self, msg):
-    #     await msg.add_reaction("\U0001f1f3")  # N
-    #     await msg.add_reaction("\U0001f1f4")  # O
-    #     await msg.add_reaction("\U0001f1f5")  # P
-    #     await msg.add_reaction("\U0001f1ea")  # E
 
     @commands.command()
     async def say(self, ctx, *, text):
@@ -230,7 +228,7 @@ class Fun(commands.Cog):
 
         em = discord.Embed(
             description=f"{user.mention},\n{roast}",
-            color=discord.Colour.red(),
+            color=transparent_color,
         )
         await interaction.response.send_message(embed=em)
 
@@ -242,7 +240,7 @@ class Fun(commands.Cog):
             return await interaction.response.send_message(":x: You're already dead.")
         em = discord.Embed(
             description=f":skull: {interaction.user.mention} has suicided!",
-            color=discord.Colour.red(),
+            color=transparent_color,
         )
         # If the nick is longer than 31 characters (limit is 32), the skull cannot be added
         if len(nick) > 30:
@@ -276,7 +274,7 @@ class Fun(commands.Cog):
             )
         em = discord.Embed(
             description=f":skull: **{user.mention} has been killed by {interaction.user.mention}!** :skull_crossbones:",
-            color=discord.Colour.red(),
+            color=transparent_color,
         )
         amongus_gifs = [
             "https://media.tenor.com/F__GSvFsf20AAAAC/among-us-kill.gif",
@@ -305,7 +303,7 @@ class Fun(commands.Cog):
         if "💀" in nick:
             new_name = nick.replace("💀", "")
             await user.edit(nick=new_name)
-            em = discord.Embed(color=discord.Colour.brand_green())
+            em = discord.Embed(color=transparent_color)
             em.description=f":innocent: **Welcome back, {user.mention}.** You have been respawned!"
             await interaction.response.send_message(embed=em)
         else:
@@ -390,7 +388,7 @@ class Fun(commands.Cog):
             elif comparison(user_choice, bot_choice) == "win":
                 em = discord.Embed(
                     description=f"{user.mention}, you won!",
-                    color=discord.Colour.green(),
+                    color=discord.Colour.brand_green(),
                 )
             else:
                 em = discord.Embed(
@@ -401,7 +399,7 @@ class Fun(commands.Cog):
         bot_choice = random.choice(["rock", "paper", "scissors"])
         # await interaction.channel.send(f"{view.user.mention} chose **{view.choice}**")
         await asyncio.sleep(3)
-        await interaction.channel.send(f"> I choose **{bot_choice}**")
+        await interaction.channel.send(f"> {view.emoji} I choose **{bot_choice}**")
         await asyncio.sleep(3)
 
         em = end_message(view.user, view.choice, bot_choice)
@@ -451,7 +449,7 @@ class Fun(commands.Cog):
 
     @commands.command()
     async def sound(self, ctx, option, repeat: int = 0):
-        sounds_path = os.path.join(PATH, "sounds/")
+        sounds_path = "cogs/sounds/"
         voice = ctx.author.voice
         if voice is None:
             return await ctx.send(":x: Join a voice channel first.")
@@ -505,16 +503,16 @@ class Fun(commands.Cog):
     @app_commands.command(
         description="Ship two members in this server. Love is in the air!"
     )
-    @app_commands.describe(member1="A member in this server.")
-    @app_commands.describe(member2="A member in this server")
+    @app_commands.describe(user1="A member in this server.")
+    @app_commands.describe(user2="A member in this server")
     async def ship(
         self,
         interaction: discord.Interaction,
-        member1: discord.Member,
-        member2: discord.Member,
+        user1: discord.Member,
+        user2: discord.Member,
     ):
-        nick1 = self.mname(member1)
-        nick2 = self.mname(member2)
+        nick1 = self.mname(user1)
+        nick2 = self.mname(user2)
         half_index1 = int(len(nick1) / 2)
         half1 = nick1[:half_index1]
         half_index2 = int(len(nick2) / 2)
@@ -522,8 +520,8 @@ class Fun(commands.Cog):
         ship_name = (half1 + half2).strip()
         em = discord.Embed(
             title=f":heart: I ship {nick1} and {nick2} :heart:",
-            description=f"             :two_hearts::revolving_hearts: **{ship_name}** :revolving_hearts::two_hearts:",
-            color=0xFF2B29,
+            description=f"\u200b\n:two_hearts::revolving_hearts: **{ship_name}** :revolving_hearts::two_hearts:\n\u200b",
+            color=transparent_color,
         )
         love_gifs = [
             "https://media3.giphy.com/media/3o7TKoWXm3okO1kgHC/giphy.gif",
