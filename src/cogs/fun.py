@@ -402,7 +402,6 @@ class Fun(commands.Cog):
             return em
 
         bot_choice = random.choice(["rock", "paper", "scissors"])
-        # await interaction.channel.send(f"{view.user.mention} chose **{view.choice}**")
         await asyncio.sleep(3)
         await interaction.channel.send(f"> {view.emoji} I choose **{bot_choice}**")
         await asyncio.sleep(3)

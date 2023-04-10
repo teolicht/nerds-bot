@@ -5,13 +5,7 @@ bannedsubs.txt
 bad_words.txt
 config.json
 *.swp
-core.21426
-core.13622
-core.27655
-core.32686
-core.3680
 tags.json
 .vscode
 settings.json
 *.log
-.vscode/*

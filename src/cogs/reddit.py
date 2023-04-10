@@ -4,7 +4,6 @@ import discord
 import asyncpraw
 import asyncprawcore
 import random
-import os
 import threading
 import json
 

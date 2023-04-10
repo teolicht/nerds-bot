@@ -100,6 +100,7 @@ class Help(app_commands.Group):
             value="Various tag commands.",
             inline=False,
         )
+        em.add_field(name="/invite", value="Create an invite link for this server.")
         em.title = f":wrench: Utility commands ({len(em.fields)})"
         await interaction.response.send_message(embed=em)
 

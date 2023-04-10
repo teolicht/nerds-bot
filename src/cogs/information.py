@@ -49,7 +49,7 @@ def get_roles(user: discord.User):
     """Return a user's list of roles"""
     user_roles = []
     for role in user.roles:
-        user_roles.append("`{0.name}`".format(role))
+        user_roles.append(f"`{role.name}`")
     return user_roles
 
 
@@ -126,9 +126,7 @@ class Information(commands.Cog):
             color = discord.Colour.red()
         elif ping > 1000:
             color = discord.Colour.dark_red()
-        em = discord.Embed(
-            title="🏓 Pong!", description="*{}ms*".format(ping), color=color
-        )
+        em = discord.Embed(title="🏓 Pong!", description=f"*{ping}ms*", color=color)
         await interaction.response.send_message(embed=em)
 
     @app_commands.command(description="View information on a member.")
@@ -237,8 +235,9 @@ class Server(app_commands.Group):
         for role in guild.roles:
             roles.append(f"`{role.name}`")
 
-        textchannels = len(guild.text_channels)
-        voicechannels = len(guild.voice_channels)
+        text_channels_amount = len(guild.text_channels)
+        voice_channels_amount = len(guild.voice_channels)
+        total_channels_amount = len(guild.text_channels) + len(guild.voice_channels)
 
         em = discord.Embed(title="Server Information", color=transparent_color)
         em.add_field(name="Name:", value=guild.name)
@@ -250,8 +249,8 @@ class Server(app_commands.Group):
             + f'   {emojis["dnd"]}{dnd_users}   \n{emojis["bot"]}{bot_users}',
         )
         em.add_field(
-            name="Channels ({}):".format(textchannels + voicechannels),
-            value="Text: **{}**\nVoice: **{}**".format(textchannels, voicechannels),
+            name=f"Channels ({text_channels_amount + voice_channels_amount}):",
+            value=f"Text: **{text_channels_amount}**\nVoice: **{voice_channels_amount}**",
         )
         em.add_field(name=f"Roles ({len(roles)})", value=", ".join(roles))
         if len(emojis_list) == 0:
@@ -259,7 +258,7 @@ class Server(app_commands.Group):
         elif len(emojis_list) > 10:
             em.add_field(
                 name=f"Emojis ({len(guild.emojis)}):",
-                value="*Too many to display. Type ``/server emojis`` if you want to view this server's emojis.*",
+                value="*Too many to display. Type* ``/server emojis`` *instead.*",
             )
         else:
             em.add_field(

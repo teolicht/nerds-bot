@@ -214,22 +214,18 @@ class ErrorHandler(commands.Cog):
                     + "Wait until the bot disconnects from the voice channel."
                 )
 
-        print(
-            "–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––"
+        await ctx.send(
+            ":warning: The following error has occurred: "
+            + "```python\n{}: {}```".format(type(error).__name__, error),
+            delete_after=5.0,
         )
+
+        print("-" * 79)
         print("Ignoring exception in command {0.command}:".format(ctx, file=sys.stderr))
         traceback.print_exception(
             type(error), error, error.__traceback__, file=sys.stderr
         )
-        print(
-            "–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––"
-        )
-        error_msg = await ctx.send(
-            ":warning: The following error has occurred: "
-            + "```python\n{}: {}```".format(type(error).__name__, error)
-        )
-        await asyncio.sleep(5)
-        await error_msg.delete()
+        print("-" * 79)
 
 
 async def setup(bot):
