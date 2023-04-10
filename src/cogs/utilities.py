@@ -1,75 +1,140 @@
-from discord.ext import commands
-import discord
 import asyncio
 import random
 import json
+import threading
+import discord
+from discord.ext import commands
+from discord import app_commands
 
 
 transparent_color = 0x302C34
+delete_cooldown = {}
+
+
+class Timer(discord.ui.View):
+    paused = False
+    pause_user = None
+    canceled = False
+    cancel_user = None
+
+    async def disable_all_items(self):
+        for item in self.children:
+            item.disabled = True
+        await self.message.edit(view=self)
+
+    async def on_timeout(self) -> None:
+        await self.disable_all_items()
+
+    @discord.ui.button(label="Pause/Resume", style=discord.ButtonStyle.success)
+    async def pause_resume(
+        self, interaction: discord.Interaction, button: discord.ui.Button
+    ):
+        if self.paused:
+            self.paused = False
+        else:
+            self.paused = True
+            self.pause_user = interaction.user
+        await interaction.response.defer()
+
+    @discord.ui.button(label="Cancel", style=discord.ButtonStyle.danger)
+    async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
+        await self.disable_all_items()
+        self.canceled = True
+        self.cancel_user = interaction.user
 
 
 class Utilities(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
-    async def delete(self, ctx, amount: int):
-        if ctx.author.id == 306542879520849922 and amount > random.randint(10, 16):
-            return
-        if amount > 100:
-            return await ctx.send(":x: I can delete max 100 messages.")
+    def delete_cooldown_done(self, user_id, amount):
+        delete_cooldown[user_id] -= amount
+
+    @app_commands.command(description="Delete messages in the channel.")
+    async def delete(self, interaction: discord.Interaction, amount: int):
+        user_id = str(interaction.user.id)
+        if amount > 30:
+            return await interaction.response.send_message(
+                ":x: Each user can delete max 30 messages per minute."
+            )
         elif amount <= 0:
-            return await ctx.send(
-                ":x: How am I supposed to delete " + "`{}` messages?".format(amount)
+            return await interaction.response.send_message(
+                f":x: How am I supposed to delete `{amount}` messages?"
             )
-
-        try:
-            await ctx.message.delete()
-            to_delete = []
-            async for msg in ctx.channel.history(limit=amount):
-                to_delete.append(msg)
-            await ctx.channel.delete_messages(to_delete)
-
-            if len(to_delete) != 1:
-                delete_msg = ":recycle: `{}` messages deleted.".format(len(to_delete))
+        if user_id in delete_cooldown:
+            if delete_cooldown[user_id] + amount > 30:
+                return await interaction.response.send_message(
+                    ":x: That exceeds your 30 messages per minute limit. Please wait."
+                )
             else:
-                delete_msg = ":recycle: `1` message deleted."
-            await ctx.send(delete_msg, delete_after=4.0)
-
-        except discord.errors.Forbidden:
-            em = discord.Embed(
-                title=":x: I can't delete messages in this channel...",
-                description="""
-Possible reasons:
-⊳ I need the **Manage Messages** permission.
-⊳ I need the **Read Message History** permission.""",
-                color=discord.Colour.red(),
+                delete_cooldown[user_id] += amount
+        else:
+            delete_cooldown[user_id] = amount
+            timer = threading.Timer(
+                60.0, self.delete_cooldown_done, args=[user_id, amount]
             )
-            await ctx.send(embed=em)
+            timer.start()
 
-    @commands.command()
-    async def timer(self, ctx, secs: int):
+        msgs_to_delete = []
+        async for msg in interaction.channel.history(limit=amount):
+            msgs_to_delete.append(msg)
+        await interaction.response.send_message(
+            f":recycle: `{len(msgs_to_delete)}` message(s) deleted.", delete_after=5.0
+        )
+        await interaction.channel.delete_messages(msgs_to_delete)
+
+    @app_commands.command(description="Start a timer.")
+    @app_commands.describe(secs="Duration of the timer (in seconds).")
+    async def timer(self, interaction: discord.Interaction, secs: int):
+        start_utc = discord.utils.utcnow()
         clocks = "🕛 🕐 🕑 🕒 🕓 🕔 🕕 🕖 🕗 🕘 🕙 🕚".split()
         clock_index = 0
         m, s = divmod(secs, 60)
         h, m = divmod(m, 60)
-        msg = await ctx.send("`%02d:%02d:%02d` 🕛" % (h, m, s))
 
-        while secs != 0:
-            secs -= 1
-            clock_index += 1
-            if clock_index == 12:
-                clock_index = 0
-            if secs == 0:
-                await msg.edit(content="`00:00:00` :white_check_mark:")
-                await ctx.send(f"{ctx.author.mention} The timer has finished.")
+        # Initial messages
+        view = Timer(timeout=None)
+        em = discord.Embed(title="`%02d:%02d:%02d` 🕛" % (h, m, s))
+        await interaction.response.send_message(embed=em)
+        view.timer_message = await interaction.original_response()
+        view.message = await interaction.channel.send(view=view)
+
+        # Main loop
+        while secs > 0:
+            if view.canceled:
+                em.color = discord.Colour.red()
+                em.title = "`%02d:%02d:%02d` :x:" % (h, m, s)
+                em.description = f"Timer canceled by {view.cancel_user.mention}"
+                return await interaction.edit_original_response(embed=em)
+            if view.paused:
+                em.title = "`%02d:%02d:%02d` :pause_button:" % (h, m, s)
+                em.description = f"Timer paused by {view.pause_user.mention}"
+                await interaction.edit_original_response(embed=em)
             else:
+                secs -= 1
+                clock_index += 1
+                if clock_index == 12:
+                    clock_index = 0
                 m, s = divmod(secs, 60)
                 h, m = divmod(m, 60)
-                await msg.edit(
-                    content="`%02d:%02d:%02d` %s" % (h, m, s, clocks[clock_index])
-                )
-                await asyncio.sleep(1)
+                em.title = "`%02d:%02d:%02d` %s" % (h, m, s, clocks[clock_index])
+                em.description = None
+                await interaction.edit_original_response(embed=em)
+                if not view.paused and not view.canceled:
+                    await asyncio.sleep(1)
+
+        # When timer completes
+        start_time = discord.utils.format_dt(start_utc)
+        em.title = "`00:00:00` :white_check_mark:"
+        em.color = discord.Colour.brand_green()
+        await interaction.edit_original_response(embed=em)
+        await view.disable_all_items()
+        return await interaction.channel.send(
+            f":bell:  The timer started by {interaction.user.mention} on {start_time} has finished."
+        )
+
+        await view.wait()
 
     @commands.command()
     async def calc(self, ctx, *, expr):
@@ -170,6 +235,21 @@ Possible reasons:
             if option not in tags_json["tags"]:
                 return await ctx.send(":x: That tag doesn't exist.")
             await ctx.send(tags_json["tags"][option])
+
+    @app_commands.command(description="Create an invite link for this server.")
+    @app_commands.describe(
+        duration="Duration (in seconds), after which the link will no longer be valid."
+    )
+    @app_commands.describe(uses="Maximum amount of times the link can be used.")
+    async def invite(
+        self, interaction: discord.Interaction, duration: int = 0, uses: int = 0
+    ):
+        invite_link = await interaction.channel.create_invite(
+            max_age=duration,
+            max_uses=uses,
+            reason=f"Invite requested by {interaction.user.name}",
+        )
+        await interaction.response.send_message(f"There you go!\n**{invite_link}**")
 
 
 async def setup(bot):
