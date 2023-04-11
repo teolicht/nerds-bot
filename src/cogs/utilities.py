@@ -3,7 +3,7 @@ import random
 import json
 import threading
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 from discord import app_commands
 
 
@@ -48,10 +48,8 @@ class Utilities(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    def delete_cooldown_done(self, user_id, amount):
-        delete_cooldown[user_id] -= amount
-
     @app_commands.command(description="Delete messages in the channel.")
+    @app_commands.describe(amount="Number of messages to delete.")
     async def delete(self, interaction: discord.Interaction, amount: int):
         user_id = str(interaction.user.id)
         if amount > 30:
