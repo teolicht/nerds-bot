@@ -1,60 +1,49 @@
-import json
 import discord
 from discord.ext import commands
 from discord import app_commands
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
+from cogs.settings import EMOJIS
 
 
-transparent_color = 0x302C34
+# Manual date formatting (old code):
+# def delta_time(date: discord.utils.utcnow):
+#     delta_time = discord.utils.utcnow() - date
+#     hour, remainder = divmod(int(delta_time.total_seconds()), 3600)
+#     min = int(remainder / 60)
+#     day, hour = divmod(hour, 24)
+#     month, day = divmod(day, 30)
+#     year, month = divmod(month, 12)
+#     if year > 0:
+#         return f"**{year}** year(s), **{month}** month(s) ago"
+#     if month > 0:
+#         return f"**{month} month(s), **{day}** day(s) ago"
+#     if day > 0:
+#         return f"**{day} day(s), **{hour}** hour(s) ago"
+#     return f"**{hour}** hour(s), **{min}** minute(s) ago"
 
-with open("cogs/text/config.json", "r") as file:
-    emojis = json.load(file)["emojis"]
-    file.close()
-
-
-def delta_time(date: discord.utils.utcnow):
-    delta_time = discord.utils.utcnow() - date
-    hour, remainder = divmod(int(delta_time.total_seconds()), 3600)
-    min = int(remainder / 60)
-    day, hour = divmod(hour, 24)
-    month, day = divmod(day, 30)
-    year, month = divmod(month, 12)
-    if year > 0:
-        return f"**{year}** year(s), **{month}** month(s) ago"
-    if month > 0:
-        return f"**{month} month(s), **{day}** day(s) ago"
-    if day > 0:
-        return f"**{day} day(s), **{hour}** hour(s) ago"
-    return f"**{hour}** hour(s), **{min}** minute(s) ago"
-
-
-def get_status(user: discord.User):
+def get_statusemoji(user: discord.User):
     """Get a user's status emoji"""
-    if user.bot:
-        return ""
-    elif user.status == discord.Status.online:
-        return emojis["online"]
-    elif user.status == discord.Status.offline:
-        return emojis["offline"]
-    elif user.status == discord.Status.idle:
-        return emojis["idle"]
-    elif user.status in [discord.Status.dnd, discord.Status.do_not_disturb]:
-        return emojis["dnd"]
-    else:
-        return emojis["offline"]
+    if user.status == discord.Status.online:
+        return EMOJIS["ONLINE"]
+    if user.status == discord.Status.offline:
+        return EMOJIS["OFFLINE"]
+    if user.status == discord.Status.idle:
+        return EMOJIS["IDLE"]
+    if user.status in [discord.Status.dnd, discord.Status.do_not_disturb]:
+        return EMOJIS["DND"]
 
 
 def get_roles(user: discord.User):
-    """Return a user's list of roles"""
+    """Return a user's list of roles (their names)"""
     user_roles = []
     for role in user.roles:
         user_roles.append(f"`{role.name}`")
     return user_roles
 
 
-def get_userstatus(guild: discord.Guild):
-    """Get status of each user in a guild"""
+def get_statusemoji_guild(guild: discord.Guild):
+    """Return amount of users with each status in a guild"""
     on_users, off_users, idle_users, dnd_users, bot_users = (
         0, 0, 0, 0, 0,  # fmt: skip
     )
@@ -72,9 +61,12 @@ def get_userstatus(guild: discord.Guild):
             discord.Status.do_not_disturb,
         ]:
             dnd_users += 1
-        else:
-            off_users += 1
-    return on_users, off_users, idle_users, dnd_users, bot_users
+    bot_users = f'{EMOJIS["BOT"]}{bot_users}'
+    on_users = f'{EMOJIS["ONLINE"]}{on_users}'
+    off_users = f'{EMOJIS["OFFLINE"]}{off_users}'
+    idle_users = f'{EMOJIS["IDLE"]}{idle_users}'
+    dnd_users = f'{EMOJIS["DND"]}{dnd_users}'
+    return bot_users, on_users, off_users, idle_users, dnd_users
 
 
 def get_verificationlevel(guild: discord.Guild):
@@ -132,36 +124,41 @@ class Information(commands.Cog):
     @app_commands.command(description="View information on a member.")
     @app_commands.describe(user="A member in this server.")
     async def member(self, interaction: discord.Interaction, user: discord.Member):
-        discord_join_date = user.created_at.strftime("%d/%m/%Y • %H:%M")
-        discord_join_ago = delta_time(user.created_at)
-        guild_join_date = user.joined_at.strftime("%d/%m/%Y • %H:%M")
-        guild_join_ago = delta_time(user.joined_at)
+        # Manual date formatting (old code):
+        # guild_join_date = user.joined_at.strftime("%d/%m/%Y • %H:%M")
+        # guild_join_ago = delta_time(user.joined_at)
+        # discord_join_date = user.created_at.strftime("%d/%m/%Y • %H:%M")
+        # discord_join_ago = delta_time(user.created_at)
+
+        discord_join_date = discord.utils.format_dt(user.created_at)
+        discord_join_ago = discord.utils.format_dt(user.created_at, style="R")
+        guild_join_date = discord.utils.format_dt(user.joined_at)
+        guild_join_ago = discord.utils.format_dt(user.joined_at, style="R")
 
         if user.bot:
-            status = emojis["bot"]
+            status = EMOJIS["BOT"]
         else:
-            status = get_status(user)
+            status = get_statusemoji(user)
         roles = get_roles(user)
         avatar = user.display_avatar
 
         em = discord.Embed(
             title="User Information",
-            color=transparent_color,
             description=f"{user.mention}{status}",
         )
         em.set_thumbnail(url=avatar)
         em.add_field(name="Name:", value=user.name)
         em.add_field(name="ID:", value=f"`{user.id}`")
-        em.add_field(name="Tag number:", value=user.discriminator)
+        em.add_field(name="Tag number:", value=f"`{user.discriminator}`")
         em.add_field(name="Discord name:", value=f"`{user}`")
         em.add_field(name=f"Roles ({len(roles)}):", value=", ".join(roles))
         em.add_field(name="Top role:", value=f"`{user.top_role.name}`")
         em.add_field(
-            name="Joined server:", value=f"{guild_join_date} (UTC)\n└ {guild_join_ago}"
+            name="Joined server:", value=f"{guild_join_date}\n└ {guild_join_ago}"
         )
         em.add_field(
             name="Joined Discord:",
-            value=f"{discord_join_date} (UTC)\n└ {discord_join_ago}",
+            value=f"{discord_join_date}\n└ {discord_join_ago}",
         )
         await interaction.response.send_message(embed=em)
 
@@ -174,7 +171,7 @@ class Information(commands.Cog):
         soup_page = BeautifulSoup(xml_page, "xml")
         news_list = soup_page.findAll("item", limit=13)
 
-        em = discord.Embed(color=transparent_color)
+        em = discord.Embed()
         amount = 0
         for news in news_list:
             em.add_field(
@@ -189,7 +186,6 @@ class Information(commands.Cog):
     async def sounds(self, ctx):
         em = discord.Embed(
             title="``n!sound`` Sounds list",
-            color=transparent_color,
             description="""**1.** Doin' your mom
 **2.** Deja vu duck
 **3.** Pedron smashing keyboard
@@ -204,8 +200,11 @@ class Server(app_commands.Group):
     @app_commands.command(description="View information on this server.")
     async def info(self, interaction: discord.Interaction):
         guild = interaction.guild
-        guild_create_date = guild.created_at.strftime("%d/%m/%Y • %H:%M")
-        guild_create_ago = delta_time(guild.created_at)
+        # Manual date formatting (old code):
+        # guild_create_date = guild.created_at.strftime("%d/%m/%Y • %H:%M")
+        # guild_create_ago = delta_time(guild.created_at)
+        guild_create_date = discord.utils.format_dt(guild.created_at)
+        guild_create_ago = discord.utils.format_dt(guild.created_at, style="R")
 
         emojis_list = []
         for emoji in guild.emojis:
@@ -217,7 +216,7 @@ class Server(app_commands.Group):
             idle_users,
             dnd_users,
             bot_users,
-        ) = get_userstatus(guild)
+        ) = get_statusemoji_guild(guild)
         verificationlevel = get_verificationlevel(guild)
         contentfilter = get_contentfilter(guild)
 
@@ -237,16 +236,14 @@ class Server(app_commands.Group):
 
         text_channels_amount = len(guild.text_channels)
         voice_channels_amount = len(guild.voice_channels)
-        total_channels_amount = len(guild.text_channels) + len(guild.voice_channels)
 
-        em = discord.Embed(title="Server Information", color=transparent_color)
+        em = discord.Embed(title="Server Information")
         em.add_field(name="Name:", value=guild.name)
         em.add_field(name="ID:", value=f"`{guild.id}`")
         em.add_field(name="Owner:", value=f"`{guild.owner}`")
         em.add_field(
             name=f"Members ({len(guild.members)}):",
-            value=f'{emojis["online"]}{on_users}   {emojis["offline"]}{off_users}   {emojis["idle"]}{idle_users}'
-            + f'   {emojis["dnd"]}{dnd_users}   \n{emojis["bot"]}{bot_users}',
+            value=f"{on_users}   {off_users}   {idle_users}   {dnd_users}   \n{bot_users}",
         )
         em.add_field(
             name=f"Channels ({text_channels_amount + voice_channels_amount}):",
@@ -269,7 +266,7 @@ class Server(app_commands.Group):
         em.add_field(name="Verification level:", value=verificationlevel)
         em.add_field(name="Explicit content filter:", value=contentfilter)
         em.add_field(
-            name="Created:", value=f"{guild_create_date} (UTC)\n└ {guild_create_ago}"
+            name="Created:", value=f"{guild_create_date}\n└ {guild_create_ago}"
         )
         em.set_thumbnail(url=guild.icon)
         await interaction.response.send_message(embed=em)
@@ -284,9 +281,9 @@ class Server(app_commands.Group):
             else:
                 normal_emojis_list.append(f"<:{emoji.name}:{emoji.id}>")
         em = discord.Embed(
-            color=transparent_color,
             description=f"Custom emojis **({len(normal_emojis_list)}):**\n{' '.join(normal_emojis_list)}"
-            + f"\n\u200b\nAnimated emojis **({len(animated_emojis_list)}):**\n{' '.join(animated_emojis_list)}",
+            + f"\n\u200b\n" # Blank line as separation
+            + "Animated emojis **({len(animated_emojis_list)}):**\n{' '.join(animated_emojis_list)}",
         )
         em.set_author(
             name=f"Server emojis ({len(interaction.guild.emojis)})",

@@ -1,5 +1,4 @@
 import random
-import os
 import discord
 from discord import app_commands
 

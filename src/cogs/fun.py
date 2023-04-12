@@ -1,6 +1,5 @@
 import asyncio
 import random
-import os
 import threading
 import discord
 from discord import app_commands

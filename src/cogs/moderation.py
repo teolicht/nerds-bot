@@ -1,8 +1,6 @@
-from discord.ext import commands
-import discord
 import asyncio
-import datetime
-from multiprocessing import Process
+import discord
+from discord.ext import commands
 
 
 muted_members = []

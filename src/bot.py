@@ -2,20 +2,18 @@ import traceback
 import sys
 import random
 import asyncio
-import datetime
 import logging
 import os
-import json
 import psutil
 import discord
 from discord.ext import commands
+from cogs import settings
 
 
 description = "A personal Discord bot for friends."
 handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="w")
 discord.utils.setup_logging(handler=handler)
 intents = discord.Intents().all()
-config_json = json.load(open("cogs/text/config.json", "r"))
 bot = commands.Bot(
     description=description,
     command_prefix=commands.when_mentioned_or("n!", "N!"),
@@ -38,54 +36,49 @@ async def on_ready():
     except Exception as e:
         print(e)
 
-    global launch_time, nerds_guild, general_channel, zap_channel, nrd_role, zap_role, nrd_list
-    launch_time = datetime.datetime.utcnow()
-    nerds_guild = bot.get_guild(300762607164325893)
-    general_channel = discord.utils.get(nerds_guild.channels, id=556223165584637982)
-    zap_channel = discord.utils.get(nerds_guild.channels, id=698683502148845568)
-    nrd_role = discord.utils.get(nerds_guild.roles, name="NRD")
-    zap_role = discord.utils.get(nerds_guild.roles, name="ZAP")
-    nrd_list = config_json["nrd_members"]
-
+    global LAUNCH_TIME, NERDS_GUILD, GENERAL_CHANNEL, ZAP_CHANNEL
+    LAUNCH_TIME = discord.utils.utcnow()
+    NERDS_GUILD = bot.get_guild(settings.NERDS["GUILD"])
+    GENERAL_CHANNEL = discord.utils.get(NERDS_GUILD.channels, id=settings.NERDS["GENERAL"])
+    ZAP_CHANNEL = discord.utils.get(NERDS_GUILD.channels, id=settings.NERDS["ZAP"])
+    
 
 @bot.event
 async def on_message(message):
-    if message.guild is None:
-        return
-    await bot.process_commands(message)
+    if message.guild is not None:
+        await bot.process_commands(message)
 
 
 @bot.event
 async def on_member_join(member):
+    NRD_ROLE = discord.utils.get(NERDS_GUILD.roles, name="NRD")
+    ZAP_ROLE = discord.utils.get(NERDS_GUILD.roles, name="ZAP")
     if member.bot is True:
         return
-    if member.guild != nerds_guild:
+    if member.guild != NERDS_GUILD:
         return
-    if member.id in nrd_list:
-        await member.add_roles(nrd_role)
-        await general_channel.send(
-            f":clown: **{member.mention} has joined the server** :white_check_mark:"
-        )
-        await zap_channel.send(
-            f":clown: **{member.mention} has joined the server** :white_check_mark:"
-        )
+    if member.id in settings.NERDS_MEMBERS:
+        await member.add_roles(NRD_ROLE)
     else:
-        await member.add_roles(zap_role)
-        await zap_channel.send(
-            f":clown: **{member.mention} has joined the server** :white_check_mark:"
-        )
+        await member.add_roles(ZAP_ROLE)
+    await GENERAL_CHANNEL.send(
+        f":clown: **{member.mention} has joined the server** :white_check_mark:"
+    )
+    await ZAP_CHANNEL.send(
+        f":clown: **{member.mention} has joined the server** :white_check_mark:"
+    )
 
 
 @bot.event
 async def on_member_remove(member: discord.Member):
-    if member.guild == nerds_guild and member.bot is False:
-        await general_channel.send(f"**{member.mention} has left the server** :x:")
-        await zap_channel.send(f"**{member.mention} has left the server** :x:")
+    if member.guild == NERDS_GUILD and member.bot is False:
+        await GENERAL_CHANNEL.send(f"**{member.mention} has left the server** :x:")
+        await ZAP_CHANNEL.send(f"**{member.mention} has left the server** :x:")
 
 
 @bot.command()
 async def sync(ctx):
-    if ctx.author.id != config_json["nrd_members"]["lanit"]:
+    if ctx.author.id != settings.NERDS_MEMBERS[0]:
         return ctx.send(":x: You cannot use this command.")
     synced = await ctx.bot.tree.sync()
     await ctx.send(f":white_check_mark: Synced `{len(synced)}` commands")
@@ -93,7 +86,7 @@ async def sync(ctx):
 
 @bot.tree.command(description="Information about the bot.")
 async def info(interaction: discord.Interaction):
-    delta_uptime = datetime.datetime.utcnow() - launch_time
+    delta_uptime = discord.utils.utcnow() - LAUNCH_TIME
     # 1h = 3600s, therefore this equals hours
     h, remainder = divmod(int(delta_uptime.total_seconds()), 3600)
     # 1m = 60s, therefore this equals minutes
@@ -308,13 +301,13 @@ async def poll(
 
 async def load(bot):
     for filename in os.listdir("./cogs"):
-        if filename.endswith(".py"):
+        if filename.endswith(".py") and filename != "settings.py":
             try:
                 await bot.load_extension(f"cogs.{filename[:-3]}")
             except Exception as e:
                 print("Failed to load extension {}:".format(filename, file=sys.stderr))
                 traceback.print_exc()
-    await bot.start(config_json["token"])
+    await bot.start(settings.TOKEN)
 
 
 asyncio.run(load(bot))

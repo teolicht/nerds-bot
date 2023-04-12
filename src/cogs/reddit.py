@@ -1,30 +1,25 @@
-from discord import app_commands
-from discord.ext import commands
-import discord
 import asyncpraw
 import asyncprawcore
 import random
 import threading
 import json
+import discord
+from discord.ext import commands
+from cogs.settings import REDDIT
 
 
 ban_cooldown = []
-transparent_color = 0x302C34
-
-with open("cogs/text/config.json", "r") as file:
-    reddit_json = json.load(file)["reddit"]
-    file.close()
 
 
 class Reddit(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.reddit = asyncpraw.Reddit(
-            client_id=reddit_json["client_id"],
-            client_secret=reddit_json["client_secret"],
-            password=reddit_json["password"],
-            user_agent=reddit_json["username"],
-            username=reddit_json["username"],
+            client_id=REDDIT["CLIENT_ID"],
+            client_secret=REDDIT["CLIENT_SECRET"],
+            password=REDDIT["PASSWORD"],
+            user_agent=REDDIT["USERNAME"],
+            username=REDDIT["USERNAME"],
         )
 
     def ban_done(self, sub):
@@ -108,7 +103,6 @@ class Reddit(commands.Cog):
                 subs_print = "".join(subs_print)
                 em = discord.Embed(
                     title="Banned subreddits ({})".format(amount),
-                    color=transparent_color,
                     description=subs_print,
                 )
                 await ctx.send(embed=em)
@@ -132,10 +126,9 @@ class Reddit(commands.Cog):
 
                 em_1 = discord.Embed(
                     title="Banned subreddits ({})".format(amount),
-                    color=transparent_color,
                     description=subs_print_1,
                 )
-                em_2 = discord.Embed(color=transparent_color, description=subs_print_2)
+                em_2 = discord.Embed(description=subs_print_2)
                 await ctx.send(embed=em_1)
                 await ctx.send(embed=em_2)
 
