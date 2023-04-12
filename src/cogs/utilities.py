@@ -132,25 +132,21 @@ class Utilities(commands.Cog):
             f":bell:  The timer started by {interaction.user.mention} on {start_time} has finished."
         )
 
-        await view.wait()
-
-    @commands.command()
-    async def calc(self, ctx, *, expr):
-        expr = "".join(expr)
+    @app_commands.command(description="Solve a math expression.")
+    @app_commands.describe(expression="The math expression. Example: '3 + 10 / 2'")
+    async def calc(self, interaction: discord.Interaction, expression: str):
         try:
-            result = eval(expr)
-            await ctx.send("`{}`".format(result))
+            result = eval(expression)
+            await interaction.respo.send_message("`{}`".format(result))
         except:
-            await ctx.send(
-                ":x: I couldn't calculate that, " + "I'm sure it's your fault."
-            )
+            await interaction.response.send_message(":x: I couldn't calculate that, I'm sure it's your fault.")
 
     @commands.command()
     async def flip(self, ctx):
         side = random.choice(["heads", "tails"])
         await ctx.channel.typing()
         await asyncio.sleep(2)
-        await ctx.send("I flipped a coin and it landed on **{}**.".format(side))
+        await ctx.send(":coin: I flipped a coin and it landed on **{}**.".format(side))
 
     @commands.command()
     async def randnum(self, ctx, min: int, max: int):
