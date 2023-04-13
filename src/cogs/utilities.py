@@ -139,7 +139,9 @@ class Utilities(commands.Cog):
             result = eval(expression)
             await interaction.respo.send_message("`{}`".format(result))
         except:
-            await interaction.response.send_message(":x: I couldn't calculate that, I'm sure it's your fault.")
+            await interaction.response.send_message(
+                ":x: I couldn't calculate that, I'm sure it's your fault."
+            )
 
     @commands.command()
     async def flip(self, ctx):

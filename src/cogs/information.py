@@ -22,6 +22,7 @@ from cogs.settings import EMOJIS
 #         return f"**{day} day(s), **{hour}** hour(s) ago"
 #     return f"**{hour}** hour(s), **{min}** minute(s) ago"
 
+
 def get_statusemoji(user: discord.User):
     """Get a user's status emoji"""
     if user.status == discord.Status.online:
@@ -282,7 +283,7 @@ class Server(app_commands.Group):
                 normal_emojis_list.append(f"<:{emoji.name}:{emoji.id}>")
         em = discord.Embed(
             description=f"Custom emojis **({len(normal_emojis_list)}):**\n{' '.join(normal_emojis_list)}"
-            + f"\n\u200b\n" # Blank line as separation
+            + f"\n\u200b\n"  # Blank line as separation
             + "Animated emojis **({len(animated_emojis_list)}):**\n{' '.join(animated_emojis_list)}",
         )
         em.set_author(

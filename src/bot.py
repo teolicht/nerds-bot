@@ -39,9 +39,11 @@ async def on_ready():
     global LAUNCH_TIME, NERDS_GUILD, GENERAL_CHANNEL, ZAP_CHANNEL
     LAUNCH_TIME = discord.utils.utcnow()
     NERDS_GUILD = bot.get_guild(settings.NERDS["GUILD"])
-    GENERAL_CHANNEL = discord.utils.get(NERDS_GUILD.channels, id=settings.NERDS["GENERAL"])
+    GENERAL_CHANNEL = discord.utils.get(
+        NERDS_GUILD.channels, id=settings.NERDS["GENERAL"]
+    )
     ZAP_CHANNEL = discord.utils.get(NERDS_GUILD.channels, id=settings.NERDS["ZAP"])
-    
+
 
 @bot.event
 async def on_message(message):
