@@ -31,9 +31,9 @@ class RPSView(discord.ui.View):
     ):
         self.user = interaction.user
         self.choice = "rock"
-        await interaction.response.send_message(self.choice_message.format(
-            self, self, ":punch:"
-        ))
+        await interaction.response.send_message(
+            self.choice_message.format(self, self, ":punch:")
+        )
         self.stop()
 
     @discord.ui.button(emoji="🖐", label="Paper", style=discord.ButtonStyle.gray)
@@ -42,22 +42,20 @@ class RPSView(discord.ui.View):
     ):
         self.user = interaction.user
         self.choice = "paper"
-        await interaction.response.send_message(self.choice_message.format(
-            self, self, ":hand_splayed:"
-        ))
+        await interaction.response.send_message(
+            self.choice_message.format(self, self, ":hand_splayed:")
+        )
         self.stop()
 
-    @discord.ui.button(
-        emoji="✌", label="Scissors", style=discord.ButtonStyle.gray
-    )
+    @discord.ui.button(emoji="✌", label="Scissors", style=discord.ButtonStyle.gray)
     async def scissors_button(
         self, interaction: discord.Interaction, button: discord.ui.Button
     ):
         self.user = interaction.user
         self.choice = "scissors"
-        await interaction.response.send_message(self.choice_message.format(
-            self, self, ":v:"
-        ))
+        await interaction.response.send_message(
+            self.choice_message.format(self, self, ":v:")
+        )
         self.stop()
 
     @discord.ui.button(label="Quit", style=discord.ButtonStyle.danger)
@@ -85,46 +83,25 @@ class Fun(commands.Cog):
         global on_cooldown
         on_cooldown = False
 
-    @commands.command()
-    async def say(self, ctx, *, text):
-        try:
-            await ctx.message.delete()
-            text = "".join(text)
-            await ctx.send(text)
-        except discord.errors.Forbidden:
-            await ctx.send(
-                ":x: I need the **Manage Messages** permission "
-                + "so I can delete your message."
-            )
+    @app_commands.command(description="Speak as if you were me.")
+    @app_commands.describe(message="The message you want me to send to the chat.")
+    async def say(self, interaction: discord.Interaction, message: str):
+        em = discord.Embed(description=":white_check_mark: *Sent message*")
+        await interaction.response.send_message(embed=em, ephemeral=True)
+        await interaction.channel.send(message)
 
-    @app_commands.command(description="Make the bot send someone a DM.")
-    @app_commands.describe(user="A member in this server.")
-    @app_commands.describe(message="Message content.")
-    async def sayto(
-        self, interaction: discord.Interaction, user: discord.Member, message: str
-    ):
-        em = discord.Embed(
-            title=f"Dear {user.name}",
-            description=f"*I was sent here by {interaction.user.mention} to tell you this:*\n\n{message}\n\u200b",
-            timestamp=discord.utils.utcnow(),
-        )
-        await user.send(embed=em)
-        em = discord.Embed(
-            description=f":white_check_mark: Sent message to {user.mention}"
-        )
-        em.set_author(
-            name=self.mname(interaction.user), icon_url=interaction.user.display_avatar
-        )
-        await interaction.response.send_message(embed=em)
-
-    @commands.command()
-    async def big(self, ctx, *, text):
-        msg = ""
-
+    @app_commands.command(
+        description="Speak as if you were me, but through emoji-letters."
+    )
+    @app_commands.describe(
+        message="The message you want me to convert to emoji-letters, and then send to the chat."
+    )
+    async def saybig(self, interaction: discord.Interaction, message: str):
         def big(letter):
             return f":regional_indicator_{letter}: "
-
-        for char in "".join(text):
+        
+        msg = ""
+        for char in message:
             char = char.lower()
             if char == "0":
                 msg += ":zero:"
@@ -202,14 +179,29 @@ class Fun(commands.Cog):
                 msg += "    "
             else:
                 msg += char
+        em = discord.Embed(description=":white_check_mark: *Sent message*")
+        await interaction.response.send_message(embed=em, ephemeral=True)
+        await interaction.channel.send(msg)
 
-        try:
-            await ctx.message.delete()
-            await ctx.send(msg)
-        except discord.errors.Forbidden:
-            await ctx.send(
-                ":x: I need the **Manage Messages** permission so I can delete your message first."
-            )
+    @app_commands.command(description="Make the bot send someone a DM.")
+    @app_commands.describe(user="A member in this server.")
+    @app_commands.describe(message="Message content.")
+    async def sayto(
+        self, interaction: discord.Interaction, user: discord.Member, message: str
+    ):
+        em = discord.Embed(
+            title=f"Dear {user.name}",
+            description=f"*I was sent here by {interaction.user.mention} to tell you this:*\n\n{message}\n\u200b",
+            timestamp=discord.utils.utcnow(),
+        )
+        await user.send(embed=em)
+        em = discord.Embed(
+            description=f":white_check_mark: Sent message to {user.mention}"
+        )
+        em.set_author(
+            name=self.mname(interaction.user), icon_url=interaction.user.display_avatar
+        )
+        await interaction.response.send_message(embed=em)
 
     @app_commands.command(description="Roast someone in the server.")
     @app_commands.describe(user="A member in this server.")
