@@ -15,9 +15,7 @@ transparent_color = 0x302C34
 class RPSView(discord.ui.View):
     choice = None
     user = None
-    rock_emoji = "\N{raised fist}"
-    paper_emoji = "\N{raised hand}"
-    scissors_emoji = "\N{victory hand}"
+    choice_message = "> {0.user.mention} chooses **{1.choice}** {2}"
 
     async def disable_all_items(self):
         for item in self.children:
@@ -27,40 +25,39 @@ class RPSView(discord.ui.View):
     async def on_timeout(self) -> None:
         await self.disable_all_items()
 
-    @discord.ui.button(emoji=rock_emoji, label="Rock", style=discord.ButtonStyle.gray)
+    @discord.ui.button(emoji="👊", label="Rock", style=discord.ButtonStyle.gray)
     async def rock_button(
         self, interaction: discord.Interaction, button: discord.ui.Button
     ):
-        self.choice = "rock"
-        self.emoji = self.rock_emoji
         self.user = interaction.user
-        await interaction.response.send_message(f"> {self.user.mention} chose **rock**")
+        self.choice = "rock"
+        await interaction.response.send_message(self.choice_message.format(
+            self, self, ":punch:"
+        ))
         self.stop()
 
-    @discord.ui.button(emoji=paper_emoji, label="Paper", style=discord.ButtonStyle.gray)
+    @discord.ui.button(emoji="🖐", label="Paper", style=discord.ButtonStyle.gray)
     async def paper_button(
         self, interaction: discord.Interaction, button: discord.ui.Button
     ):
-        self.choice = "paper"
-        self.emoji = self.paper_emoji
         self.user = interaction.user
-        await interaction.response.send_message(
-            f"> {self.user.mention} chose **paper**"
-        )
+        self.choice = "paper"
+        await interaction.response.send_message(self.choice_message.format(
+            self, self, ":hand_splayed:"
+        ))
         self.stop()
 
     @discord.ui.button(
-        emoji=scissors_emoji, label="Scissors", style=discord.ButtonStyle.gray
+        emoji="✌", label="Scissors", style=discord.ButtonStyle.gray
     )
     async def scissors_button(
         self, interaction: discord.Interaction, button: discord.ui.Button
     ):
-        self.choice = "scissors"
-        self.emoji = self.scissors_emoji
         self.user = interaction.user
-        await interaction.response.send_message(
-            f"> {self.user.mention} chose **scissors**"
-        )
+        self.choice = "scissors"
+        await interaction.response.send_message(self.choice_message.format(
+            self, self, ":v:"
+        ))
         self.stop()
 
     @discord.ui.button(label="Quit", style=discord.ButtonStyle.danger)
@@ -363,7 +360,7 @@ class Fun(commands.Cog):
         )
         await interaction.response.send_message(embed=em)
 
-        view = RPSView(timeout=60.0)
+        view = RPSView(timeout=300.0)
         message = await interaction.channel.send(view=view)
         view.message = message
         await view.wait()
@@ -387,22 +384,26 @@ class Fun(commands.Cog):
                 return "loss"
 
         def end_message(user, user_choice, bot_choice):
+            em = discord.Embed()
             if comparison(user_choice, bot_choice) == "tie":
-                em = discord.Embed(description=f"{user.mention}, it's a tie!")
+                em.description = f"{user.mention}**, it's a TIE!**"
             elif comparison(user_choice, bot_choice) == "win":
-                em = discord.Embed(
-                    description=f"{user.mention}, you won!",
-                    color=discord.Colour.brand_green(),
-                )
+                em.description = f"{user.mention}**, you WON!**"
+                em.color = discord.Colour.brand_green()
             else:
-                em = discord.Embed(
-                    description=f"{user.mention}, you lost!", color=discord.Colour.red()
-                )
+                em.description = f"{user.mention}**, you LOST!**"
+                em.color = discord.Colour.red()
             return em
 
         bot_choice = random.choice(["rock", "paper", "scissors"])
+        if bot_choice == "rock":
+            bot_emoji = ":fist:"
+        elif bot_choice == "paper":
+            bot_emoji = ":hand_splayed:"
+        else:
+            bot_emoji = ":v:"
         await asyncio.sleep(3)
-        await interaction.channel.send(f"> {view.emoji} I choose **{bot_choice}**")
+        await interaction.channel.send(f"> I choose **{bot_choice}** {bot_emoji}")
         await asyncio.sleep(3)
 
         em = end_message(view.user, view.choice, bot_choice)
