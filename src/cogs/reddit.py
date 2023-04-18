@@ -54,7 +54,7 @@ class Reddit(commands.Cog):
 
     @commands.command()
     async def reddit(self, ctx, option, subreddit=None):
-        with open("cogs/text/text.json", "r") as file:
+        with open("cogs/text/reddit.json", "r") as file:
             subs_json = json.load(file)
             file.close()
 
@@ -67,7 +67,7 @@ class Reddit(commands.Cog):
                 await ctx.send(":x: That subreddit is already banned.")
             else:
                 subs_json["bannedsubs"].append(subreddit)
-                with open("cogs/text/text.json", "w") as file:
+                with open("cogs/text/reddit.json", "w") as file:
                     json.dump(subs_json, file, indent=4)
                     file.close()
                 await ctx.send(":white_check_mark: Banned ``r/{}``".format(subreddit))
@@ -86,7 +86,7 @@ class Reddit(commands.Cog):
                 await ctx.send(":x: Please wait before unbanning that subreddit.")
             else:
                 subs_json["bannedsubs"].remove(subreddit)
-                with open("cogs/text/text.json", "w") as file:
+                with open("cogs/text/reddit.json", "w") as file:
                     json.dump(subs_json, file, indent=4)
                     file.close()
                 await ctx.send(":white_check_mark: Unbanned ``r/{}``".format(subreddit))
