@@ -99,7 +99,7 @@ class Fun(commands.Cog):
     async def saybig(self, interaction: discord.Interaction, message: str):
         def big(letter):
             return f":regional_indicator_{letter}: "
-        
+
         msg = ""
         for char in message:
             char = char.lower()
@@ -186,7 +186,7 @@ class Fun(commands.Cog):
     @app_commands.command(description="Make the bot send someone a DM.")
     @app_commands.describe(user="A member in this server.")
     @app_commands.describe(message="Message content.")
-    async def sayto(
+    async def dm(
         self, interaction: discord.Interaction, user: discord.Member, message: str
     ):
         em = discord.Embed(

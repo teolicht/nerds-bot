@@ -47,7 +47,7 @@ class Help(commands.Cog):
                 value="Speak as if you were me, but through letter-emojis.",
                 inline=False,
             )
-            em.add_field(name="/sayto", value="Send someone a message.")
+            em.add_field(name="/dm", value="Send someone a DM.")
             em.add_field(name="/roast", value="Roast someone.", inline=False)
             em.add_field(name="/kill", value="Kill someone.")
             em.add_field(name="/suicide", value="Kill yourself.", inline=False)
@@ -75,7 +75,7 @@ class Help(commands.Cog):
                 value="Generate a random number between min and max.",
             )
             em.add_field(
-                name="/poll",
+                name="n!poll",
                 value="Start a poll.",
                 inline=False,
             )
@@ -92,13 +92,13 @@ class Help(commands.Cog):
         elif category == "reddit":
             em = discord.Embed(color=0xFF0414)
             em.add_field(
-                name="/reddit",
+                name="n!reddit",
                 value="Random hot post from specified subreddit.",
             )
-            em.add_field(name="/reddit ban", value="Ban a subreddit.", inline=False)
-            em.add_field(name="/reddit unban", value="Unban a subreddit.", inline=False)
+            em.add_field(name="n!reddit ban", value="Ban a subreddit.", inline=False)
+            em.add_field(name="n!reddit unban", value="Unban a subreddit.", inline=False)
             em.add_field(
-                name="/reddit banlist", value="List of banned subreddits.", inline=False
+                name="n!reddit banlist", value="List of banned subreddits.", inline=False
             )
             em.title = (
                 f"<:REDDIT:1093033093687951451> Reddit commands ({len(em.fields)})"
