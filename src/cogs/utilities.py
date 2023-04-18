@@ -286,10 +286,13 @@ class Tags(app_commands.Group):
         tag_list = ""
         for x, tag in enumerate(tags_json[guild_id]):
             tag_list += f"**{x + 1}.** {tag}\n"
-        em = discord.Embed(
-            title=f"Saved tags ({len(tags_json[guild_id])})",
-            description=tag_list
-        )
+        if tag_list == "":
+            em = discord.Embed(description="*This server has no saved tags.*")
+        else:
+            em = discord.Embed(
+                title=f"Saved tags ({len(tags_json[guild_id])})",
+                description=tag_list
+            )
         em.set_author(name=interaction.guild.name, icon_url=interaction.guild.icon)
         await interaction.response.send_message(embed=em)
 
@@ -304,7 +307,6 @@ class Tags(app_commands.Group):
             return await interaction.response.send_message(":x: This server doesn't have any saved tags.", ephemeral=True)
         if name not in tags_json[guild_id]:
             return await interaction.response.send_message(":x: That tag doesn't exist.", ephemeral=True)
-        # em = discord.Embed(title=name)
         await interaction.response.send_message(tags_json[guild_id][name])
 
 
