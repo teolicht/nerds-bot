@@ -7,7 +7,6 @@ from discord.ext import commands, tasks
 from discord import app_commands
 
 
-transparent_color = 0x302C34
 delete_cooldown = {}
 
 
@@ -137,7 +136,7 @@ class Utilities(commands.Cog):
     async def calc(self, interaction: discord.Interaction, expression: str):
         try:
             result = eval(expression)
-            await interaction.respo.send_message("`{}`".format(result))
+            await interaction.response.send_message("`{}`".format(result))
         except:
             await interaction.response.send_message(
                 ":x: I couldn't calculate that, I'm sure it's your fault."
@@ -150,87 +149,46 @@ class Utilities(commands.Cog):
         await asyncio.sleep(2)
         await ctx.send(":coin: I flipped a coin and it landed on **{}**.".format(side))
 
-    @commands.command()
-    async def randnum(self, ctx, min: int, max: int):
-        if min > max:
-            return await ctx.send(
-                f":x: Your first number ({min}) must be "
-                + f"smaller than your second number ({max})."
+    @app_commands.command(description="Pick a random number between a min and a max.")
+    @app_commands.describe(minimum="The smallest number in the range.")
+    @app_commands.describe(maximum="The largest number in the range.")
+    async def randnum(
+        self, interaction: discord.Interaction, minimum: int, maximum: int
+    ):
+        if minimum > maximum:
+            return await interaction.response.send_message(
+                f":x: Your first number must be smaller than your second number.",
+                ephemeral=True,
             )
+        number = random.randint(minimum, maximum)
+        em = discord.Embed(title=number)
+        await interaction.response.send_message(
+            f"A number between `{minimum}` and `{maximum}`:",
+            embed=em
+        )
 
-        number = random.randint(min, max)
-        await ctx.send("`{}`".format(number))
+    @app_commands.command(description="Choose from a list of options.")
+    @app_commands.describe(
+        options="The options you want to randomly choose from. Separate with comma."
+    )
+    async def choose(self, interaction: discord.Interaction, options: str):
+        options = options.split(",")
+        if "" in options:
+            options.remove("")
+        chosen_option = random.choice(options)
+        em = discord.Embed(description="*List:* " + ", ".join(options))
+        em.set_footer(text="Choosing...")
+        await interaction.response.send_message(embed=em)
 
-    @commands.command()
-    async def choose(self, ctx, *, choices):
-        choices = choices.split()
-        choice = random.choice(choices)
-        return await ctx.send(choice)
+        # Simulate bot is choosing between the options
+        await asyncio.sleep(2)
 
-    @commands.command()
-    async def tag(self, ctx, option, name=None, *, content=None):
-        with open("cogs/text/text.json", "r") as file:
-            tags_json = json.load(file)
-            file.close()
-
-        if option == "create":
-            if name is None:
-                return await ctx.send(":x: Please specify the tag's name.")
-            if name in ["create", "delete", "edit", "list"]:
-                return await ctx.send(":x: You cannot create a tag with that name.")
-            if name in tags_json["tags"]:
-                return await ctx.send(":x: That tag already exists.")
-            if content is None:
-                return await ctx.send(":x: Please enter some content for the tag.")
-            content = "".join(content)
-            tags_json["tags"][name] = content
-            with open("cogs/text/text.json", "w") as file:
-                json.dump(tags_json, file, indent=4)
-                file.close()
-            await ctx.send(":white_check_mark: Created tag sucessfully.")
-
-        elif option == "delete":
-            if name is None:
-                return await ctx.send(":x: Please specify the tag's name.")
-            if name not in tags_json["tags"]:
-                await ctx.send(":x: That tag doesn't exist.")
-            tags_json["tags"].pop(name)
-            with open("cogs/text/text.json", "w") as file:
-                json.dump(tags_json, file, indent=4)
-                file.close()
-            await ctx.send(":white_check_mark: Deleted tag successfully.")
-
-        elif option == "edit":
-            if name is None:
-                return await ctx.send(":x: Please specify the tag's name.")
-            if name not in tags_json["tags"]:
-                return await ctx.send(":x: That tag doesn't exist.")
-            if content is None:
-                return await ctx.send(":x: Please enter some content for the tag.")
-            content = "".join(content)
-            tags_json["tags"][name] = content
-            with open("cogs/text/text.json", "w") as file:
-                json.dump(tags_json, file, indent=4)
-                file.close()
-            await ctx.send(":white_check_mark: Edited tag sucessfully.")
-
-        elif option == "list":
-            amount = 0
-            tag_list = ""
-            for tag in tags_json["tags"]:
-                amount += 1
-                tag_list += f"**{amount}.** {tag}\n"
-            em = discord.Embed(
-                title=f"Tag list ({amount})",
-                description=tag_list,
-                color=transparent_color,
-            )
-            await ctx.send(embed=em)
-
-        else:
-            if option not in tags_json["tags"]:
-                return await ctx.send(":x: That tag doesn't exist.")
-            await ctx.send(tags_json["tags"][option])
+        for x, option in enumerate(options):
+            if option == chosen_option:
+                options[x] = f"**> {option} <**"
+        em.description = "*List:* " + ", ".join(options)
+        em.set_footer(text=f"✅ Chosen: {chosen_option.strip()}")
+        await interaction.edit_original_response(embed=em)
 
     @app_commands.command(description="Create an invite link for this server.")
     @app_commands.describe(
@@ -248,5 +206,108 @@ class Utilities(commands.Cog):
         await interaction.response.send_message(f"There you go!\n**{invite_link}**")
 
 
+class Tags(app_commands.Group):
+
+    def tags_json(self, mode, new_content=None):
+        if mode == "r":
+            with open("cogs/text/tags.json", "r") as file:
+                tags_json = json.load(file)
+                file.close()
+                return tags_json
+        elif mode == "w":
+            with open("cogs/text/tags.json", "w") as file:
+                json.dump(new_content, file, indent=4)
+                file.close()
+
+    async def tag_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+        guild_id = str(interaction.guild.id)
+        tags_json = self.tags_json("r")
+        if guild_id in tags_json:
+            tags = tags_json[guild_id]
+            choices = []
+            for tag in tags:
+                choices.append(tag)
+            return [
+                app_commands.Choice(name=choice, value=choice)
+                for choice in choices if current.lower() in choice.lower()
+            ]
+
+    @app_commands.command(description="Create a new tag.")
+    @app_commands.describe(name="The tag's name.")
+    @app_commands.describe(content="The tag's content.")
+    async def create(self, interaction: discord.Interaction, name: str, content: str):
+        guild_id = str(interaction.guild.id)
+        tags_json = self.tags_json("r")
+        if guild_id in tags_json:
+            if name in tags_json[guild_id]:
+                return await interaction.response.send_message(":x: A tag with that name already exists.", ephemeral=True)
+            tags_json[guild_id][name] = content
+        else:
+            tags_json[guild_id] = {}
+            tags_json[guild_id][name] = content 
+        self.tags_json("w", new_content=tags_json)
+        await interaction.response.send_message(f":white_check_mark: Tag `{name}` created successfully.")
+
+    @app_commands.command(description="Delete a saved tag.")
+    @app_commands.describe(name="The tag's name.")
+    @app_commands.autocomplete(name=tag_autocomplete)
+    async def delete(self, interaction: discord.Interaction, name: str):
+        guild_id = str(interaction.guild.id)
+        tags_json = self.tags_json("r")
+        if guild_id not in tags_json:
+            return await interaction.response.send_message(":x: This server doesn't have any saved tags.", ephemeral=True)
+        if name not in tags_json[guild_id]:
+            return await interaction.response.send_message(":x: That tag doesn't exist.", ephemeral=True)
+        tags_json[guild_id].pop(name)
+        self.tags_json("w", new_content=tags_json)
+        await interaction.response.send_message(f":white_check_mark: Deleted tag `{name}`")
+
+    @app_commands.command(description="Edit a saved tag.")
+    @app_commands.describe(name="The tag's name.")
+    @app_commands.describe(content="The tag's new content. Replaces the old.")
+    @app_commands.autocomplete(name=tag_autocomplete)
+    async def edit(self, interaction: discord.Interaction, name: str, content: str):
+        guild_id = str(interaction.guild.id)
+        tags_json = self.tags_json("r")
+        if guild_id not in tags_json:
+            return await interaction.response.send_message(":x: This server doesn't have any saved tags.", ephemeral=True)
+        if name not in tags_json[guild_id]:
+            return await interaction.response.send_message(":x: That tag doesn't exist.", ephemeral=True)
+        tags_json[guild_id][name] = content
+        self.tags_json("w", new_content=tags_json)
+        await interaction.response.send_message(f":white_check_mark: Tag `{name}` edited successfully.")
+
+    @app_commands.command(description="List of saved tags.")
+    async def list(self, interaction: discord.Interaction):
+        guild_id = str(interaction.guild.id)
+        tags_json = self.tags_json("r")
+        if guild_id not in tags_json:
+            return await interaction.response.send_message(":x: This server doesn't have any saved tags.", ephemeral=True)
+        tag_list = ""
+        for x, tag in enumerate(tags_json[guild_id]):
+            tag_list += f"**{x + 1}.** {tag}\n"
+        em = discord.Embed(
+            title=f"Saved tags ({len(tags_json[guild_id])})",
+            description=tag_list
+        )
+        em.set_author(name=interaction.guild.name, icon_url=interaction.guild.icon)
+        await interaction.response.send_message(embed=em)
+
+    @app_commands.command(description="Show a saved tag.")
+    @app_commands.describe(name="The tag's name.")
+    @app_commands.autocomplete(name=tag_autocomplete)
+    async def show(self, interaction: discord.Interaction, name: str):
+        # A way to put these 6 following lines into a function, since they got repeated multiple times?
+        guild_id = str(interaction.guild.id)
+        tags_json = self.tags_json("r")
+        if guild_id not in tags_json:
+            return await interaction.response.send_message(":x: This server doesn't have any saved tags.", ephemeral=True)
+        if name not in tags_json[guild_id]:
+            return await interaction.response.send_message(":x: That tag doesn't exist.", ephemeral=True)
+        # em = discord.Embed(title=name)
+        await interaction.response.send_message(tags_json[guild_id][name])
+
+
 async def setup(bot):
+    bot.tree.add_command(Tags(name="tag", description="Tag commands."))
     await bot.add_cog(Utilities(bot))
