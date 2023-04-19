@@ -163,8 +163,7 @@ class Utilities(commands.Cog):
         number = random.randint(minimum, maximum)
         em = discord.Embed(title=number)
         await interaction.response.send_message(
-            f"A number between `{minimum}` and `{maximum}`:",
-            embed=em
+            f"A number between `{minimum}` and `{maximum}`:", embed=em
         )
 
     @app_commands.command(description="Choose from a list of options.")
@@ -207,19 +206,20 @@ class Utilities(commands.Cog):
 
 
 class Tags(app_commands.Group):
-
     def tags_json(self, mode, new_content=None):
         if mode == "r":
             with open("cogs/text/tags.json", "r") as file:
                 tags_json = json.load(file)
                 file.close()
                 return tags_json
-        elif mode == "w":
+        else:
             with open("cogs/text/tags.json", "w") as file:
                 json.dump(new_content, file, indent=4)
                 file.close()
 
-    async def tag_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+    async def tag_autocomplete(
+        self, interaction: discord.Interaction, current: str
+    ) -> list[app_commands.Choice[str]]:
         guild_id = str(interaction.guild.id)
         tags_json = self.tags_json("r")
         if guild_id in tags_json:
@@ -229,7 +229,8 @@ class Tags(app_commands.Group):
                 choices.append(tag)
             return [
                 app_commands.Choice(name=choice, value=choice)
-                for choice in choices if current.lower() in choice.lower()
+                for choice in choices
+                if current.lower() in choice.lower()
             ]
 
     @app_commands.command(description="Create a new tag.")
@@ -240,13 +241,17 @@ class Tags(app_commands.Group):
         tags_json = self.tags_json("r")
         if guild_id in tags_json:
             if name in tags_json[guild_id]:
-                return await interaction.response.send_message(":x: A tag with that name already exists.", ephemeral=True)
+                return await interaction.response.send_message(
+                    ":x: A tag with that name already exists.", ephemeral=True
+                )
             tags_json[guild_id][name] = content
         else:
             tags_json[guild_id] = {}
-            tags_json[guild_id][name] = content 
+            tags_json[guild_id][name] = content
         self.tags_json("w", new_content=tags_json)
-        await interaction.response.send_message(f":white_check_mark: Tag `{name}` created successfully.")
+        await interaction.response.send_message(
+            f":white_check_mark: Tag `{name}` created successfully."
+        )
 
     @app_commands.command(description="Delete a saved tag.")
     @app_commands.describe(name="The tag's name.")
@@ -255,12 +260,18 @@ class Tags(app_commands.Group):
         guild_id = str(interaction.guild.id)
         tags_json = self.tags_json("r")
         if guild_id not in tags_json:
-            return await interaction.response.send_message(":x: This server doesn't have any saved tags.", ephemeral=True)
+            return await interaction.response.send_message(
+                ":x: This server doesn't have any saved tags.", ephemeral=True
+            )
         if name not in tags_json[guild_id]:
-            return await interaction.response.send_message(":x: That tag doesn't exist.", ephemeral=True)
+            return await interaction.response.send_message(
+                ":x: That tag doesn't exist.", ephemeral=True
+            )
         tags_json[guild_id].pop(name)
         self.tags_json("w", new_content=tags_json)
-        await interaction.response.send_message(f":white_check_mark: Deleted tag `{name}`")
+        await interaction.response.send_message(
+            f":white_check_mark: Deleted tag `{name}`"
+        )
 
     @app_commands.command(description="Edit a saved tag.")
     @app_commands.describe(name="The tag's name.")
@@ -270,19 +281,27 @@ class Tags(app_commands.Group):
         guild_id = str(interaction.guild.id)
         tags_json = self.tags_json("r")
         if guild_id not in tags_json:
-            return await interaction.response.send_message(":x: This server doesn't have any saved tags.", ephemeral=True)
+            return await interaction.response.send_message(
+                ":x: This server doesn't have any saved tags.", ephemeral=True
+            )
         if name not in tags_json[guild_id]:
-            return await interaction.response.send_message(":x: That tag doesn't exist.", ephemeral=True)
+            return await interaction.response.send_message(
+                ":x: That tag doesn't exist.", ephemeral=True
+            )
         tags_json[guild_id][name] = content
         self.tags_json("w", new_content=tags_json)
-        await interaction.response.send_message(f":white_check_mark: Tag `{name}` edited successfully.")
+        await interaction.response.send_message(
+            f":white_check_mark: Tag `{name}` edited successfully."
+        )
 
     @app_commands.command(description="List of saved tags.")
     async def list(self, interaction: discord.Interaction):
         guild_id = str(interaction.guild.id)
         tags_json = self.tags_json("r")
         if guild_id not in tags_json:
-            return await interaction.response.send_message(":x: This server doesn't have any saved tags.", ephemeral=True)
+            return await interaction.response.send_message(
+                ":x: This server doesn't have any saved tags.", ephemeral=True
+            )
         tag_list = ""
         for x, tag in enumerate(tags_json[guild_id]):
             tag_list += f"**{x + 1}.** {tag}\n"
@@ -290,8 +309,7 @@ class Tags(app_commands.Group):
             em = discord.Embed(description="*This server has no saved tags.*")
         else:
             em = discord.Embed(
-                title=f"Saved tags ({len(tags_json[guild_id])})",
-                description=tag_list
+                title=f"Saved tags ({len(tags_json[guild_id])})", description=tag_list
             )
         em.set_author(name=interaction.guild.name, icon_url=interaction.guild.icon)
         await interaction.response.send_message(embed=em)
@@ -299,14 +317,18 @@ class Tags(app_commands.Group):
     @app_commands.command(description="Show a saved tag.")
     @app_commands.describe(name="The tag's name.")
     @app_commands.autocomplete(name=tag_autocomplete)
-    async def show(self, interaction: discord.Interaction, name: str):
+    async def get(self, interaction: discord.Interaction, name: str):
         # A way to put these 6 following lines into a function, since they got repeated multiple times?
         guild_id = str(interaction.guild.id)
         tags_json = self.tags_json("r")
         if guild_id not in tags_json:
-            return await interaction.response.send_message(":x: This server doesn't have any saved tags.", ephemeral=True)
+            return await interaction.response.send_message(
+                ":x: This server doesn't have any saved tags.", ephemeral=True
+            )
         if name not in tags_json[guild_id]:
-            return await interaction.response.send_message(":x: That tag doesn't exist.", ephemeral=True)
+            return await interaction.response.send_message(
+                ":x: That tag doesn't exist.", ephemeral=True
+            )
         await interaction.response.send_message(tags_json[guild_id][name])
 
 
