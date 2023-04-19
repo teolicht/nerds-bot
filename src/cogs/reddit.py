@@ -1,180 +1,183 @@
+import random
+import json
+import threading
 import asyncpraw
 import asyncprawcore
-import random
-import threading
-import json
 import discord
-from discord.ext import commands
-from cogs.settings import REDDIT
+from discord import app_commands
+from cogs.settings import REDDIT, EMOJIS
 
 
-ban_cooldown = []
+class Reddit(app_commands.Group):
+    reddit = asyncpraw.Reddit(
+        client_id=REDDIT["CLIENT_ID"],
+        client_secret=REDDIT["CLIENT_SECRET"],
+        password=REDDIT["PASSWORD"],
+        user_agent=REDDIT["USERNAME"],
+        username=REDDIT["USERNAME"],
+    )
+    subreddit_ban_cooldown = {}
 
+    def reddit_json(self, mode, new_content=None):
+        if mode == "r":
+            with open("cogs/text/reddit.json", "r") as file:
+                subs_json = json.load(file)
+                file.close()
+                return subs_json
+        else:
+            with open("cogs/text/reddit.json", "w") as file:
+                json.dump(new_content, file, indent=4)
+                file.close()
 
-class Reddit(commands.Cog):
-    def __init__(self, bot):
-        self.bot = bot
-        self.reddit = asyncpraw.Reddit(
-            client_id=REDDIT["CLIENT_ID"],
-            client_secret=REDDIT["CLIENT_SECRET"],
-            password=REDDIT["PASSWORD"],
-            user_agent=REDDIT["USERNAME"],
-            username=REDDIT["USERNAME"],
+    def ban_done(self, subreddit):
+        self.subreddit_ban_cooldown.pop(subreddit)
+
+    async def fetch_post(self, subreddit_name: str):
+        submissions = []
+        self.subreddit = await self.reddit.subreddit(subreddit_name)
+        async for submission in self.subreddit.hot(limit=50):
+            submissions.append(submission)
+        if submissions == []:
+            return None
+        return random.choice(submissions)
+
+    @app_commands.command(description="Get a random post from the specified subreddit.")
+    @app_commands.describe(name="The subreddit's name.")
+    async def get(self, interaction: discord.Interaction, name: str):
+        reddit_json = self.reddit_json("r")
+        # Handlers
+        if name in reddit_json["banned_subs"]:
+            return await interaction.response.send_message(
+                ":x: That subreddit is banned."
+            )
+        try:
+            post = await self.fetch_post(name.lower())
+        except (
+            asyncprawcore.exceptions.NotFound,
+            asyncprawcore.exceptions.Redirect,
+            discord.errors.HTTPException,
+        ):
+            return await interaction.response.send_message(
+                ":x: I wasn't able to find that subreddit."
+            )
+        except asyncprawcore.exceptions.Forbidden:
+            return await interaction.response.send_message(
+                ":x: That subreddit is private."
+            )
+        if post is None:
+            return await interaction.response.send_message(
+                ":x: That subreddit is empty."
+            )
+        # Deferring is needed because this command can take over 3 seconds to complete
+        # over 3 seconds before interaction response results in interaction failed message
+        await interaction.response.defer()
+        # Create bot embed message
+        post_url = "https://www.reddit.com" + post.permalink
+        post_link = None
+        em = discord.Embed(title=post.title, url=post_url)
+        em.set_author(name=post.subreddit_name_prefixed)
+        em.set_footer(text="u/{0.author.name} • {0.ups} upvotes".format(post))
+        if post.over_18:
+            em.set_thumbnail(
+                url="https://cdn.discordapp.com/attachments/477239188203503628/1098250769884512266/nsfw_icon.png"
+            )
+        if post.selftext:
+            em.description = post.selftext
+        elif post.url.endswith(("jpg", "png", "gif")):
+            em.set_image(url=post.url)
+        elif "v.redd.it" in post.url:
+            em.description = f":cinema: ***[Video link]({post.url})***"
+            ## The four lines below can be used to extract the video link from the submission's JSON.
+            ## This is unfortunately the only way a video posted to Reddit's host (v.redd.it) can be accessed directly.
+            ## I gave up on using this because 1) the video extracted doesn't have any sound
+            ## and 2) I would often get HTTP error 429: too many requests.
+            # post_json = urlopen(post_url + ".json").read()
+            # post_dict = json.loads(post_json.decode()) # decode() is because urlopen().read() returns bytes type
+            # media_dict = post_dict[0]["data"]["children"][0]["data"]["media"]
+            # post_video_link = media_dict["reddit_video"]["fallback_url"].strip("?source=fallback")
+        else:
+            post_link = post.url
+        await interaction.edit_original_response(content=post_link, embed=em)
+
+    @app_commands.command(description="Ban a subreddit.")
+    @app_commands.describe(name="The subreddit's name.")
+    async def ban(self, interaction: discord.Interaction, name: str):
+        subreddit = name.lower()
+        subs_json = self.reddit_json("r")
+        if subreddit in subs_json["banned_subs"]:
+            return await interaction.response.send_message(
+                ":x: That subreddit is already banned."
+            )
+        subs_json["banned_subs"].append(subreddit)
+        self.reddit_json("w", new_content=subs_json)
+        self.subreddit_ban_cooldown[subreddit] = discord.utils.utcnow()
+        timer = threading.Timer(600.0, self.ban_done, args=[subreddit])
+        timer.start()
+        await interaction.response.send_message(f":white_check_mark: Banned `r/{name}`")
+
+    @app_commands.command(description="Unban a subreddit.")
+    @app_commands.describe(name="The subreddit's name.")
+    async def unban(self, interaction: discord.Interaction, name: str):
+        subreddit = name.lower()
+        subs_json = self.reddit_json("r")
+        if subreddit not in subs_json["banned_subs"]:
+            return await interaction.response.send_message(
+                ":x: That subreddit isn't even banned."
+            )
+        if subreddit in self.subreddit_ban_cooldown:
+            delta_time = discord.utils.utcnow() - self.subreddit_ban_cooldown[subreddit]
+            remaining_ban_seconds = 600 - delta_time.seconds
+            m, s = divmod(remaining_ban_seconds, 60)
+            time_format = "%02dm%02ds" % (m, s)
+            return await interaction.response.send_message(
+                f":x: Please wait `{time_format}` before unbanning that subreddit."
+            )
+        subs_json["banned_subs"].remove(subreddit)
+        self.reddit_json("w", new_content=subs_json)
+        await interaction.response.send_message(
+            f":white_check_mark: Unbanned `r/{name}`"
         )
 
-    def ban_done(self, sub):
-        ban_cooldown.remove(sub)
+    @app_commands.command(description="List of banned subreddits.")
+    async def banlist(self, interaction: discord.Interaction):
+        subs_json = self.reddit_json("r")
+        subs_list = subs_json["banned_subs"]
+        # Rewrite this command
+        try:
+            blank_line = "\u200b" * 22
+            subs_print = [f"{blank_line}\n"]
+            for x, sub in enumerate(subs_list):
+                subs_print.append(f"**{x + 1}.** {sub}\n")
+            subs_print = "".join(subs_print)
+            em = discord.Embed(
+                title=f"Banned subreddits ({len(subs_list)})",
+                description=subs_print,
+            )
+            await interaction.response.send_message(embed=em)
+        # If message is too long
+        except discord.errors.HTTPException:
+            ####### This only separates the list in 2. Hardcoding. What if more than two is needed?
+            half_list = len(subs_list) / 2
+            half_list = int(round(half_list, 0))
+            # First half of the list
+            subs_print_1 = [f"{blank_line}\n"]
+            for x, sub in enumerate(subs_list[:half_list]):
+                subs_print_1.append(f"**{x + 1}.** {sub}\n")
+            subs_print_1 = "".join(subs_print_1)
+            # Second half of the list
+            subs_print_2 = [f"{blank_line}\n"]
+            for x, sub in enumerate(subs_list[half_list:]):
+                subs_print_2.append(f"**{x + 1}.** {sub}\n")
+            subs_print_2 = "".join(subs_print_2)
 
-    # async def close(self):
-    #     await self.reddit.close()
-
-    # async def fetch_post(self, choice: str):
-    #     submissions = []
-    #     self.subreddit = await self.reddit.subreddit(choice)
-    #     async for submission in self.subreddit.hot(limit=25):
-    #         submissions.append(submission)
-    #     return random.choice(submissions)
-
-    # Remaking reddit commands #################################################################
-    # @app_commands.Group
-    # @app_commands.command(description="Reddit commands.")
-    # @app_commands.choices(option=[
-    #     app_commands.Choice(name="ban", value="ban"),
-    #     app_commands.Choice(name="unban", value="unban"),
-    #     app_commands.Choice(name="banlist", value="banlist")
-    # ])
-    # async def reddit(self, interaction: discord.Interaction, option: str, subreddit: str = None):
-    #     await interaction.response.send_message(f"You have chosen to {option} {subreddit}")
-
-    # @app_commands.command(description="Get a random post from a subreddit.")
-    # @app_commands.describe(subreddit="The name of the subreddit.")
-    # async def subreddit(self, interaction: discord.Interaction, subreddit: str):
-    #     post = await self.fetch_post(subreddit)
-    #     print(f"https://www.reddit.com{post.permalink}")
-
-    @commands.command()
-    async def reddit(self, ctx, option, subreddit=None):
-        with open("cogs/text/reddit.json", "r") as file:
-            subs_json = json.load(file)
-            file.close()
-
-        if option == "ban":
-            if subreddit is None:
-                await ctx.send(
-                    ":x: Specify the subreddit.\nCommand usage: `n!reddit ban <subreddit>`"
-                )
-            elif subreddit in subs_json["bannedsubs"]:
-                await ctx.send(":x: That subreddit is already banned.")
-            else:
-                subs_json["bannedsubs"].append(subreddit)
-                with open("cogs/text/reddit.json", "w") as file:
-                    json.dump(subs_json, file, indent=4)
-                    file.close()
-                await ctx.send(":white_check_mark: Banned ``r/{}``".format(subreddit))
-                ban_cooldown.append(subreddit)
-                timer = threading.Timer(600.0, self.ban_done, args=[subreddit])
-                timer.start()
-
-        elif option == "unban":
-            if subreddit is None:
-                await ctx.send(
-                    ":x: Specify the subreddit.\nCommand usage: `n!reddit unban <subreddit>`"
-                )
-            elif subreddit not in subs_json["bannedsubs"]:
-                await ctx.send(":x: That subreddit isn't even banned.")
-            elif subreddit in ban_cooldown:
-                await ctx.send(":x: Please wait before unbanning that subreddit.")
-            else:
-                subs_json["bannedsubs"].remove(subreddit)
-                with open("cogs/text/reddit.json", "w") as file:
-                    json.dump(subs_json, file, indent=4)
-                    file.close()
-                await ctx.send(":white_check_mark: Unbanned ``r/{}``".format(subreddit))
-
-        elif option == "banlist":
-            subs_list = subs_json["bannedsubs"]
-            try:
-                blank_line = "\u200b" * 22
-                subs_print = [f"{blank_line}\n"]
-                amount = 0
-                for sub in subs_list:
-                    amount += 1
-                    subs_print.append(f"**{amount}.** {sub}\n")
-                subs_print = "".join(subs_print)
-                em = discord.Embed(
-                    title="Banned subreddits ({})".format(amount),
-                    description=subs_print,
-                )
-                await ctx.send(embed=em)
-            except discord.errors.HTTPException:
-                ####### This only separates the list in 2. Hardcoding. What if more than two is needed?
-                half_list = len(subs_list) / 2
-                half_list = int(round(half_list, 0))
-                # First half of the list
-                subs_print_1 = [f"{blank_line}\n"]
-                amount = 0
-                for sub in subs_list[:half_list]:
-                    amount += 1
-                    subs_print_1.append(f"**{amount}.** {sub}\n")
-                subs_print_1 = "".join(subs_print_1)
-                # Second half of the list
-                subs_print_2 = [f"{blank_line}\n"]
-                for sub in subs_list[half_list:]:
-                    amount += 1
-                    subs_print_2.append(f"**{amount}.** {sub}\n")
-                subs_print_2 = "".join(subs_print_2)
-
-                em_1 = discord.Embed(
-                    title="Banned subreddits ({})".format(amount),
-                    description=subs_print_1,
-                )
-                em_2 = discord.Embed(description=subs_print_2)
-                await ctx.send(embed=em_1)
-                await ctx.send(embed=em_2)
-
-        else:
-            if option in subs_json["bannedsubs"]:
-                return await ctx.send(":x: That subreddit is banned.")
-            try:
-                self.reddit.subreddits.search_by_name(option, exact=True)
-            except asyncprawcore.exceptions.NotFound:
-                return await ctx.send(":x: I wasn't able to find that subreddit.")
-            except discord.errors.HTTPException:
-                return await ctx.send(":x: I wasn't able to find that subreddit.")
-            except asyncprawcore.exceptions.Forbidden:
-                return await ctx.send(":x: Private subreddit.")
-            try:
-                subreddit = await self.reddit.subreddit(option)
-                submissions = []
-                async for post in subreddit.hot(limit=25):
-                    submissions.append(post)
-                if submissions == []:
-                    return await ctx.send(":x: That subreddit is empty.")
-                post = random.choice(submissions)
-
-                em = discord.Embed(
-                    title=post.title, url="https://www.reddit.com" + post.permalink
-                )
-                em.set_footer(text="u/{0.author.name} • {0.ups} points".format(post))
-                em.set_author(name=post.subreddit_name_prefixed)
-                if post.selftext:
-                    em.description = post.selftext
-                elif post.url.endswith(("jpg", "png")):
-                    em.set_image(url=post.url)
-                else:
-                    em.description = post.url
-                await ctx.send(embed=em)
-            except discord.errors.HTTPException:
-                em.description = post.url
-                await ctx.send(embed=em)
-            except (
-                asyncprawcore.exceptions.NotFound,
-                asyncprawcore.exceptions.Redirect,
-            ):
-                await ctx.send(":x: I wasn't able to find that subreddit.")
-            except asyncprawcore.exceptions.Forbidden:
-                await ctx.send(":x: Private subreddit.")
+            em_1 = discord.Embed(
+                title=f"Banned subreddits ({len(subs_list)})",
+                description=subs_print_1,
+            )
+            em_2 = discord.Embed(description=subs_print_2)
+            await interaction.response.send_message(embed=em_1)
+            await interaction.channel.send(embed=em_2)
 
 
 async def setup(bot):
-    await bot.add_cog(Reddit(bot))
+    bot.tree.add_command(Reddit(name="subreddit", description="Subreddit commands."))

@@ -92,13 +92,17 @@ class Help(commands.Cog):
         elif category == "reddit":
             em = discord.Embed(color=0xFF0414)
             em.add_field(
-                name="n!reddit",
-                value="Random hot post from specified subreddit.",
+                name="/subreddit get",
+                value="Get a random hot post from specified subreddit.",
             )
-            em.add_field(name="n!reddit ban", value="Ban a subreddit.", inline=False)
-            em.add_field(name="n!reddit unban", value="Unban a subreddit.", inline=False)
+            em.add_field(name="/subreddit ban", value="Ban a subreddit.", inline=False)
             em.add_field(
-                name="n!reddit banlist", value="List of banned subreddits.", inline=False
+                name="/subreddit unban", value="Unban a subreddit.", inline=False
+            )
+            em.add_field(
+                name="/subreddit banlist",
+                value="List of banned subreddits.",
+                inline=False,
             )
             em.title = (
                 f"<:REDDIT:1093033093687951451> Reddit commands ({len(em.fields)})"
