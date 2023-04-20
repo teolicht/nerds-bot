@@ -1,3 +1,7 @@
+import pickle
+import psutil
+import os
+import sys
 import discord
 from discord.ext import commands
 from discord import app_commands
@@ -122,7 +126,89 @@ class Information(commands.Cog):
         em = discord.Embed(title="🏓 Pong!", description=f"*{ping}ms*", color=color)
         await interaction.response.send_message(embed=em)
 
-    @app_commands.command(description="View information on a member.")
+    @app_commands.command(description="View the latest Google News.")
+    async def news(self, interaction: discord.Interaction):
+        # Fetch news
+        news_url = "https://news.google.com/news/rss/?ned=us&gl=US&hl=en"
+        Client = urlopen(news_url)
+        xml_page = Client.read()
+        Client.close()
+        soup_page = BeautifulSoup(xml_page, "xml")
+        news_list = soup_page.findAll("item", limit=13)
+        # Create embed
+        em = discord.Embed()
+        for news in news_list:
+            em.add_field(
+                name="\u200b",
+                value="[{0.title.text}]({0.link.text})\n{0.pubDate.text}".format(news),
+            )
+        em.set_author(name="Google News", icon_url="https://i.imgur.com/8bgnHPW.jpg")
+        await interaction.response.send_message(embed=em)
+
+    # Move to music commands, this is hardcoding
+    # also maybe just remove this command entirely or integrate it into something else
+    # also why the fuck is this in the information cog?
+    @commands.command()
+    async def sounds(self, ctx):
+        em = discord.Embed(
+            title="``n!sound`` Sounds list",
+            description="""**1.** Doin' your mom
+**2.** Deja vu duck
+**3.** Pedron smashing keyboard
+**4.** Surprise motherfucker
+**5.** Lorengay singing
+""",
+        )
+        await ctx.send(embed=em)
+
+
+class Info(app_commands.Group):
+    @app_commands.command(description="View NerdsBot's information.")
+    async def bot(self, interaction: discord.Interaction):
+        with open("bot_launch_time.pkl", "rb") as file:
+            bot_launch_time = pickle.load(file)
+            file.close()
+        delta_uptime = discord.utils.utcnow() - bot_launch_time
+        # 1h = 3600s, therefore this equals hours
+        h, remainder = divmod(int(delta_uptime.total_seconds()), 3600)
+        # 1m = 60s, therefore this equals minutes
+        m, s = divmod(remainder, 60)
+        # 1d = 24h, therefore this equals days
+        d, h = divmod(h, 24)
+        major, minor, micro = sys.version_info[:3]
+        # Converts bytes (B) to megabytes (MB)
+        memory_usage = psutil.Process().memory_full_info().uss / 1000**2
+        cpu_usage = psutil.cpu_percent()
+        cmd = r'git show -s HEAD~3..HEAD --format="[{}](https://github.com/teolicht/nerds-bot/commit/%H) %s (%cr)"'
+        cmd = cmd.format(r"\`%h\`")
+        # cmd = cmd.format(r"`%h`")
+
+        try:
+            revision = os.popen(cmd).read().strip().split("\n")
+        except OSError:
+            revision = "Could not fetch due to memory error."
+        for commit in revision:
+            if "Merge branch" in commit:
+                revision.remove(commit)
+        em = discord.Embed(
+            description="**Latest changes:**\n" + "\n".join(revision) + "\n\u200b",
+            color=0xFF0414,
+        )
+        em.set_author(
+            name="GitHub",
+            icon_url="https://cdn.discordapp.com/attachments/477239188203503628/839336908210962442/unknown.png",
+            url="https://github.com/teolicht/nerds-bot",
+        )
+        em.add_field(name="Language", value=f"Python `{major}.{minor}.{micro}`")
+        em.add_field(name="API", value=f"discord.py `{discord.__version__}`")
+        em.add_field(
+            name="Process",
+            value=f"Memory: `{memory_usage:.2f} MB`\nCPU: `{cpu_usage}%`",
+        )
+        em.set_footer(text=f"🟢 Uptime: {d}d {h}h {m}m {s}s")
+        await interaction.response.send_message(embed=em)
+
+    @app_commands.command(description="View a member's information.")
     @app_commands.describe(user="A member in this server.")
     async def member(self, interaction: discord.Interaction, user: discord.Member):
         # Manual date formatting (old code):
@@ -155,51 +241,16 @@ class Information(commands.Cog):
         em.add_field(name=f"Roles ({len(roles)}):", value=", ".join(roles))
         em.add_field(name="Top role:", value=f"`{user.top_role.name}`")
         em.add_field(
-            name="Joined server:", value=f"{guild_join_date}\n└ {guild_join_ago}"
+            name="Joined server:", value=f"{guild_join_date}\n└ ({guild_join_ago})"
         )
         em.add_field(
             name="Joined Discord:",
-            value=f"{discord_join_date}\n└ {discord_join_ago}",
+            value=f"{discord_join_date}\n└ ({discord_join_ago})",
         )
         await interaction.response.send_message(embed=em)
 
-    @app_commands.command(description="View the latest Google News.")
-    async def news(self, interaction: discord.Interaction):
-        news_url = "https://news.google.com/news/rss/?ned=us&gl=US&hl=en"
-        Client = urlopen(news_url)
-        xml_page = Client.read()
-        Client.close()
-        soup_page = BeautifulSoup(xml_page, "xml")
-        news_list = soup_page.findAll("item", limit=13)
-
-        em = discord.Embed()
-        amount = 0
-        for news in news_list:
-            em.add_field(
-                name="\u200b",
-                value="[{0.title.text}]({0.link.text})\n{0.pubDate.text}".format(news),
-            )
-        em.set_author(name="Google News", icon_url="https://i.imgur.com/8bgnHPW.jpg")
-        await interaction.response.send_message(embed=em)
-
-    ##### Move to music commands, this is hardcoding
-    @commands.command()
-    async def sounds(self, ctx):
-        em = discord.Embed(
-            title="``n!sound`` Sounds list",
-            description="""**1.** Doin' your mom
-**2.** Deja vu duck
-**3.** Pedron smashing keyboard
-**4.** Surprise motherfucker
-**5.** Lorengay singing
-""",
-        )
-        await ctx.send(embed=em)
-
-
-class Server(app_commands.Group):
-    @app_commands.command(description="View information on this server.")
-    async def info(self, interaction: discord.Interaction):
+    @app_commands.command(description="View this server's information.")
+    async def server(self, interaction: discord.Interaction):
         guild = interaction.guild
         # Manual date formatting (old code):
         # guild_create_date = guild.created_at.strftime("%d/%m/%Y • %H:%M")
@@ -238,7 +289,7 @@ class Server(app_commands.Group):
         text_channels_amount = len(guild.text_channels)
         voice_channels_amount = len(guild.voice_channels)
 
-        em = discord.Embed(title="Server Information")
+        em = discord.Embed(title="Server information")
         em.add_field(name="Name:", value=guild.name)
         em.add_field(name="ID:", value=f"`{guild.id}`")
         em.add_field(name="Owner:", value=f"`{guild.owner}`")
@@ -256,7 +307,7 @@ class Server(app_commands.Group):
         elif len(emojis_list) > 10:
             em.add_field(
                 name=f"Emojis ({len(guild.emojis)}):",
-                value="*Too many to display. Type* ``/server emojis`` *instead.*",
+                value="*Too many to display. Type* `/info svemojis` *instead.*",
             )
         else:
             em.add_field(
@@ -267,24 +318,30 @@ class Server(app_commands.Group):
         em.add_field(name="Verification level:", value=verificationlevel)
         em.add_field(name="Explicit content filter:", value=contentfilter)
         em.add_field(
-            name="Created:", value=f"{guild_create_date}\n└ {guild_create_ago}"
+            name="Created:", value=f"{guild_create_date}\n└ ({guild_create_ago})"
         )
         em.set_thumbnail(url=guild.icon)
         await interaction.response.send_message(embed=em)
 
     @app_commands.command(description="View a list of this server's emojis.")
-    async def emojis(self, interaction: discord.Interaction):
-        animated_emojis_list = []
+    async def svemojis(self, interaction: discord.Interaction):
+        # Create normal and animated emoji lists
         normal_emojis_list = []
+        animated_emojis_list = []
         for emoji in interaction.guild.emojis:
             if emoji.animated is True:
-                animated_emojis_list.append(f"<a:{emoji.name}:{emoji.id}>")
+                animated_emojis_list.append("<a:{0.name}:{0.id}>".format(emoji))
             else:
-                normal_emojis_list.append(f"<:{emoji.name}:{emoji.id}>")
+                normal_emojis_list.append("<:{0.name}:{0.id}>".format(emoji))
+        # Create embed
         em = discord.Embed(
-            description=f"Custom emojis **({len(normal_emojis_list)}):**\n{' '.join(normal_emojis_list)}"
-            + f"\n\u200b\n"  # Blank line as separation
-            + "Animated emojis **({len(animated_emojis_list)}):**\n{' '.join(animated_emojis_list)}",
+            description="Custom emojis **({}):**\n{}".format(
+                len(normal_emojis_list), " ".join(normal_emojis_list)
+            )
+            + "\n\u200b\n"  # Blank line for separation
+            + "Animated emojis **({}):**\n{}".format(
+                len(animated_emojis_list), " ".join(animated_emojis_list)
+            )
         )
         em.set_author(
             name=f"Server emojis ({len(interaction.guild.emojis)})",
@@ -294,5 +351,7 @@ class Server(app_commands.Group):
 
 
 async def setup(bot):
-    bot.tree.add_command(Server(name="server", description="Server commands."))
+    bot.tree.add_command(
+        Info(name="info", description="Specific information commands.")
+    )
     await bot.add_cog(Information(bot))

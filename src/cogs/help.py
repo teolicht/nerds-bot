@@ -24,8 +24,16 @@ class Help(commands.Cog):
     async def help(self, interaction: discord.Interaction, category: str = None):
         if category == "info":
             em = discord.Embed(color=0xFF0414)
-            em.add_field(name="/member", value="Get info on a member.")
-            em.add_field(name="/server", value="Get info on this server.", inline=False)
+            em.add_field(name="/info bot", value="View NerdsBot's information.")
+            em.add_field(
+                name="/info member", value="View a member's information.", inline=False
+            )
+            em.add_field(name="/info server", value="View this server's information.")
+            em.add_field(
+                name="/info svemojis",
+                value="View a list of this server's emojis.",
+                inline=False,
+            )
             em.add_field(name="/ping", value="Check my latency.")
             em.add_field(name="/info", value="Check some info about me.", inline=False)
             em.add_field(name="/news", value="Check the latest news (Google News).")
