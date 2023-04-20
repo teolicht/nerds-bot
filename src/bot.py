@@ -1,82 +1,107 @@
-import traceback
-import sys
 import random
 import asyncio
 import logging
-import os
-import psutil
+import pickle
 import discord
 from discord.ext import commands
 from cogs import settings
 
 
-description = "A personal Discord bot for friends."
+description = "A private Discord bot for friends."
+command_prefix = ("n!", "N!")
+intents = discord.Intents().all()
+
 handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="w")
 discord.utils.setup_logging(handler=handler)
-intents = discord.Intents().all()
-bot = commands.Bot(
-    description=description,
-    command_prefix=commands.when_mentioned_or("n!", "N!"),
-    intents=intents,
-)
-bot.remove_command("help")
+
+initial_extensions = [
+    "cogs.fun",
+    "cogs.handler",
+    "cogs.help",
+    "cogs.information",
+    "cogs.moderation",
+    "cogs.pictures",
+    "cogs.reddit",
+    "cogs.utilities"
+]
 
 
-@bot.event
-async def on_ready():
-    await bot.change_presence(
-        activity=discord.Activity(type=discord.ActivityType.listening, name="/help")
-    )
+class NerdsBot(commands.Bot):
 
-    try:
-        print("Logged in as")
-        print(bot.user.name)
-        print(bot.user.id)
-        print("------")
-    except Exception as e:
-        print(e)
+    def __init__(self):
+        super().__init__(
+            command_prefix=command_prefix,
+            description=description,
+            help_command=None,
+            intents=intents
+        )
 
-    global LAUNCH_TIME, NERDS_GUILD, GENERAL_CHANNEL, ZAP_CHANNEL
-    LAUNCH_TIME = discord.utils.utcnow()
-    NERDS_GUILD = bot.get_guild(settings.NERDS["GUILD"])
-    GENERAL_CHANNEL = discord.utils.get(
-        NERDS_GUILD.channels, id=settings.NERDS["GENERAL"]
-    )
-    ZAP_CHANNEL = discord.utils.get(NERDS_GUILD.channels, id=settings.NERDS["ZAP"])
+    async def setup_hook(self) -> None:
+        for extension in initial_extensions:
+            try:
+                await self.load_extension(extension)
+            except Exception as e:
+                print(f"Failed to load extension {extension}")
+
+    async def on_ready(self):
+        await self.change_presence(
+            activity=discord.Activity(type=discord.ActivityType.listening, name="/help")
+        )
+
+        try:
+            print("-" * 50)
+            print("Logged in as")
+            print("> " + self.user.name)
+            print("> ID: " + str(self.user.id))
+            print("-" * 50)
+        except Exception as e:
+            print(e)
+
+        bot_launch_time = discord.utils.utcnow()
+        with open("bot_launch_time.pkl", "wb") as file:
+            pickle.dump(bot_launch_time, file, pickle.HIGHEST_PROTOCOL)
+            file.close()
+
+        global NERDS_GUILD, GENERAL_CHANNEL, ZAP_CHANNEL
+        NERDS_GUILD = self.get_guild(settings.NERDS["GUILD"])
+        GENERAL_CHANNEL = discord.utils.get(
+            NERDS_GUILD.channels, id=settings.NERDS["GENERAL"]
+        )
+        ZAP_CHANNEL = discord.utils.get(NERDS_GUILD.channels, id=settings.NERDS["ZAP"])
+
+    async def on_message(self, message):
+        if message.guild is not None:
+            await self.process_commands(message)
+
+    async def on_member_join(self, member):
+        NRD_ROLE = discord.utils.get(NERDS_GUILD.roles, name="NRD")
+        ZAP_ROLE = discord.utils.get(NERDS_GUILD.roles, name="ZAP")
+        if member.bot is True:
+            return
+        if member.guild != NERDS_GUILD:
+            return
+        if member.id in settings.NERDS_MEMBERS:
+            await member.add_roles(NRD_ROLE)
+        else:
+            await member.add_roles(ZAP_ROLE)
+        await GENERAL_CHANNEL.send(
+            f":clown: **{member.mention} has joined the server** :white_check_mark:"
+        )
+        await ZAP_CHANNEL.send(
+            f":clown: **{member.mention} has joined the server** :white_check_mark:"
+        )
+
+    async def on_member_remove(self, member: discord.Member):
+        if member.guild == NERDS_GUILD and member.bot is False:
+            await GENERAL_CHANNEL.send(f"**{member.mention} has left the server** :x:")
+            await ZAP_CHANNEL.send(f"**{member.mention} has left the server** :x:")
+
+    async def start(self) -> None:
+        await super().start(settings.TOKEN, reconnect=True)
 
 
-@bot.event
-async def on_message(message):
-    if message.guild is not None:
-        await bot.process_commands(message)
-
-
-@bot.event
-async def on_member_join(member):
-    NRD_ROLE = discord.utils.get(NERDS_GUILD.roles, name="NRD")
-    ZAP_ROLE = discord.utils.get(NERDS_GUILD.roles, name="ZAP")
-    if member.bot is True:
-        return
-    if member.guild != NERDS_GUILD:
-        return
-    if member.id in settings.NERDS_MEMBERS:
-        await member.add_roles(NRD_ROLE)
-    else:
-        await member.add_roles(ZAP_ROLE)
-    await GENERAL_CHANNEL.send(
-        f":clown: **{member.mention} has joined the server** :white_check_mark:"
-    )
-    await ZAP_CHANNEL.send(
-        f":clown: **{member.mention} has joined the server** :white_check_mark:"
-    )
-
-
-@bot.event
-async def on_member_remove(member: discord.Member):
-    if member.guild == NERDS_GUILD and member.bot is False:
-        await GENERAL_CHANNEL.send(f"**{member.mention} has left the server** :x:")
-        await ZAP_CHANNEL.send(f"**{member.mention} has left the server** :x:")
-
+# NerdsBot instance
+bot = NerdsBot()
 
 @bot.command()
 async def sync(ctx):
@@ -85,68 +110,15 @@ async def sync(ctx):
     synced = await ctx.bot.tree.sync()
     await ctx.send(f":white_check_mark: Synced `{len(synced)}` commands")
 
-
-@bot.tree.command(description="Information about the bot.")
-async def info(interaction: discord.Interaction):
-    delta_uptime = discord.utils.utcnow() - LAUNCH_TIME
-    # 1h = 3600s, therefore this equals hours
-    h, remainder = divmod(int(delta_uptime.total_seconds()), 3600)
-    # 1m = 60s, therefore this equals minutes
-    m, s = divmod(remainder, 60)
-    # 1d = 24h, therefore this equals days
-    d, h = divmod(h, 24)
-    major, minor, micro = sys.version_info[:3]
-    # Converts bytes (B) to mebibytes (MiB)
-    memory_usage = psutil.Process().memory_full_info().uss / 1024**2
-    cpu_usage = psutil.cpu_percent()
-
-    cmd = r'git show -s HEAD~3..HEAD --format="[{}](https://github.com/teolicht/nerds-bot/commit/%H) %s (%cr)"'
-    if os.name == "posix":
-        cmd = cmd.format(r"\`%h\`")
-    else:
-        cmd = cmd.format(r"`%h`")
-
-    try:
-        revision = os.popen(cmd).read().strip().split("\n")
-    except OSError:
-        revision = "Could not fetch due to memory error."
-    for commit in revision:
-        if "Merge branch" in commit:
-            revision.remove(commit)
-    em = discord.Embed(
-        description="**Latest changes:**\n" + "\n".join(revision) + "\n\u200b",
-        color=0xFF0414,
-    )
-    em.set_author(
-        name="GitHub",
-        icon_url="https://cdn.discordapp.com/attachments/477239188203503628/839336908210962442/unknown.png",
-        url="https://github.com/teolicht/nerds-bot",
-    )
-    em.add_field(name="Language", value=f"Python {major}.{minor}.{micro}")
-    em.add_field(name="API", value="discord.py {}".format(discord.__version__))
-    em.add_field(
-        name="Process", value=f"Memory: {memory_usage:.2f} MiB\nCPU: {cpu_usage}%"
-    )
-    em.set_footer(text=f"✅ Uptime: {d}d {h}h {m}m {s}s")
-    await interaction.response.send_message(embed=em)
-
-
+# This command shall be rewritten and moved to utilities cog
 @bot.command()
 async def poll(
-    ctx,
-    question,
-    duration: int,
-    option1,
-    option2,
-    option3=None,
-    option4=None,
-    option5=None,
-    option6=None,
-    option7=None,
-    option8=None,
-    option9=None,
-    option10=None,
+    # fmt: off
+    ctx, question, duration: int, option1, option2,
+    option3=None, option4=None, option5=None, option6=None,
+    option7=None, option8=None, option9=None, option10=None,
 ):
+    # fmt: on
     await ctx.message.delete()
     initial_options = [
         option1,
@@ -179,7 +151,8 @@ async def poll(
     for x, option in enumerate(options):
         description += "\n{} {}\n\u200b".format(reactions[x], option)
     em = discord.Embed(title=question, description="".join(description))
-    em.set_author(name=f"{ctx.author.name}'s poll", icon_url=ctx.author.display_avatar)
+    em.set_author(name=f"{ctx.author.name}'s poll",
+                    icon_url=ctx.author.display_avatar)
     react_msg = await ctx.send(embed=em)
 
     for reaction in reactions[: len(options)]:
@@ -190,7 +163,8 @@ async def poll(
             second = "seconds"
         else:
             second = "second"
-        em.set_footer(text="This poll will end in {} {}.".format(duration, second))
+        em.set_footer(
+            text="This poll will end in {} {}.".format(duration, second))
         await react_msg.edit(embed=em)
 
         await asyncio.sleep(1)
@@ -200,7 +174,8 @@ async def poll(
 
     onesV, twosV, threesV, foursV, fivesV = [], [], [], [], []
     sixsV, sevensV, eightsV, ninesV, tensV = [], [], [], [], []
-    numbers = [ones, twos, threes, fours, fives, sixs, sevens, eights, nines, tens]
+    numbers = [ones, twos, threes, fours, fives,
+                sixs, sevens, eights, nines, tens]
     voters = [
         onesV,
         twosV,
@@ -275,13 +250,16 @@ async def poll(
     if winner_option:
         em = discord.Embed(
             title=question,
-            description="__Result__{}\n:star: {}".format("".join(total), winner_option),
+            description="__Result__{}\n:star: {}".format(
+                "".join(total), winner_option),
         )
     else:
         em = discord.Embed(
-            title=question, description="__Result__{}".format("".join(total))
+            title=question, description="__Result__{}".format(
+                "".join(total))
         )
-    em.set_author(name=f"{ctx.author.name}'s poll", icon_url=ctx.author.display_avatar)
+    em.set_author(name=f"{ctx.author.name}'s poll",
+                    icon_url=ctx.author.display_avatar)
     if winner_option:
         em.set_footer(text="❌ This poll has ended.")
         await react_msg.edit(embed=em)
@@ -292,7 +270,8 @@ async def poll(
 
         em = discord.Embed(
             title=question,
-            description="__Result__{}\n:star: {}".format("".join(total), tie_winner),
+            description="__Result__{}\n:star: {}".format(
+                "".join(total), tie_winner),
         )
         em.set_author(
             name=f"{ctx.author.name}'s poll", icon_url=ctx.author.display_avatar
@@ -301,15 +280,7 @@ async def poll(
         await react_msg.edit(embed=em)
 
 
-async def load(bot):
-    for filename in os.listdir("./cogs"):
-        if filename.endswith(".py") and filename != "settings.py":
-            try:
-                await bot.load_extension(f"cogs.{filename[:-3]}")
-            except Exception as e:
-                print("Failed to load extension {}:".format(filename, file=sys.stderr))
-                traceback.print_exc()
-    await bot.start(settings.TOKEN)
+# Maybe move this to a launcher file at some point?
+asyncio.run(bot.start())
 
 
-asyncio.run(load(bot))
