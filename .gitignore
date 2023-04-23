@@ -10,3 +10,5 @@ bad_words.txt
 env/
 .env
 settings.py
+bot_launch_time.pkl
+
