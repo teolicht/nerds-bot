@@ -43,7 +43,7 @@ class Reddit(app_commands.Group):
 
     @app_commands.command(description="Get a random post from the specified subreddit.")
     @app_commands.describe(name="The subreddit's name.")
-    async def get(self, interaction: discord.Interaction, name: str):
+    async def show(self, interaction: discord.Interaction, name: str):
         reddit_json = self.reddit_json("r")
         # Handlers
         if name in reddit_json["banned_subs"]:

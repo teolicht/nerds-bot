@@ -317,7 +317,7 @@ class Tags(app_commands.Group):
     @app_commands.command(description="Show a saved tag.")
     @app_commands.describe(name="The tag's name.")
     @app_commands.autocomplete(name=tag_autocomplete)
-    async def get(self, interaction: discord.Interaction, name: str):
+    async def show(self, interaction: discord.Interaction, name: str):
         # A way to put these 6 following lines into a function, since they got repeated multiple times?
         guild_id = str(interaction.guild.id)
         tags_json = self.tags_json("r")

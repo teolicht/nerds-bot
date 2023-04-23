@@ -100,8 +100,8 @@ class Help(commands.Cog):
         elif category == "reddit":
             em = discord.Embed(color=0xFF0414)
             em.add_field(
-                name="/subreddit get",
-                value="Get a random hot post from specified subreddit.",
+                name="/subreddit show",
+                value="Show a random hot post from specified subreddit.",
             )
             em.add_field(name="/subreddit ban", value="Ban a subreddit.", inline=False)
             em.add_field(
