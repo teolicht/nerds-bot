@@ -423,7 +423,7 @@ class Fun(commands.Cog):
             start_msg = f":white_check_mark: Annoyed {nick}"
             end_msg = None
         elif times > 1:
-            start_msg = f":white_check_mark: Started annoying {nick} (**{times}** times"
+            start_msg = f":white_check_mark: Started annoying {nick} (**{times}** times)"
             end_msg = (
                 f":white_check_mark: Done annoying {user.mention} • `{minutes}min`"
             )
@@ -440,7 +440,7 @@ class Fun(commands.Cog):
             if not i == times - 1:  # If not done yet
                 await asyncio.sleep(30)
         if end_msg:
-            await interaction.response.send_message(end_msg)
+            await interaction.channel.send(end_msg)
         annoyed_members.remove(user)
 
     @commands.command()
