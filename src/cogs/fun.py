@@ -2,6 +2,7 @@ import asyncio
 import random
 import threading
 import discord
+
 from discord import app_commands
 from discord.ext import commands
 
@@ -9,7 +10,6 @@ from discord.ext import commands
 annoyed_members = []
 cure_members = []
 on_cooldown = False
-transparent_color = 0x302C34
 
 
 class RPSView(discord.ui.View):
@@ -219,7 +219,6 @@ class Fun(commands.Cog):
 
         em = discord.Embed(
             description=f"{user.mention},\n{roast}",
-            color=transparent_color,
         )
         await interaction.response.send_message(embed=em)
 
@@ -231,7 +230,6 @@ class Fun(commands.Cog):
             return await interaction.response.send_message(":x: You're already dead.")
         em = discord.Embed(
             description=f":skull: {interaction.user.mention} has suicided!",
-            color=transparent_color,
         )
         # If the nick is longer than 31 characters (limit is 32), the skull cannot be added
         if len(nick) > 30:
@@ -265,7 +263,6 @@ class Fun(commands.Cog):
             )
         em = discord.Embed(
             description=f":skull: **{user.mention} has been killed by {interaction.user.mention}!** :skull_crossbones:",
-            color=transparent_color,
         )
         amongus_gifs = [
             "https://media.tenor.com/F__GSvFsf20AAAAC/among-us-kill.gif",
@@ -294,9 +291,10 @@ class Fun(commands.Cog):
         if "💀" in nick:
             new_name = nick.replace("💀", "")
             await user.edit(nick=new_name)
-            em = discord.Embed(color=transparent_color)
-            em.description = (
-                f":innocent: **Welcome back, {user.mention}.** You have been respawned!"
+            em = discord.Embed(
+                description=(
+                    f":innocent: **Welcome back, {user.mention}.** You have been respawned!"
+                )
             )
             await interaction.response.send_message(embed=em)
         else:
@@ -423,7 +421,9 @@ class Fun(commands.Cog):
             start_msg = f":white_check_mark: Annoyed {nick}"
             end_msg = None
         elif times > 1:
-            start_msg = f":white_check_mark: Started annoying {nick} (**{times}** times)"
+            start_msg = (
+                f":white_check_mark: Started annoying {nick} (**{times}** times)"
+            )
             end_msg = (
                 f":white_check_mark: Done annoying {user.mention} • `{minutes}min`"
             )
@@ -517,7 +517,6 @@ class Fun(commands.Cog):
         em = discord.Embed(
             title=f":heart: I ship {nick1} and {nick2} :heart:",
             description=f"\u200b\n:two_hearts::revolving_hearts: **{ship_name}** :revolving_hearts::two_hearts:\n\u200b",
-            color=transparent_color,
         )
         love_gifs = [
             "https://media3.giphy.com/media/3o7TKoWXm3okO1kgHC/giphy.gif",

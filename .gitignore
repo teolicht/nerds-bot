@@ -8,7 +8,6 @@ bad_words.txt
 .vscode/
 *.log
 env/
-.env
-settings.py
+config.py
 bot_launch_time.pkl
 

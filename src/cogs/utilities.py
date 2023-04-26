@@ -3,7 +3,8 @@ import random
 import json
 import threading
 import discord
-from discord.ext import commands, tasks
+
+from discord.ext import commands
 from discord import app_commands
 
 
@@ -227,11 +228,7 @@ class Utilities(commands.Cog):
             option9,
             option10,
         ]
-        options = []
-        for option in initial_options:
-            if option is not None:
-                options.append(option)
-
+        options = [option for option in initial_options if option]
         ones, twos, threes, fours, fives = 0, 0, 0, 0, 0
         sixs, sevens, eights, nines, tens = 0, 0, 0, 0, 0
 
@@ -292,18 +289,15 @@ class Utilities(commands.Cog):
                             numbers[x] += 1
                             voter.append(user.mention)
 
-        highest_num = max(numbers)
-        highest_nums = []
-        for num in numbers:
-            if num == highest_num:
-                highest_nums.append(num)
+        highest_nums = [num for num in numbers if num == max(numbers)]
         if len(highest_nums) > 1:
             winner_option = False
-            tie_options = []
             try:
-                for x, num in enumerate(numbers):
-                    if num == highest_nums[0]:
-                        tie_options.append(options[x])
+                tie_options = [
+                    options[x]
+                    for x, num in enumerate(numbers)
+                    if num == highest_nums[0]
+                ]
             except IndexError:
                 em.set_footer(text="❌ No one voted.")
                 await react_msg.edit(embed=em)
@@ -395,15 +389,14 @@ class Tags(app_commands.Group):
         tags_json = self.tags_json("r")
         if guild_id in tags_json:
             tags = tags_json[guild_id]
-            choices = []
-            for tag in tags:
-                choices.append(tag)
+            choices = [tag for tag in tags]
             return [
                 app_commands.Choice(name=choice, value=choice)
                 for choice in choices
                 if current.lower() in choice.lower()
             ]
 
+    ### test all these list comprehensions
     @app_commands.command(description="Create a new tag.")
     @app_commands.describe(name="The tag's name.")
     @app_commands.describe(content="The tag's content.")

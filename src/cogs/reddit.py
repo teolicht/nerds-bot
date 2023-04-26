@@ -4,8 +4,10 @@ import threading
 import asyncpraw
 import asyncprawcore
 import discord
+
 from discord import app_commands
-from cogs.settings import REDDIT, EMOJIS
+
+from cogs.config import REDDIT
 
 
 class Reddit(app_commands.Group):
@@ -33,8 +35,8 @@ class Reddit(app_commands.Group):
         self.subreddit_ban_cooldown.pop(subreddit)
 
     async def fetch_post(self, subreddit_name: str):
-        submissions = []
         self.subreddit = await self.reddit.subreddit(subreddit_name)
+        submissions = []
         async for submission in self.subreddit.hot(limit=50):
             submissions.append(submission)
         if submissions == []:

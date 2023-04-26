@@ -3,11 +3,13 @@ import psutil
 import os
 import sys
 import discord
+
 from discord.ext import commands
 from discord import app_commands
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
-from cogs.settings import EMOJIS
+
+from cogs.config import EMOJIS
 
 
 # Manual date formatting (old code):
@@ -37,14 +39,6 @@ def get_statusemoji(user: discord.User):
         return EMOJIS["IDLE"]
     if user.status in [discord.Status.dnd, discord.Status.do_not_disturb]:
         return EMOJIS["DND"]
-
-
-def get_roles(user: discord.User):
-    """Return a user's list of roles (their names)"""
-    user_roles = []
-    for role in user.roles:
-        user_roles.append(f"`{role.name}`")
-    return user_roles
 
 
 def get_statusemoji_guild(guild: discord.Guild):
@@ -211,7 +205,7 @@ class Info(app_commands.Group):
     @app_commands.command(description="View a member's information.")
     @app_commands.describe(user="A member in this server.")
     async def member(self, interaction: discord.Interaction, user: discord.Member):
-        # Manual date formatting (old code):
+        ## Manual date formatting (old code):
         # guild_join_date = user.joined_at.strftime("%d/%m/%Y • %H:%M")
         # guild_join_ago = delta_time(user.joined_at)
         # discord_join_date = user.created_at.strftime("%d/%m/%Y • %H:%M")
@@ -225,8 +219,10 @@ class Info(app_commands.Group):
         if user.bot:
             status = EMOJIS["BOT"]
         else:
-            status = get_statusemoji(user)
-        roles = get_roles(user)
+            # Have to get status this way, simply using user.status is glitched
+            # it returns always 'offline' even if the user actually is online
+            status = get_statusemoji(interaction.guild.get_member(user.id))
+        roles = [f"`{role.name}`" for role in user.roles]
         avatar = user.display_avatar
 
         em = discord.Embed(
@@ -257,11 +253,7 @@ class Info(app_commands.Group):
         # guild_create_ago = delta_time(guild.created_at)
         guild_create_date = discord.utils.format_dt(guild.created_at)
         guild_create_ago = discord.utils.format_dt(guild.created_at, style="R")
-
-        emojis_list = []
-        for emoji in guild.emojis:
-            emojis_list.append(f"<:{emoji.name}:{emoji.id}>")
-
+        emojis_list = [f"<:{emoji.name}:{emoji.id}>" for emoji in guild.emojis]
         (
             on_users,
             off_users,
@@ -282,10 +274,7 @@ class Info(app_commands.Group):
         else:
             afk_channel = None
 
-        roles = []
-        for role in guild.roles:
-            roles.append(f"`{role.name}`")
-
+        roles = [f"`{role.name}`" for role in guild.roles]
         text_channels_amount = len(guild.text_channels)
         voice_channels_amount = len(guild.voice_channels)
 
@@ -326,10 +315,9 @@ class Info(app_commands.Group):
     @app_commands.command(description="View a list of this server's emojis.")
     async def svemojis(self, interaction: discord.Interaction):
         # Create normal and animated emoji lists
-        normal_emojis_list = []
-        animated_emojis_list = []
+        normal_emojis_list, animated_emojis_list = [], []
         for emoji in interaction.guild.emojis:
-            if emoji.animated is True:
+            if emoji.animated:
                 animated_emojis_list.append("<a:{0.name}:{0.id}>".format(emoji))
             else:
                 normal_emojis_list.append("<:{0.name}:{0.id}>".format(emoji))

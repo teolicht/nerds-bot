@@ -1,10 +1,11 @@
-import random
 import asyncio
 import logging
 import pickle
 import discord
+
 from discord.ext import commands
-from cogs import settings
+
+from cogs import config
 
 
 description = "A private Discord bot for friends."
@@ -62,11 +63,11 @@ class NerdsBot(commands.Bot):
             file.close()
 
         global NERDS_GUILD, GENERAL_CHANNEL, ZAP_CHANNEL
-        NERDS_GUILD = self.get_guild(settings.NERDS["GUILD"])
+        NERDS_GUILD = self.get_guild(config.NERDS["GUILD"])
         GENERAL_CHANNEL = discord.utils.get(
-            NERDS_GUILD.channels, id=settings.NERDS["GENERAL"]
+            NERDS_GUILD.channels, id=config.NERDS["GENERAL"]
         )
-        ZAP_CHANNEL = discord.utils.get(NERDS_GUILD.channels, id=settings.NERDS["ZAP"])
+        ZAP_CHANNEL = discord.utils.get(NERDS_GUILD.channels, id=config.NERDS["ZAP"])
 
     async def on_message(self, message):
         if message.guild is not None:
@@ -79,7 +80,7 @@ class NerdsBot(commands.Bot):
             return
         if member.guild != NERDS_GUILD:
             return
-        if member.id in settings.NERDS_MEMBERS:
+        if member.id in config.NERDS_MEMBERS:
             await member.add_roles(NRD_ROLE)
         else:
             await member.add_roles(ZAP_ROLE)
@@ -96,7 +97,7 @@ class NerdsBot(commands.Bot):
             await ZAP_CHANNEL.send(f"**{member.mention} has left the server** :x:")
 
     async def start(self) -> None:
-        await super().start(settings.TOKEN, reconnect=True)
+        await super().start(config.TOKEN, reconnect=True)
 
 
 # NerdsBot instance
@@ -105,8 +106,8 @@ bot = NerdsBot()
 
 @bot.command()
 async def sync(ctx):
-    if ctx.author.id != settings.NERDS_MEMBERS[0]:
-        return ctx.send(":x: You cannot use this command.")
+    if ctx.author.id != config.NERDS_MEMBERS[0]:
+        return
     synced = await ctx.bot.tree.sync()
     await ctx.send(f":white_check_mark: Synced `{len(synced)}` commands")
 
