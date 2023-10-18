@@ -26,5 +26,5 @@ soupsieve==2.4
 tomli==2.0.1
 typing_extensions==4.5.0
 update-checker==0.18.0
-urllib3==1.26.15
+urllib3==1.26.18
 yarl==1.8.2
