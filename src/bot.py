@@ -2,11 +2,8 @@ import asyncio
 import logging
 import pickle
 import discord
-
 from discord.ext import commands
-
 from cogs import config
-
 
 description = "A private Discord bot for friends."
 command_prefix = ("n!", "N!")
@@ -26,7 +23,6 @@ initial_extensions = [
     "cogs.utilities",
 ]
 
-
 class NerdsBot(commands.Bot):
     def __init__(self):
         super().__init__(
@@ -41,13 +37,12 @@ class NerdsBot(commands.Bot):
             try:
                 await self.load_extension(extension)
             except Exception as e:
-                print(f"Failed to load extension {extension}")
+                print(f"Failed to load extension {extension}:\n{e}")
 
     async def on_ready(self):
         await self.change_presence(
             activity=discord.Activity(type=discord.ActivityType.listening, name="/help")
         )
-
         try:
             print("-" * 50)
             print("Logged in as")

@@ -1,7 +1,0 @@
-{
-    "python.pythonPath": "/Users/Teolicht/Library/miniconda3/bin/pythonw",
-    "files.exclude": {
-        "": true
-    },
-    "git.enabled": true
-}

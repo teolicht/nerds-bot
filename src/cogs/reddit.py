@@ -144,7 +144,8 @@ class Reddit(app_commands.Group):
     async def banlist(self, interaction: discord.Interaction):
         subs_json = self.reddit_json("r")
         subs_list = subs_json["banned_subs"]
-        # Rewrite this command
+        
+        # Idea: use pagination to separate this list into different pages
         try:
             blank_line = "\u200b" * 22
             subs_print = [f"{blank_line}\n"]
