@@ -2,6 +2,7 @@ import asyncio
 import logging
 import pickle
 import discord
+from typing import cast
 from discord.ext import commands
 from cogs import config
 
@@ -31,6 +32,10 @@ class NerdsBot(commands.Bot):
             help_command=None,
             intents=intents,
         )
+        self.nerds_guild: discord.Guild
+        self.general_channel: discord.TextChannel
+        self.zap_channel: discord.TextChannel
+
 
     async def setup_hook(self) -> None:
         for extension in initial_extensions:
@@ -57,41 +62,38 @@ class NerdsBot(commands.Bot):
             pickle.dump(bot_launch_time, file, pickle.HIGHEST_PROTOCOL)
             file.close()
 
-        global NERDS_GUILD, GENERAL_CHANNEL, ZAP_CHANNEL
-        NERDS_GUILD = self.get_guild(config.NERDS["GUILD"])
-        GENERAL_CHANNEL = discord.utils.get(
-            NERDS_GUILD.channels, id=config.NERDS["GENERAL"]
-        )
-        ZAP_CHANNEL = discord.utils.get(NERDS_GUILD.channels, id=config.NERDS["ZAP"])
+        self.nerds_guild = cast(discord.Guild, self.get_guild(config.NERDS["GUILD"]))
+        self.general_channel = cast(discord.TextChannel, discord.utils.get(self.nerds_guild.channels, id=config.NERDS["GENERAL"]))
+        self.zap_channel = cast(discord.TextChannel, discord.utils.get(self.nerds_guild.channels, id=config.NERDS["ZAP"]))
 
     async def on_message(self, message):
         if message.guild is not None:
             await self.process_commands(message)
 
     async def on_member_join(self, member):
-        NRD_ROLE = discord.utils.get(NERDS_GUILD.roles, name="NRD")
-        ZAP_ROLE = discord.utils.get(NERDS_GUILD.roles, name="ZAP")
+        nrd_role = cast(discord.Role, discord.utils.get(self.nerds_guild.roles, name="NRD"))
+        zap_role = cast(discord.Role, discord.utils.get(self.nerds_guild.roles, name="ZAP"))
         if member.bot is True:
             return
-        if member.guild != NERDS_GUILD:
+        if member.guild != self.nerds_guild:
             return
         if member.id in config.NERDS_MEMBERS:
-            await member.add_roles(NRD_ROLE)
+            await member.add_roles(nrd_role)
         else:
-            await member.add_roles(ZAP_ROLE)
-        await GENERAL_CHANNEL.send(
+            await member.add_roles(zap_role)
+        await self.general_channel.send(
             f":clown: **{member.mention} has joined the server** :white_check_mark:"
         )
-        await ZAP_CHANNEL.send(
+        await self.zap_channel.send(
             f":clown: **{member.mention} has joined the server** :white_check_mark:"
         )
 
     async def on_member_remove(self, member: discord.Member):
-        if member.guild == NERDS_GUILD and member.bot is False:
-            await GENERAL_CHANNEL.send(f"**{member.mention} has left the server** :x:")
-            await ZAP_CHANNEL.send(f"**{member.mention} has left the server** :x:")
+        if member.guild == self.nerds_guild and member.bot is False:
+            await self.general_channel.send(f"**{member.mention} has left the server** :x:")
+            await self.zap_channel.send(f"**{member.mention} has left the server** :x:")
 
-    async def start(self) -> None:
+    async def run_bot(self) -> None:
         await super().start(config.TOKEN, reconnect=True)
 
 
@@ -108,4 +110,4 @@ async def sync(ctx):
 
 
 # Maybe move this to a launcher file at some point?
-asyncio.run(bot.start())
+asyncio.run(bot.run_bot())
