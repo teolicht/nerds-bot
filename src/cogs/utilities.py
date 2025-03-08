@@ -8,7 +8,7 @@ from discord.ext import commands
 from discord import app_commands
 
 
-delete_cooldown = {}
+delete_cooldown: dict[str, int] = {}
 
 
 class Timer(discord.ui.View):
@@ -77,7 +77,7 @@ class Utilities(commands.Cog):
             )
             timer.start()
 
-        msgs_to_delete = []
+        msgs_to_delete: list[discord.Message] = []
         async for msg in interaction.channel.history(limit=amount):
             msgs_to_delete.append(msg)
         await interaction.response.send_message(
@@ -161,7 +161,7 @@ class Utilities(commands.Cog):
     ):
         if minimum > maximum:
             return await interaction.response.send_message(
-                f":x: Your first number must be smaller than your second number.",
+                ":x: Your first number must be smaller than your second number.",
                 ephemeral=True,
             )
         number = random.randint(minimum, maximum)
@@ -415,7 +415,7 @@ class Tags(app_commands.Group):
         else:
             tags_json[guild_id] = {}
             tags_json[guild_id][name] = content
-        self.tags_json("w", new_content=tags_json)
+        self.tags_json("w", new_content=tags_json) 
         await interaction.response.send_message(
             f":white_check_mark: Tag `{name}` created successfully."
         )
