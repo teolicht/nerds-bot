@@ -1,6 +1,7 @@
 import random
 import json
 import threading
+import asyncio
 import asyncpraw
 import asyncprawcore
 import discord
@@ -18,6 +19,7 @@ class Reddit(app_commands.Group):
         user_agent=REDDIT["USERNAME"],
         username=REDDIT["USERNAME"],
     )
+
     subreddit_ban_cooldown = {}
 
     def reddit_json(self, mode, new_content=None):
@@ -34,15 +36,24 @@ class Reddit(app_commands.Group):
     def ban_done(self, subreddit):
         self.subreddit_ban_cooldown.pop(subreddit)
 
-    async def fetch_post(self, subreddit_name: str):
-        self.subreddit = await self.reddit.subreddit(subreddit_name)
+    submissions_cooldown: list[asyncpraw.models.Submission] = []
+    async def cooldown_submission(self, submission, delay):
+        self.submissions_cooldown.append(submission)
+        await asyncio.sleep(delay)
+        self.submissions_cooldown.remove(submission)
+
+    async def fetch_submission(self, subreddit_name: str):
+        subreddit = await self.reddit.subreddit(subreddit_name)
         submissions = []
-        async for submission in self.subreddit.hot(limit=50):
-            if not submission.stickied:
+        async for submission in subreddit.hot(limit=50):
+            if not submission.stickied and submission not in self.submissions_cooldown:
                 submissions.append(submission)
         if submissions == []:
             return None
-        return random.choice(submissions)
+
+        submission = random.choice(submissions)
+        asyncio.create_task(self.cooldown_submission(submission, 600))
+        return submission 
 
     @app_commands.command(description="Get a random post from the specified subreddit.")
     @app_commands.describe(name="The subreddit's name.")
@@ -54,7 +65,7 @@ class Reddit(app_commands.Group):
                 ":x: That subreddit is banned."
             )
         try:
-            post = await self.fetch_post(name.lower())
+            submission = await self.fetch_submission(name.lower())
         except (
             asyncprawcore.exceptions.NotFound,
             asyncprawcore.exceptions.Redirect,
@@ -67,30 +78,35 @@ class Reddit(app_commands.Group):
             return await interaction.response.send_message(
                 ":x: That subreddit is private."
             )
-        if post is None:
-            return await interaction.response.send_message(
-                ":x: That subreddit is empty."
-            )
+        if submission is None:
+            # All the posts may be on cooldown
+            if len(self.submissions_cooldown) > 0:
+                message = ":x: I can't find any more posts from that subreddit at this time."
+            else:
+                message = ":x: That subreddit is empty."
+            return await interaction.response.send_message(message)
         # Deferring is needed because this command can take over 3 seconds to complete
         # over 3 seconds before interaction response results in interaction failed message
         await interaction.response.defer()
         # Create bot embed message
-        post_url = "https://www.reddit.com" + post.permalink
-        post_link = None
-        em = discord.Embed(title=post.title, url=post_url)
-        em.set_author(name=post.subreddit_name_prefixed)
-        em.set_footer(text="u/{0.author.name} • {0.ups} upvotes • {0.num_comments} comments".format(post))
-        if post.over_18:
+        submission_url = "https://www.reddit.com" + submission.permalink
+        submission_link = None
+        em = discord.Embed(title=submission.title, url=submission_url)
+        em.set_author(name=submission.subreddit_name_prefixed)
+        em.set_footer(text="u/{0.author.name} • {0.ups} upvotes • {0.num_comments} comments".format(submission))
+        if submission.over_18:
             em.set_thumbnail(
                 url="https://cdn.discordapp.com/attachments/477239188203503628/1098250769884512266/nsfw_icon.png"
             )
         description = ""
-        if post.selftext:
-            description += post.selftext
-        if post.url.endswith(("jpg", "png", "gif", "jpeg")):
-            em.set_image(url=post.url)
-        elif "v.redd.it" in post.url:
-            description += f"\n:cinema: ***[Video link]({post.url})***" 
+        if submission.selftext:
+            description += submission.selftext
+        if submission.url.endswith(("jpg", "png", "gif", "jpeg")):
+            em.set_image(url=submission.url)
+        elif "gallery" in submission.url:
+            description += "\n:frame_photo: *This post contains a gallery, and I can't show galleries* :pensive:"
+        elif "v.redd.it" in submission.url:
+            description += f"\n:cinema: ***[Video link]({submission.url})***" 
             ## The four lines below can be used to extract the video link from the submission's JSON.
             ## This is unfortunately the only way a video posted to Reddit's host (v.redd.it) can be accessed directly.
             ## I gave up on using this because 1) the video extracted doesn't have any sound
@@ -100,9 +116,9 @@ class Reddit(app_commands.Group):
             # media_dict = post_dict[0]["data"]["children"][0]["data"]["media"]
             # post_video_link = media_dict["reddit_video"]["fallback_url"].strip("?source=fallback")
         else:
-            post_link = post.url
+            submission_link = submission.url
         em.description = description
-        await interaction.edit_original_response(content=post_link, embed=em)
+        await interaction.edit_original_response(content=submission_link, embed=em)
 
     @app_commands.command(description="Ban a subreddit.")
     @app_commands.describe(name="The subreddit's name.")
