@@ -6,6 +6,7 @@ import asyncpraw
 import asyncprawcore
 import discord
 
+from datetime import datetime
 from discord import app_commands
 
 from cogs.config import REDDIT
@@ -20,7 +21,7 @@ class Reddit(app_commands.Group):
         username=REDDIT["USERNAME"],
     )
 
-    subreddit_ban_cooldown = {}
+    subreddit_ban_cooldown: dict[str, datetime] = {}
 
     def reddit_json(self, mode, new_content=None):
         if mode == "r":
@@ -170,10 +171,9 @@ class Reddit(app_commands.Group):
             subs_print = [f"{blank_line}\n"]
             for x, sub in enumerate(subs_list):
                 subs_print.append(f"**{x + 1}.** {sub}\n")
-            subs_print = "".join(subs_print)
             em = discord.Embed(
                 title=f"Banned subreddits ({len(subs_list)})",
-                description=subs_print,
+                description="".join(subs_print),
             )
             await interaction.response.send_message(embed=em)
         # If message is too long
@@ -185,18 +185,16 @@ class Reddit(app_commands.Group):
             subs_print_1 = [f"{blank_line}\n"]
             for x, sub in enumerate(subs_list[:half_list]):
                 subs_print_1.append(f"**{x + 1}.** {sub}\n")
-            subs_print_1 = "".join(subs_print_1)
             # Second half of the list
             subs_print_2 = [f"{blank_line}\n"]
             for x, sub in enumerate(subs_list[half_list:]):
                 subs_print_2.append(f"**{x + 1}.** {sub}\n")
-            subs_print_2 = "".join(subs_print_2)
 
             em_1 = discord.Embed(
                 title=f"Banned subreddits ({len(subs_list)})",
-                description=subs_print_1,
+                description="".join(subs_print_1),
             )
-            em_2 = discord.Embed(description=subs_print_2)
+            em_2 = discord.Embed(description="".join(subs_print_2))
             await interaction.response.send_message(embed=em_1)
             await interaction.channel.send(embed=em_2)
 
