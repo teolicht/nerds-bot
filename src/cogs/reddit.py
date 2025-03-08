@@ -38,7 +38,8 @@ class Reddit(app_commands.Group):
         self.subreddit = await self.reddit.subreddit(subreddit_name)
         submissions = []
         async for submission in self.subreddit.hot(limit=50):
-            submissions.append(submission)
+            if not submission.stickied:
+                submissions.append(submission)
         if submissions == []:
             return None
         return random.choice(submissions)
@@ -78,17 +79,18 @@ class Reddit(app_commands.Group):
         post_link = None
         em = discord.Embed(title=post.title, url=post_url)
         em.set_author(name=post.subreddit_name_prefixed)
-        em.set_footer(text="u/{0.author.name} • {0.ups} upvotes".format(post))
+        em.set_footer(text="u/{0.author.name} • {0.ups} upvotes • {0.num_comments} comments".format(post))
         if post.over_18:
             em.set_thumbnail(
                 url="https://cdn.discordapp.com/attachments/477239188203503628/1098250769884512266/nsfw_icon.png"
             )
+        description = ""
         if post.selftext:
-            em.description = post.selftext
-        elif post.url.endswith(("jpg", "png", "gif")):
+            description += post.selftext
+        if post.url.endswith(("jpg", "png", "gif", "jpeg")):
             em.set_image(url=post.url)
         elif "v.redd.it" in post.url:
-            em.description = f":cinema: ***[Video link]({post.url})***"
+            description += f"\n:cinema: ***[Video link]({post.url})***" 
             ## The four lines below can be used to extract the video link from the submission's JSON.
             ## This is unfortunately the only way a video posted to Reddit's host (v.redd.it) can be accessed directly.
             ## I gave up on using this because 1) the video extracted doesn't have any sound
@@ -99,6 +101,7 @@ class Reddit(app_commands.Group):
             # post_video_link = media_dict["reddit_video"]["fallback_url"].strip("?source=fallback")
         else:
             post_link = post.url
+        em.description = description
         await interaction.edit_original_response(content=post_link, embed=em)
 
     @app_commands.command(description="Ban a subreddit.")
