@@ -74,15 +74,9 @@ def get_verificationlevel(guild: discord.Guild):
         return "Low"
     elif guild.verification_level == discord.VerificationLevel.medium:
         return "Medium"
-    elif guild.verification_level in [
-        discord.VerificationLevel.high,
-        discord.VerificationLevel.table_flip,
-    ]:
+    elif guild.verification_level == discord.VerificationLevel.high:
         return "High"
-    elif guild.verification_level in [
-        discord.VerificationLevel.extreme,
-        discord.VerificationLevel.double_table_flip,
-    ]:
+    elif guild.verification_level == discord.VerificationLevel.highest:
         return "Extreme"
     else:
         return "None"
@@ -127,8 +121,8 @@ class Information(commands.Cog):
         Client = urlopen(news_url)
         xml_page = Client.read()
         Client.close()
-        soup_page = BeautifulSoup(xml_page, "xml")
-        news_list = soup_page.findAll("item", limit=13)
+        soup_page = BeautifulSoup(xml_page, features="xml")
+        news_list = soup_page.find_all("item", limit=10)
         # Create embed
         em = discord.Embed()
         for news in news_list:
@@ -136,7 +130,7 @@ class Information(commands.Cog):
                 name="\u200b",
                 value="[{0.title.text}]({0.link.text})\n{0.pubDate.text}".format(news),
             )
-        em.set_author(name="Google News", icon_url="https://i.imgur.com/8bgnHPW.jpg")
+        em.set_author(name="Google News", icon_url="https://img.icons8.com/color/512/google-logo.png")
         await interaction.response.send_message(embed=em)
 
     # Move to music commands, this is hardcoding
