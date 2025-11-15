@@ -3,12 +3,20 @@ import random
 import json
 import threading
 import discord
+import sqlite3
+from typing import Tuple, List, Any
+import os
 
 from discord.ext import commands
 from discord import app_commands
+from datetime import datetime
 
 
 delete_cooldown: dict[str, int] = {}
+
+DB_PATH = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "nerds_bot.db")
+)
 
 
 class Timer(discord.ui.View):
@@ -374,129 +382,172 @@ class Utilities(commands.Cog):
 
 
 class Tags(app_commands.Group):
-    def tags_json(self, mode, new_content=None):
-        if mode == "r":
-            with open("cogs/text/tags.json", "r") as file:
-                tags_json = json.load(file)
-                file.close()
-                return tags_json
-        else:
-            with open("cogs/text/tags.json", "w") as file:
-                json.dump(new_content, file, indent=4)
-                file.close()
+    # handle errors when calling the function
+    """
+    Takes a SQL query as a string and parameters for the query,
+    executes the query, and returns the rows of the query result as a list.
+    """
+    def sql_read(self, string, params: Tuple[Any, ...] = ()) -> List:
+        with sqlite3.connect(DB_PATH) as conn:
+            c = conn.cursor()
+            c.execute(string, params)
+            return c.fetchall()
 
+    """
+    Takes a SQL query as string and the parameters for the query,
+    executes the query, and returns the number of rows affected as int.
+    """
+    def sql_write(self, string, params: Tuple[Any, ...] = ()) -> int:
+        with sqlite3.connect(DB_PATH) as conn:
+            c = conn.cursor()
+            c.execute(string, params)
+            conn.commit()
+            return c.rowcount
+
+    """
+    Autocomplete functionality when user is typing command.
+    """
     async def tag_autocomplete(
         self, interaction: discord.Interaction, current: str
     ) -> list[app_commands.Choice[str]]:
-        guild_id = str(interaction.guild.id)
-        tags_json = self.tags_json("r")
-        if guild_id in tags_json:
-            tags = tags_json[guild_id]
-            choices = [tag for tag in tags]
-            return [
-                app_commands.Choice(name=choice, value=choice)
-                for choice in choices
-                if current.lower() in choice.lower()
-            ]
+        guild_id = interaction.guild.id # type: ignore
+        tags = self.sql_read("SELECT name FROM tags WHERE guild_id = ?", (guild_id,))
+        tag_names = [tag[0] for tag in tags] # flatten list of tuples into list of strings
+        return [
+            app_commands.Choice(name=tag_name, value=tag_name)
+            for tag_name in tag_names
+            if current.lower() in tag_name.lower()
+        ]
 
-    ### test all these list comprehensions
     @app_commands.command(description="Create a new tag.")
     @app_commands.describe(name="The tag's name.")
     @app_commands.describe(content="The tag's content.")
     async def create(self, interaction: discord.Interaction, name: str, content: str):
-        guild_id = str(interaction.guild.id)
-        tags_json = self.tags_json("r")
-        if guild_id in tags_json:
-            if name in tags_json[guild_id]:
-                return await interaction.response.send_message(
+        now = datetime.today().isoformat()
+        guild_id = interaction.guild.id # type: ignore
+        user_id = interaction.user.id
+        try:
+            self.sql_write("""
+                INSERT INTO tags (
+                    guild_id,
+                    name,
+                    content,
+                    author_id,
+                    created_at,
+                    last_edited
+                ) VALUES (?, ?, ?, ?, ?, ?)
+            """, (guild_id, name, content, user_id, now, now))
+            await interaction.response.send_message(
+                f":white_check_mark: Tag `{name}` created successfully."
+            )
+        except Exception as e:
+            if type(e) is sqlite3.IntegrityError:
+                await interaction.response.send_message(
                     ":x: A tag with that name already exists.", ephemeral=True
                 )
-            tags_json[guild_id][name] = content
-        else:
-            tags_json[guild_id] = {}
-            tags_json[guild_id][name] = content
-        self.tags_json("w", new_content=tags_json) 
-        await interaction.response.send_message(
-            f":white_check_mark: Tag `{name}` created successfully."
-        )
+            else:
+                print(e)
+                # TODO: handle other errors...?
 
     @app_commands.command(description="Delete a saved tag.")
     @app_commands.describe(name="The tag's name.")
     @app_commands.autocomplete(name=tag_autocomplete)
     async def delete(self, interaction: discord.Interaction, name: str):
-        guild_id = str(interaction.guild.id)
-        tags_json = self.tags_json("r")
-        if guild_id not in tags_json:
+        guild_id = interaction.guild.id # type: ignore
+        user_id = interaction.user.id # type: ignore
+        author_id = self.sql_read(
+            "SELECT author_id FROM tags WHERE name = ? AND guild_id = ?",
+            (name, guild_id)
+        )[0][0] # because fetchall() returns [(author_id,)]
+        if author_id != user_id:
             return await interaction.response.send_message(
-                ":x: This server doesn't have any saved tags.", ephemeral=True
+                ":x: You cannot delete another user's tag.", ephemeral=True
             )
-        if name not in tags_json[guild_id]:
+        row_count = self.sql_write(
+            "DELETE FROM tags WHERE name = ? AND guild_id = ?",
+            (name, guild_id)
+        )
+        if row_count == 0:
             return await interaction.response.send_message(
                 ":x: That tag doesn't exist.", ephemeral=True
             )
-        tags_json[guild_id].pop(name)
-        self.tags_json("w", new_content=tags_json)
         await interaction.response.send_message(
-            f":white_check_mark: Deleted tag `{name}`"
+            f":white_check_mark: Deleted tag *{name}*."
         )
+            
 
     @app_commands.command(description="Edit a saved tag.")
     @app_commands.describe(name="The tag's name.")
     @app_commands.describe(content="The tag's new content. Replaces the old.")
     @app_commands.autocomplete(name=tag_autocomplete)
     async def edit(self, interaction: discord.Interaction, name: str, content: str):
-        guild_id = str(interaction.guild.id)
-        tags_json = self.tags_json("r")
-        if guild_id not in tags_json:
+        now = datetime.today().isoformat()
+        guild_id = interaction.guild.id # type: ignore
+        user_id = interaction.user.id # type: ignore
+        author_id = self.sql_read(
+            "SELECT author_id FROM tags WHERE name = ? AND guild_id = ?",
+            (name, guild_id)
+        )[0][0] # because fetchall() returns [(author_id),]
+        if author_id != user_id:
             return await interaction.response.send_message(
-                ":x: This server doesn't have any saved tags.", ephemeral=True
+                ":x: You cannot edit another user's tag.", ephemeral=True
             )
-        if name not in tags_json[guild_id]:
+        rowcount = self.sql_write(
+            "UPDATE tags SET content = ?, last_edited = ? WHERE name = ? AND guild_id = ?",
+            (content, now, name, guild_id)
+        )
+        if rowcount == 0:
             return await interaction.response.send_message(
                 ":x: That tag doesn't exist.", ephemeral=True
             )
-        tags_json[guild_id][name] = content
-        self.tags_json("w", new_content=tags_json)
         await interaction.response.send_message(
-            f":white_check_mark: Tag `{name}` edited successfully."
+            f":white_check_mark: Tag *{name}* edited successfully."
         )
+
 
     @app_commands.command(description="List of saved tags.")
     async def list(self, interaction: discord.Interaction):
-        guild_id = str(interaction.guild.id)
-        tags_json = self.tags_json("r")
-        if guild_id not in tags_json:
-            return await interaction.response.send_message(
-                ":x: This server doesn't have any saved tags.", ephemeral=True
-            )
-        tag_list = ""
-        for x, tag in enumerate(tags_json[guild_id]):
-            tag_list += f"**{x + 1}.** {tag}\n"
-        if tag_list == "":
+        guild_id = interaction.guild.id # type: ignore
+        tags = self.sql_read(
+            "SELECT name FROM tags WHERE guild_id = ?", 
+            (guild_id,)
+        ) 
+        tags_string = ""
+        for x, tag in enumerate(tags):
+            tags_string += f"**{x+1}.** {tag[0]}\n"
+        if tags_string == "":
             em = discord.Embed(description="*This server has no saved tags.*")
         else:
             em = discord.Embed(
-                title=f"Saved tags ({len(tags_json[guild_id])})", description=tag_list
+                title=f"Saved tags ({len(tags)})", description=tags_string
             )
-        em.set_author(name=interaction.guild.name, icon_url=interaction.guild.icon)
+        em.set_author(
+            name=interaction.guild.name, # type: ignore
+            icon_url=interaction.guild.icon # type: ignore
+        ) 
         await interaction.response.send_message(embed=em)
 
     @app_commands.command(description="Show a saved tag.")
     @app_commands.describe(name="The tag's name.")
     @app_commands.autocomplete(name=tag_autocomplete)
     async def show(self, interaction: discord.Interaction, name: str):
-        # A way to put these 6 following lines into a function, since they got repeated multiple times?
-        guild_id = str(interaction.guild.id)
-        tags_json = self.tags_json("r")
-        if guild_id not in tags_json:
-            return await interaction.response.send_message(
-                ":x: This server doesn't have any saved tags.", ephemeral=True
-            )
-        if name not in tags_json[guild_id]:
+        guild_id = interaction.guild.id # type: ignore
+        tag = self.sql_read(
+            "SELECT content, author_id, last_edited FROM tags WHERE name = ? AND guild_id = ?",
+            (name, guild_id)
+        )
+        if not tag:
             return await interaction.response.send_message(
                 ":x: That tag doesn't exist.", ephemeral=True
             )
-        await interaction.response.send_message(tags_json[guild_id][name])
+        content, author_id, last_edited = tag[0]
+        # last_edited = datetime.strftime(datetime.fromisoformat(last_edited), "%d/%m/%Y %H:%M")
+        last_edited = discord.utils.format_dt(datetime.fromisoformat(last_edited))
+        em = discord.Embed(description=f"⠀\n{content}\n⠀")
+        author = interaction.guild.get_member(author_id) # type: ignore
+        em.set_author(name=name)
+        em.set_footer(text=f"Last edited by: {author.display_name} on {last_edited}") # type: ignore
+        await interaction.response.send_message(embed=em)
 
 
 async def setup(bot):
