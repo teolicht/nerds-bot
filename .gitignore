@@ -2,7 +2,6 @@
 __pycache__/
 pics_links.txt
 bannedsubs.txt
-bad_words.txt
 *.swp
 *.json
 .vscode/
@@ -11,4 +10,5 @@ bad_words.txt
 .python-version
 config.py
 bot_launch_time.pkl
+*.db
 
