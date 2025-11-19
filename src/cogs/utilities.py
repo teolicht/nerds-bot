@@ -533,21 +533,21 @@ class Tags(app_commands.Group):
     async def show(self, interaction: discord.Interaction, name: str):
         guild_id = interaction.guild.id # type: ignore
         tag = self.sql_read(
-            "SELECT content, author_id, last_edited FROM tags WHERE name = ? AND guild_id = ?",
+            "SELECT content FROM tags WHERE name = ? AND guild_id = ?",
             (name, guild_id)
         )
         if not tag:
             return await interaction.response.send_message(
                 ":x: That tag doesn't exist.", ephemeral=True
             )
-        content, author_id, last_edited = tag[0]
+        content = tag[0][0]
+        # --- Commented out because might use in a `/tag info` command ---
         # last_edited = datetime.strftime(datetime.fromisoformat(last_edited), "%d/%m/%Y %H:%M")
-        last_edited = discord.utils.format_dt(datetime.fromisoformat(last_edited))
-        em = discord.Embed(description=f"⠀\n{content}\n⠀")
-        author = interaction.guild.get_member(author_id) # type: ignore
-        em.set_author(name=name)
-        em.set_footer(text=f"Last edited by: {author.display_name} on {last_edited}") # type: ignore
-        await interaction.response.send_message(embed=em)
+        # em = discord.Embed(description=f"⠀\n{content}\n⠀")
+        # author = interaction.guild.get_member(author_id) # type: ignore
+        # em.set_author(name=name)
+        # em.set_footer(text=f"Last edited by: {author.display_name} on {last_edited}") # type: ignore
+        await interaction.response.send_message(content)
 
 
 async def setup(bot):
