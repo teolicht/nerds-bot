@@ -1,5 +1,6 @@
+import os
 import random
-import json
+import sqlite3
 import threading
 import asyncio
 import asyncpraw
@@ -8,9 +9,13 @@ import discord
 
 from datetime import datetime
 from discord import app_commands
+from typing import Tuple, List, Any
 
 from cogs.config import REDDIT
 
+DB_PATH = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "nerds_bot.db")
+)
 
 class Reddit(app_commands.Group):
     reddit = asyncpraw.Reddit(
@@ -23,21 +28,54 @@ class Reddit(app_commands.Group):
 
     subreddit_ban_cooldown: dict[str, datetime] = {}
 
-    def reddit_json(self, mode, new_content=None):
-        if mode == "r":
-            with open("cogs/text/reddit.json", "r") as file:
-                subs_json = json.load(file)
-                file.close()
-                return subs_json
-        else:
-            with open("cogs/text/reddit.json", "w") as file:
-                json.dump(new_content, file, indent=4)
-                file.close()
+    """
+    Takes a SQL query as a string and parameters for the query,
+    executes the query, and returns the rows of the query result as a list.
+    """
+    def sql_read(self, string, params: Tuple[Any, ...] = ()) -> List:
+        with sqlite3.connect(DB_PATH) as conn:
+            c = conn.cursor()
+            c.execute(string, params)
+            return c.fetchall()
+
+    """
+    Takes a SQL query as string and the parameters for the query,
+    executes the query, and returns the number of rows affected as int.
+    """
+    def sql_write(self, string, params: Tuple[Any, ...] = ()) -> int:
+        with sqlite3.connect(DB_PATH) as conn:
+            c = conn.cursor()
+            c.execute(string, params)
+            conn.commit()
+            return c.rowcount
+
+    """
+    Autocomplete functionality when user is typing command.
+    """
+    # TODO: show the 25 most recently banned subreddits when user hasn't typed anything yet 
+    # (discord limit is 25), and could be cool to try to implement some fzf funcitonality here
+    async def banlist_autocomplete(
+        self, interaction: discord.Interaction, current: str
+    ) -> list[app_commands.Choice[str]]:
+        guild_id = interaction.guild.id # type: ignore
+        raw_banned_subs = self.sql_read(
+            "SELECT name FROM banned_subreddits WHERE guild_id = ?",
+            (guild_id,)
+        )
+        banned_subs = [sub[0] for sub in raw_banned_subs] # flatten list of tuples into list of strings
+        current_clean = current.lower().removeprefix("r/")
+        choices = [
+            app_commands.Choice(name=f"r/{name}", value=name) # show r/ in choices but return clena name as value
+            for name in banned_subs
+            if current_clean in name.lower()
+        ]
+        # Discord only accepts up to 25 autocomplete choices
+        return choices[:25]
 
     def ban_done(self, subreddit):
         self.subreddit_ban_cooldown.pop(subreddit)
 
-    submissions_cooldown: list[asyncpraw.models.Submission] = []
+    submissions_cooldown: list[asyncpraw.models.Submission] = [] # type: ignore
     async def cooldown_submission(self, submission, delay):
         self.submissions_cooldown.append(submission)
         await asyncio.sleep(delay)
@@ -59,9 +97,15 @@ class Reddit(app_commands.Group):
     @app_commands.command(description="Get a random post from the specified subreddit.")
     @app_commands.describe(name="The subreddit's name.")
     async def show(self, interaction: discord.Interaction, name: str):
-        reddit_json = self.reddit_json("r")
+        name = name.lower()
+        guild_id = interaction.guild.id # type: ignore
+        banned_subs = self.sql_read(
+            "SELECT name FROM banned_subreddits WHERE guild_id = ?",
+            (guild_id,)
+        )
+        banned_sub_names = [sub[0] for sub in banned_subs] # flatten list of tuples into list of strings
         # Handlers
-        if name in reddit_json["banned_subs"]:
+        if name in banned_sub_names:
             return await interaction.response.send_message(
                 ":x: That subreddit is banned."
             )
@@ -119,79 +163,119 @@ class Reddit(app_commands.Group):
         else:
             submission_link = submission.url
         em.description = description
-        await interaction.edit_original_response(content=submission_link, embed=em)
+        await interaction.edit_original_response(
+            content=submission_link, embed=em
+        )
 
     @app_commands.command(description="Ban a subreddit.")
     @app_commands.describe(name="The subreddit's name.")
     async def ban(self, interaction: discord.Interaction, name: str):
-        subreddit = name.lower()
-        subs_json = self.reddit_json("r")
-        if subreddit in subs_json["banned_subs"]:
-            return await interaction.response.send_message(
-                ":x: That subreddit is already banned."
+        name = name.lower().removeprefix("r/")
+        print(name)
+        guild_id = interaction.guild.id # type: ignore
+        now = discord.utils.utcnow().isoformat()
+        private = False
+        try:
+            await interaction.response.defer()
+            # Test if the subreddit actually exists
+            await self.fetch_submission(name)
+        except (asyncprawcore.exceptions.NotFound, 
+                asyncprawcore.exceptions.Redirect):
+            return await interaction.edit_original_response(
+                content=":x: I wasn't able to find that subreddit."
             )
-        subs_json["banned_subs"].append(subreddit)
-        self.reddit_json("w", new_content=subs_json)
-        self.subreddit_ban_cooldown[subreddit] = discord.utils.utcnow()
-        timer = threading.Timer(600.0, self.ban_done, args=[subreddit])
-        timer.start()
-        await interaction.response.send_message(f":white_check_mark: Banned `r/{name}`")
+        except asyncprawcore.exceptions.Forbidden:
+            # Still ban the subreddit even if it's private
+            private = True
+            pass
+        except Exception as e:
+            return await interaction.edit_original_response(
+                content=f":x: The following error occured:\n`{type(e).__name__}: {e}`"
+            )
+        try:
+            self.sql_write("""
+                INSERT INTO banned_subreddits (
+                    guild_id,
+                    name,
+                    banned_at
+                ) VALUES (?, ?, ?)
+            """, (guild_id, name, now))
+            if private:
+                await interaction.edit_original_response(content=
+                    f":white_check_mark: Banned `r/{name}` (private subreddit)"
+                )
+            else:
+                await interaction.edit_original_response(content=
+                    f":white_check_mark: Banned `r/{name}`"
+                )
+            self.subreddit_ban_cooldown[name] = discord.utils.utcnow()
+            timer = threading.Timer(600.0, self.ban_done, args=[name])
+            timer.start()
+        except sqlite3.IntegrityError:
+            await interaction.edit_original_response(
+                content=":x: That subreddit is already banned."
+            )
 
     @app_commands.command(description="Unban a subreddit.")
     @app_commands.describe(name="The subreddit's name.")
+    @app_commands.autocomplete(name=banlist_autocomplete)
     async def unban(self, interaction: discord.Interaction, name: str):
-        subreddit = name.lower()
-        subs_json = self.reddit_json("r")
-        if subreddit not in subs_json["banned_subs"]:
-            return await interaction.response.send_message(
-                ":x: That subreddit isn't even banned."
-            )
-        if subreddit in self.subreddit_ban_cooldown:
-            delta_time = discord.utils.utcnow() - self.subreddit_ban_cooldown[subreddit]
+        name = name.lower()
+        guild_id = interaction.guild.id # type: ignore
+        if name in self.subreddit_ban_cooldown:
+            delta_time = discord.utils.utcnow() - self.subreddit_ban_cooldown[name]
             remaining_ban_seconds = 600 - delta_time.seconds
             m, s = divmod(remaining_ban_seconds, 60)
             time_format = "%02dm%02ds" % (m, s)
             return await interaction.response.send_message(
                 f":x: Please wait `{time_format}` before unbanning that subreddit."
             )
-        subs_json["banned_subs"].remove(subreddit)
-        self.reddit_json("w", new_content=subs_json)
+        rowcount = self.sql_write(
+            "DELETE FROM banned_subreddits WHERE name = ? AND guild_id = ?",
+            (name, guild_id)
+        )
+        if rowcount == 0:
+            return await interaction.response.send_message(
+                ":x: That subreddit isn't even banned."
+            )
         await interaction.response.send_message(
             f":white_check_mark: Unbanned `r/{name}`"
         )
 
     @app_commands.command(description="List of banned subreddits.")
     async def banlist(self, interaction: discord.Interaction):
-        subs_json = self.reddit_json("r")
-        subs_list = subs_json["banned_subs"]
-        
-        # Idea: use pagination to separate this list into different pages
+        guild_id = interaction.guild.id # type: ignore
+        raw_banlist = self.sql_read(
+            "SELECT name FROM banned_subreddits WHERE guild_id = ?",
+            (guild_id,)
+        )
+        # Flatten list of tuples to list of strings
+        banlist = [sub[0] for sub in raw_banlist]
+        # TODO: use pagination to separate this list into different pages (right now max is embeds)
         try:
-            blank_line = "\u200b" * 22
-            subs_print = [f"{blank_line}\n"]
-            for x, sub in enumerate(subs_list):
-                subs_print.append(f"**{x + 1}.** {sub}\n")
+            subs_print = []
+            for x, sub in enumerate(banlist):
+                subs_print.append(f"**{x + 1}.** r/{sub}\n")
             em = discord.Embed(
-                title=f"Banned subreddits ({len(subs_list)})",
+                title=f"Banned subreddits ({len(banlist)})",
                 description="".join(subs_print),
             )
             await interaction.response.send_message(embed=em)
         # If message is too long
         except discord.errors.HTTPException:
-            ####### This only separates the list in 2. Hardcoding. What if more than two is needed?
-            half_list = len(subs_list) / 2
+            half_list = len(banlist) / 2
             half_list = int(round(half_list, 0))
             # First half of the list
-            subs_print_1 = [f"{blank_line}\n"]
-            for x, sub in enumerate(subs_list[:half_list]):
+            subs_print_1 = []
+            for x, sub in enumerate(banlist[:half_list]):
                 subs_print_1.append(f"**{x + 1}.** {sub}\n")
             # Second half of the list
-            subs_print_2 = [f"{blank_line}\n"]
-            for x, sub in enumerate(subs_list[half_list:]):
+            subs_print_2 = []
+            for x, sub in enumerate(banlist[half_list:]):
                 subs_print_2.append(f"**{x + 1}.** {sub}\n")
 
             em_1 = discord.Embed(
-                title=f"Banned subreddits ({len(subs_list)})",
+                title=f"Banned subreddits ({len(banlist)})",
                 description="".join(subs_print_1),
             )
             em_2 = discord.Embed(description="".join(subs_print_2))
