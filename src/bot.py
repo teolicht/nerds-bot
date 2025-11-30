@@ -67,8 +67,13 @@ class NerdsBot(commands.Bot):
         self.zap_channel = cast(discord.TextChannel, discord.utils.get(self.nerds_guild.channels, id=config.NERDS["ZAP"]))
 
     async def on_message(self, message):
-        if message.guild is not None:
-            await self.process_commands(message)
+        if message.guild is None:
+            return
+        await self.process_commands(message)
+        if "tenor" in message.content and "superman" in message.content:
+            await message.delete()
+        await message.channel.send("nao quero ver superman voando com a lingua pra fora")
+            
 
     async def on_member_join(self, member):
         nrd_role = cast(discord.Role, discord.utils.get(self.nerds_guild.roles, name="NRD"))
