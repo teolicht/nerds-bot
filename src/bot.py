@@ -72,7 +72,7 @@ class NerdsBot(commands.Bot):
         await self.process_commands(message)
         if "tenor" in message.content and "superman" in message.content:
             await message.delete()
-        await message.channel.send("nao quero ver superman voando com a lingua pra fora")
+            await message.channel.send("nao quero ver superman voando com a lingua pra fora")
             
 
     async def on_member_join(self, member):
