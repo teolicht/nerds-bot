@@ -86,10 +86,12 @@ class NerdsBot(commands.Bot):
         for word in message.content.split():
             if word.startswith("http"):
                 url = word
-        if "tenor" in url and "superman" in url:
+        if "tenor" in url and "superman" and "tongue" in url:
             await message.delete()
-            await message.channel.send("nao quero ver superman voando com a lingua pra fora")
-        elif "giphy.gif" in url:
+            await message.channel.send(
+                ":smiling_imp: nao quero ver superman voando com a lingua pra fora"
+            )
+        elif "gif" in url:
             async with aiohttp.ClientSession() as session:
                 async with session.get(url) as resp:
                     data = await resp.read()
@@ -99,7 +101,7 @@ class NerdsBot(commands.Bot):
             if message_phash - SUPERMAN_GIF_PHASH <= 6:
                 await message.delete()
                 return await message.channel.send(
-                    ":smiling_imp::smiling_imp: nao quero ver superman voando com a lingua pra fora"
+                    ":smiling_imp: nao quero ver superman voando com a lingua pra fora"
                 )
 
     async def on_member_join(self, member):
