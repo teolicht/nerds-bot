@@ -11,6 +11,7 @@ from datetime import datetime
 import io
 import aiohttp
 from PIL import Image
+import PIL
 import imagehash
 
 description = "A private Discord bot for friends."
@@ -21,6 +22,7 @@ handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="w"
 discord.utils.setup_logging(handler=handler)
 
 SUPERMAN_GIF_PHASH = imagehash.phash(Image.open("superman.gif"))
+SUPERMAN_INV_GIF_PHASH = imagehash.phash(Image.open("superman_inverted.gif"))
 
 initial_extensions = [
     "cogs.fun",
@@ -82,27 +84,45 @@ class NerdsBot(commands.Bot):
         await self.process_commands(message)
         # Detect the url in the message. Still not perfect, e.g. if someone for some weird
         # reason writes "http" in one word and then the actual link in another word
+        print(f"author: {message.author}, message.content: {message.content}")
+        superman_detected = False
         url = ""
         for word in message.content.split():
             if word.startswith("http"):
                 url = word
+        print(message.attachments)
+        if message.attachments:
+            url = message.attachments[0].url
         if "tenor" in url and "superman" and "tongue" in url:
+            superman_detected = True
+        elif "gif" in url:
+            print("'gif' in url detected")
+            try:
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(url) as resp:
+                        data = await resp.read()
+                img = Image.open(io.BytesIO(data))
+                img.seek(0)
+                message_phash = imagehash.phash(img)
+                if message_phash - SUPERMAN_GIF_PHASH <= 6:
+                    superman_detected = True
+                elif message_phash - SUPERMAN_INV_GIF_PHASH <= 6:
+                    superman_detected = True
+                print(message_phash)
+            except PIL.UnidentifiedImageError:
+                # Send the text to chat, copy the link, then check, then delete everything
+                # msg = await message.channel.send(url)
+                # await asyncio.sleep(0.5)
+                # fetch_msg = await message.channel.fetch_message(msg.id)
+                # print(f"--- bot message content: {fetch_msg.content} ---")
+                # print(f"--- bot message embed: {fetch_msg.embeds[0].image.url} ---")
+                print("i wasn't able to fetch the image :(")
+        if superman_detected:
             await message.delete()
-            await message.channel.send(
+            return await message.channel.send(
                 ":smiling_imp: nao quero ver superman voando com a lingua pra fora"
             )
-        elif "gif" in url:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url) as resp:
-                    data = await resp.read()
-            img = Image.open(io.BytesIO(data))
-            img.seek(0)
-            message_phash = imagehash.phash(img)
-            if message_phash - SUPERMAN_GIF_PHASH <= 6:
-                await message.delete()
-                return await message.channel.send(
-                    ":smiling_imp: nao quero ver superman voando com a lingua pra fora"
-                )
+        print("---------")
 
     async def on_member_join(self, member):
         nrd_role = cast(discord.Role, discord.utils.get(self.nerds_guild.roles, name="NRD"))
